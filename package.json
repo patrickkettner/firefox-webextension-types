@@ -1,0 +1,83 @@
+{
+  "name": "firefox-webextension-types",
+  "version": "0.1.0",
+  "description": "Strictly-typed TypeScript definitions for Firefox WebExtensions, generated directly from Mozilla central schemas with zero unvetted any",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "desktop": [
+        "dist/firefox-desktop.d.ts"
+      ],
+      "mobile": [
+        "dist/firefox-mobile.d.ts"
+      ],
+      "global": [
+        "dist/global.d.ts"
+      ],
+      "chrome": [
+        "dist/chrome.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE-MPL-2.0",
+    "LICENSE-CHROMIUM",
+    "NOTICE"
+  ],
+  "scripts": {
+    "build": "node src/generate.js",
+    "verify": "node verification/bin/verify.js && node scripts/verify-parity.js",
+    "test": "node --test test/*.test.js verification/test/*.test.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/patrickkettner/firefox-webextension-types.git"
+  },
+  "keywords": [
+    "firefox",
+    "webextensions",
+    "typescript",
+    "types"
+  ],
+  "license": "Apache-2.0 AND MPL-2.0 AND BSD-3-Clause",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./desktop": {
+      "types": "./dist/firefox-desktop.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./mobile": {
+      "types": "./dist/firefox-mobile.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./global": {
+      "types": "./dist/global.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./chrome": {
+      "types": "./dist/chrome.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    }
+  }
+}

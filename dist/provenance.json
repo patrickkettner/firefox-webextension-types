@@ -1,0 +1,23 @@
+{
+  "firefoxCommit": "c73b1b824216697b16d31c1d6fb57625d90f342c",
+  "lastSchemaModifyingCommit": "2787d18cda7d1623a80d15d192e3f34952d6c5e2",
+  "schemaTreeSha256": "f8395286673c89bc8b17429ecd6ebd53b4b8f33a2f61afc36a26d59becff71c8",
+  "generatorVersion": "0.2.0",
+  "artifacts": {
+    "index.d.ts": {
+      "sha256": "8647ff7d1c8e0fca0b1c01e32bbac8e2a8f7ff4996b4d18a185603d8e0d1465e"
+    },
+    "firefox-desktop.d.ts": {
+      "sha256": "8647ff7d1c8e0fca0b1c01e32bbac8e2a8f7ff4996b4d18a185603d8e0d1465e"
+    },
+    "firefox-mobile.d.ts": {
+      "sha256": "b7d4450356d9aa0cea81cb0a87b07b879560649c01f16282a08c188b476e8c70"
+    },
+    "global.d.ts": {
+      "sha256": "92044f72382e1115af5bbfe7d4287425b589cbf7482126a35bb01aa62379a5c6"
+    },
+    "chrome.d.ts": {
+      "sha256": "54352d11d64e6e9054d705fe76ab24bfba27470a5bf7971ae7f3d15f714cb582"
+    }
+  }
+}

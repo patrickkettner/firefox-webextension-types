@@ -1,0 +1,24 @@
+firefox-webextension-types
+Copyright 2026 Patrick Kettner
+
+Licensed under the Apache License, Version 2.0. A copy is in the LICENSE file.
+
+The declaration files under dist/ are generated from the WebExtension schema
+files in the Firefox source tree:
+
+  toolkit/components/extensions/schemas
+  browser/components/extensions/schemas
+  mobile/shared/components/extensions/schemas
+
+Their documentation comments and API shapes are derived from those files, which
+are subject to the terms of the Mozilla Public License, v. 2.0. A copy is in
+the LICENSE-MPL-2.0 file and at https://mozilla.org/MPL/2.0/.
+
+Parts of those schemas originated from Chromium:
+
+  Copyright (c) 2012 The Chromium Authors. All rights reserved.
+  Use of this source code is governed by a BSD-style license that can be
+  found in the LICENSE-CHROMIUM file.
+
+You are not granted rights or licenses to the trademarks of the Mozilla
+Foundation or any party, including without limitation the Firefox name or logo.
