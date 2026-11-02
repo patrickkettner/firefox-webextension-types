@@ -147,6 +147,10 @@ async function testRejectedUsage() {
     // @ts-expect-error the manifest warns about an unknown key and a misspelled one stays an error
     const typo: browser.manifest.WebExtensionManifest = { manifest_version: 3, name: "x", version: "1", nmae: "y" };
 
+    // @ts-expect-error runtime.lastError is null outside a callback
+    browser.runtime.lastError.message;
+    browser.runtime.lastError?.message;
+
     // @ts-expect-error webRequest listeners cannot return a number
     browser.webRequest.onBeforeRequest.addListener(() => 1, { urls: ["<all_urls>"] });
 }

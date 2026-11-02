@@ -60,6 +60,11 @@
       "note": "Port.error is null unless the port closed because of an error, the test reads error.message in onDisconnect without a check",
       "example": "toolkit/components/extensions/test/mochitest/test_ext_extension_iframe_messaging.html:59"
     },
+    "TS18047 <expr>.lastError is possibly 'null'. @ runtime": {
+      "reason": "stricter-declaration",
+      "note": "runtime.lastError is null whenever no error is pending (ExtensionCommon.sys.mjs BaseContext.withLastError resets it), and the test reads message inside the callback of a call it made fail, which the declaration cannot tell from any other read",
+      "example": "browser/components/extensions/test/browser/browser_ext_menus_errors.js:50"
+    },
     "TS18048 <expr> is possibly 'undefined'. @ result-of:alarms.get": {
       "reason": "stricter-declaration",
       "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",

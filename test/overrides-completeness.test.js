@@ -17,6 +17,7 @@ const emptyMod = () => ({
   NULL_RESULTS: new Set(),
   REQUIRED_RESULTS: new Set(),
   OPTIONAL_RESULT_UNDEFINED: new Set(),
+  NULL_PROPERTIES: new Set(),
   PLATFORM_TYPES: {},
   REF_TYPES: {},
   EVENT_LISTENER_PROMISES: {},
@@ -29,7 +30,7 @@ const emptyMod = () => ({
   EXCLUDED_NAMESPACES: { test: "toolkit/components/extensions/child/ext-test.js" },
 });
 
-const universe = ({ functions = [], events = [], types = [] } = {}) => ({
+const universe = ({ functions = [], events = [], types = [], properties = [] } = {}) => ({
   excluded: ["test"],
   namespaces: new Map([
     [
@@ -38,7 +39,7 @@ const universe = ({ functions = [], events = [], types = [] } = {}) => ({
         functions: new Map(functions.map((f) => [f.name, f])),
         events: new Map(events.map((e) => [e.name, e])),
         types: new Map(types.map((t) => [t.id, t])),
-        properties: new Map(),
+        properties: new Map(properties.map((p) => [p.name, p])),
       },
     ],
   ]),
@@ -212,5 +213,19 @@ describe("overrides completeness against the Firefox checkout", { skip: !firefox
     const failures = checkCompleteness(mod, schemaFacts(load()));
     assert.equal(failures.length, 1);
     assert.match(failures[0], /async function tabs\.reload/);
+  });
+});
+
+// Firefox: ExtensionCommon.sys.mjs (BaseContext.lastError returns null when no error is pending)
+describe("NULL_PROPERTIES against synthetic schemas", () => {
+  it("fails an entry whose property the schema no longer has", () => {
+    const mod = { ...emptyMod(), NULL_PROPERTIES: new Set(["ns.lastError"]) };
+    const [failure] = failuresFor(mod, universe());
+    assert.match(failure, /NULL_PROPERTIES ns\.lastError: not in the Firefox schemas any more/);
+  });
+
+  it("passes an entry whose property is in the schema", () => {
+    const mod = { ...emptyMod(), NULL_PROPERTIES: new Set(["ns.lastError"]) };
+    assert.deepEqual(failuresFor(mod, universe({ properties: [{ name: "lastError", type: "object" }] })), []);
   });
 });

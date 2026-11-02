@@ -13,6 +13,7 @@ import {
   EVENT_PARAMETERS,
   FUNCTION_OVERRIDES,
   MANIFEST_VERSION_RANGE,
+  NULL_PROPERTIES,
   NULL_RESULTS,
   REQUIRED_EVENT_PARAMETERS,
   REQUIRED_RESULTS,
@@ -1196,11 +1197,17 @@ export class TypeScriptEmitter {
 
     const sortedProps = Object.entries(ns.properties).sort(entryCodePointCompare);
     for (const [pName, pVal] of sortedProps) {
+      const propKey = `${nsName}.${pName}`;
+      const readsNull = NULL_PROPERTIES.has(propKey);
       out.push(
         ...this.jsdoc(
           {
             description: this.docText(pVal.description, nsName),
-            notes: [...this.manifestVersionNotes(pVal), this.memberContextNote(pVal, nsName)],
+            notes: [
+              ...this.manifestVersionNotes(pVal),
+              this.memberContextNote(pVal, nsName),
+              readsNull ? "Firefox returns `null` when no value is pending." : null,
+            ],
             deprecated: this.deprecationText(pVal, nsName, "property"),
             see: pVal._source_file ? this.getSearchfoxUrl(pVal._source_file) : null,
             permissions: pVal.permissions,
@@ -1210,7 +1217,7 @@ export class TypeScriptEmitter {
         )
       );
       const pType = this.emitType(pVal, nsName, indent);
-      out.push(`${indent}export const ${sanitizeName(pName)}: ${pType};`);
+      out.push(`${indent}export const ${sanitizeName(pName)}: ${pType}${readsNull ? " | null" : ""};`);
     }
     if (sortedProps.length) {
       out.push("");

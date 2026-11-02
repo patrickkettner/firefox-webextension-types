@@ -558,6 +558,19 @@ describe("TypeScriptEmitter", () => {
     assert.ok(!text.includes("& { focused: false }"));
   });
 
+  // Firefox: ExtensionCommon.sys.mjs (BaseContext starts _lastError at null and resets it to null after each callback), ext-runtime.js (the getter returns context.lastError)
+  it("types runtime.lastError and extension.lastError as null when no error is pending", () => {
+    const property = { type: "object", optional: true, properties: { message: { type: "string", optional: true } } };
+    const emit = (nsName, name) => {
+      const ns = new LoadedNamespace(nsName);
+      ns.properties[name] = property;
+      return emitter.generate({ [nsName]: ns }, "module", { firefoxVersion: "1" });
+    };
+    assert.match(emit("runtime", "lastError"), /export const lastError: \{[^}]*\} \| null;/);
+    assert.match(emit("extension", "lastError"), /export const lastError: \{[^}]*\} \| null;/);
+    assert.doesNotMatch(emit("runtime", "other"), /\| null;/);
+  });
+
   // Firefox: ext-contextualIdentities.js (query returns the identities array), ext-sidebarAction.js (isOpen returns a boolean)
   it("resolves the Promise from the implementation when the schema has no payload", () => {
     const fn = {

@@ -131,6 +131,7 @@ export function schemaFacts(universes) {
     functions: new Set(),
     events: new Set(),
     types: new Set(),
+    properties: new Set(),
     excluded: new Set(),
   };
   for (const universe of universes) {
@@ -143,6 +144,7 @@ export function schemaFacts(universes) {
         for (const f of type.functions || []) functions.push([type.id, f]);
         for (const e of type.events || []) events.push([type.id, e]);
       }
+      for (const name of ns.properties.keys()) facts.properties.add(`${nsName}.${name}`);
       const keyOf = (owner, member) => [nsName, owner, member.name].filter(Boolean).join(".");
       walk([...ns.types.values(), ...ns.functions.values(), ...ns.events.values(), ...ns.properties.values()], (node) => {
         if (typeof node.isInstanceOf === "string") facts.isInstanceOf.add(node.isInstanceOf);
@@ -278,6 +280,7 @@ export function checkCompleteness(mod, facts) {
     [...keys].filter((k) => !known.has(k)).map((k) => `${label} ${k}: not in the Firefox schemas any more. Firefox renamed or removed it. Update or delete the entry and its evidence.`);
   failures.push(...missingMembers("FUNCTION_OVERRIDES", Object.keys(mod.FUNCTION_OVERRIDES), facts.functions));
   failures.push(...missingMembers("TYPE_OVERRIDES", Object.keys(mod.TYPE_OVERRIDES), facts.types));
+  failures.push(...missingMembers("NULL_PROPERTIES", tableKeys(mod.NULL_PROPERTIES), facts.properties));
 
   const excludedInSrc = new Set(Object.keys(mod.EXCLUDED_NAMESPACES));
   for (const name of excludedInSrc) {

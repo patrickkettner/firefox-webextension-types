@@ -322,6 +322,12 @@ export const OPTIONAL_RESULT_UNDEFINED = new Set([
   "tabs.getCurrent",
 ]);
 
+// Namespace properties that read as null when nothing is pending. The schema
+// marks them optional and the extension.lastError description says
+// undefined, but BaseContext starts `_lastError` at null and resets it to null
+// after every callback, and both getters return it unchanged.
+export const NULL_PROPERTIES = new Set(["extension.lastError", "runtime.lastError"]);
+
 // Functions whose schema-optional callback payload is always supplied, so
 // the payload type carries no `undefined`. A rejection replaces every
 // path that would otherwise resolve nothing.
@@ -811,6 +817,12 @@ const ASYNC_NO_PAYLOAD_EVIDENCE = {
   "windows.remove": at(BR + "parent/ext-windows.js", 'windowTracker.addListener("domwindowclosed", listener); }); },'),
 };
 
+const LAST_ERROR_VALUE = [
+  at(TK + "ExtensionCommon.sys.mjs", "get lastError() { this.checkedLastError = true; return this._lastError; }"),
+  at(TK + "ExtensionCommon.sys.mjs", "this._lastError = null;"),
+  at(TK + "ExtensionCommon.sys.mjs", "} finally { if (!this.checkedLastError) {"),
+];
+
 export const EVIDENCE = {
   EXCLUDED_NAMESPACES: {
     test: at(TK + "child/ext-test.js", "if (!Cu.isInAutomation && !isXpcshell) { return { test: {} };"),
@@ -987,6 +999,10 @@ export const EVIDENCE = {
       WEB_REQUEST,
       "if (channel) { return lazy.SecurityInfo.getSecurityInfo( channel.channel, details.options ); }"
     ),
+  },
+  NULL_PROPERTIES: {
+    "extension.lastError": [at(TK + "child/ext-extension.js", "get lastError() { return context.lastError; }"), ...LAST_ERROR_VALUE],
+    "runtime.lastError": [at(TK + "child/ext-runtime.js", "get lastError() { return context.lastError; }"), ...LAST_ERROR_VALUE],
   },
   OPTIONAL_RESULT_UNDEFINED: {
     "alarms.get": at(
