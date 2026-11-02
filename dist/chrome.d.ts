@@ -1,6 +1,7 @@
 // Type definitions for Firefox WebExtensions
 // Project: firefox-webextension-types
 // Target: Desktop
+// Firefox Version: 161.0a1
 // Definitions generated strictly from Mozilla Firefox source schemas.
 //
 // The generator that produced this file is licensed under the Apache License,
@@ -65,7 +66,6 @@ export namespace chrome {
     export import tabGroups = browser.tabGroups;
     export import tabs = browser.tabs;
     export import telemetry = browser.telemetry;
-    export import test = browser.test;
     export import theme = browser.theme;
     export import topSites = browser.topSites;
     export import trial = browser.trial;

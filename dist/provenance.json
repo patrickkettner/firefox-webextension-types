@@ -1,23 +1,45 @@
 {
+  "firefoxVersion": "161.0a1",
   "firefoxCommit": "141096d7cd9e6f6118d94d79ea0c1777839efe9e",
   "lastSchemaModifyingCommit": "fe05cbb428a2749d483945cceb605c219c72b9bb",
   "schemaTreeSha256": "6102d01fc085143295bf81c9e7044f358f8d2c71b1007509927c20b7a7dae687",
   "generatorVersion": "0.2.0",
   "artifacts": {
     "index.d.ts": {
-      "sha256": "a7629e3cab735c7f9a8e6821462013689e6a847bc7ca4a31f06f475c57cc1f6b"
+      "sha256": "d96b7c155d2237f92538239018a14d7986a619be73571f2624b967d70387125e"
+    },
+    "index.d.cts": {
+      "sha256": "d96b7c155d2237f92538239018a14d7986a619be73571f2624b967d70387125e"
     },
     "firefox-desktop.d.ts": {
-      "sha256": "a7629e3cab735c7f9a8e6821462013689e6a847bc7ca4a31f06f475c57cc1f6b"
+      "sha256": "d96b7c155d2237f92538239018a14d7986a619be73571f2624b967d70387125e"
+    },
+    "firefox-desktop.d.cts": {
+      "sha256": "d96b7c155d2237f92538239018a14d7986a619be73571f2624b967d70387125e"
     },
     "firefox-mobile.d.ts": {
-      "sha256": "c6a5c15a5c3fbf25fd442f41c08bfb49f8d456d45cb8f550d547eeec01cdf9e7"
+      "sha256": "793f43f43b7d3954683effe9b4cbf95f8bdb201d7c206cd1b7c8804bd196d808"
     },
-    "global.d.ts": {
-      "sha256": "92044f72382e1115af5bbfe7d4287425b589cbf7482126a35bb01aa62379a5c6"
+    "firefox-mobile.d.cts": {
+      "sha256": "793f43f43b7d3954683effe9b4cbf95f8bdb201d7c206cd1b7c8804bd196d808"
     },
     "chrome.d.ts": {
-      "sha256": "e1023d9db13866940a10e212ff0267d4929f3a8c72c40085cc4305e85aef6983"
+      "sha256": "07a2b84fb76a94c6398acf1dd7f2ba677880a098788afad5eaeb72366775d06d"
+    },
+    "chrome.d.cts": {
+      "sha256": "3b8449b4befd6ae5bd6a8ade94f27885d450aaa924465f3d9fcbbb6d449ad8e2"
+    },
+    "global.d.ts": {
+      "sha256": "1dc19158f672b8a3736cac7abebaeb315354ba994e519a4c9ecd34128288b242"
+    },
+    "global-chrome.d.ts": {
+      "sha256": "eb23a2285dadc34ff390e530cc4e029547a889648c3dc9e30018b6205c53a943"
+    },
+    "global-mobile.d.ts": {
+      "sha256": "9d6b07f725c821aba9c4cb8e840f3b7359fe1ca4cfd8d0b5036856ec250f5413"
+    },
+    "global-mobile-chrome.d.ts": {
+      "sha256": "0def882684ac0c247a98164c9a5ae214605fed69fbbf2562dc697d0ca1255804"
     }
   }
 }
