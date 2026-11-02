@@ -1,0 +1,1659 @@
+{
+  "families": {
+    "TS18046 <expr> is of type 'unknown'. @ result-of:runtime.connect": {
+      "reason": "test-typing",
+      "note": "the test declares the variable as null at file scope or reads a catch clause value, so TypeScript does not know the type",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_dnr_tabIds.html:120"
+    },
+    "TS18047 <expr> is possibly 'null'. @ result-of:cookies.get": {
+      "reason": "stricter-declaration",
+      "note": "the payload is null when nothing matches or the call fails (NULL_RESULTS in src/overrides.js), the test does not check for null",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_cookies.html:242"
+    },
+    "TS18047 <expr> is possibly 'null'. @ result-of:cookies.getAll": {
+      "reason": "test-typing",
+      "note": "test_ext_cookies_expirationDate.js reuses one variable for the results of cookies.set and cookies.getAll",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_cookies_expirationDate.js:83"
+    },
+    "TS18047 <expr> is possibly 'null'. @ result-of:cookies.remove": {
+      "reason": "stricter-declaration",
+      "note": "the payload is null when nothing matches or the call fails (NULL_RESULTS in src/overrides.js), the test does not check for null",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_cookies_partitionKey.js:696"
+    },
+    "TS18047 <expr> is possibly 'null'. @ result-of:cookies.set": {
+      "reason": "stricter-declaration",
+      "note": "the payload is null when nothing matches or the call fails (NULL_RESULTS in src/overrides.js), the test does not check for null",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_cookies.html:232"
+    },
+    "TS18047 <expr> is possibly 'null'. @ result-of:extension.getBackgroundPage": {
+      "reason": "stricter-declaration",
+      "note": "the payload is null when nothing matches or the call fails (NULL_RESULTS in src/overrides.js), the test does not check for null",
+      "example": "browser/components/extensions/test/browser/browser_ext_incognito_views.js:217"
+    },
+    "TS18047 <expr> is possibly 'null'. @ result-of:menus.getTargetElement": {
+      "reason": "stricter-declaration",
+      "note": "menus.getTargetElement returns Element | null, the test reads tagName unchecked",
+      "example": "browser/components/extensions/test/browser/browser_ext_menus_targetElement_extension.js:23"
+    },
+    "TS18047 <expr> is possibly 'null'. @ result-of:runtime.connect": {
+      "reason": "test-typing",
+      "note": "the test declares the variable as null at file scope or reads a catch clause value, so TypeScript does not know the type",
+      "example": "mobile/android/geckoview/src/androidTest/assets/web_extensions/test-support/test-support.js:20"
+    },
+    "TS18047 <expr> is possibly 'null'. @ result-of:runtime.connectNative": {
+      "reason": "test-typing",
+      "note": "the test declares the variable as null at file scope or reads a catch clause value, so TypeScript does not know the type",
+      "example": "mobile/android/geckoview/src/androidTest/assets/web_extensions/test-support/test-support.js:16"
+    },
+    "TS18047 <expr> is possibly 'null'. @ result-of:runtime.getBackgroundPage": {
+      "reason": "stricter-declaration",
+      "note": "the payload is null when nothing matches or the call fails (NULL_RESULTS in src/overrides.js), the test does not check for null",
+      "example": "browser/components/extensions/test/browser/browser_ext_incognito_views.js:224"
+    },
+    "TS18047 <expr> is possibly 'null'. @ result-of:webNavigation.getAllFrames": {
+      "reason": "stricter-declaration",
+      "note": "the payload is null when nothing matches or the call fails (NULL_RESULTS in src/overrides.js), the test does not check for null",
+      "example": "browser/components/extensions/test/browser/browser_ext_webNavigation_getFrames.js:58"
+    },
+    "TS18047 <expr>.error is possibly 'null'. @ result-of:runtime.connect": {
+      "reason": "stricter-declaration",
+      "note": "Port.error is null unless the port closed because of an error, the test reads error.message in onDisconnect without a check",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_extension_iframe_messaging.html:59"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ result-of:alarms.get": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_alarms.js:71"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ result-of:browserAction.onClicked.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_browserAction_activeTab.js:22"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ result-of:menus.onClicked.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_menus_targetElement.js:258"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ result-of:pageAction.onClicked.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_pageAction_activeTab.js:20"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ result-of:permissions.onAdded.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_originControls.js:100"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ result-of:permissions.onRemoved.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_originControls.js:103"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ result-of:runtime.getManifest": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_commands_onChanged.js:20"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ result-of:runtime.onMessage.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_contentscript_about_blank.html:87"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ result-of:tabs.create": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_webnavigation_documentId.html:236"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ result-of:tabs.get": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_tabs_tabTracker_awaitTabReady.html:531"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ result-of:tabs.getCurrent": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_getCurrent.js:17"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ result-of:webRequest.getSecurityInfo": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_webrequest_hsts.html:70"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ result-of:webRequest.onCompleted.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_redirects.js:615"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ result-of:windows.create": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_group_splitview.js:54"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ result-of:windows.get": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "toolkit/components/extensions/test/browser/browser_ext_windows_popup_title.js:23"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ tabs.create": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_create.js:200"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ tabs.remove": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_currentWindow.js:47"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ tabs.sendMessage": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_tabs_sendMessage.html:120"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ windows.create": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_windows_create_tabId.js:343"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ windows.remove": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_windows_create.js:130"
+    },
+    "TS18048 <expr> is possibly 'undefined'. @ windows.update": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_windows_update.js:259"
+    },
+    "TS18048 <expr>.applications is possibly 'undefined'. @ result-of:runtime.getManifest": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks applications optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_contentscript.js:55"
+    },
+    "TS18048 <expr>.colors is possibly 'undefined'. @ result-of:theme.getCurrent": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks colors optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/browser/browser_ext_themes_reset.js:25"
+    },
+    "TS18048 <expr>.frameId is possibly 'undefined'. @ result-of:runtime.onConnect.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks frameId optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_runtime_connect_iframe.html:102"
+    },
+    "TS18048 <expr>.frameId is possibly 'undefined'. @ result-of:runtime.onMessage.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks frameId optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_tabs_sendMessage.html:51"
+    },
+    "TS18048 <expr>.frameUrl is possibly 'undefined'. @ result-of:menus.onShown.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks frameUrl optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_menus_targetElement.js:159"
+    },
+    "TS18048 <expr>.gecko is possibly 'undefined'. @ result-of:runtime.getManifest": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks gecko optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_contentscript.js:55"
+    },
+    "TS18048 <expr>.groupId is possibly 'undefined'. @ result-of:tabs.query": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks groupId optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_groupId.js:47"
+    },
+    "TS18048 <expr>.id is possibly 'undefined'. @ result-of:tabs.create": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks id optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_dnr_tabIds.html:43"
+    },
+    "TS18048 <expr>.id is possibly 'undefined'. @ result-of:tabs.onCreated.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks id optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_events_order.js:28"
+    },
+    "TS18048 <expr>.lastAccessed is possibly 'undefined'. @ result-of:tabs.query": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks lastAccessed optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_lastAccessed.js:29"
+    },
+    "TS18048 <expr>.mime is possibly 'undefined'. @ result-of:downloads.search": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks mime optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_downloads_cookies.js:63"
+    },
+    "TS18048 <expr>.optional_permissions is possibly 'undefined'. @ result-of:runtime.getManifest": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks optional_permissions optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_permissions_api.js:92"
+    },
+    "TS18048 <expr>.origins is possibly 'undefined'. @ result-of:permissions.getAll": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks origins optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_permissions.js:181"
+    },
+    "TS18048 <expr>.partitionKey is possibly 'undefined'. @ result-of:cookies.remove": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks partitionKey optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_cookies_partitionKey.js:740"
+    },
+    "TS18048 <expr>.partitionKey is possibly 'undefined'. @ result-of:cookies.set": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks partitionKey optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_cookies_partitionKey.js:727"
+    },
+    "TS18048 <expr>.rangeData is possibly 'undefined'. @ result-of:find.find": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks rangeData optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_find.js:96"
+    },
+    "TS18048 <expr>.raw is possibly 'undefined'. @ result-of:webRequest.onBeforeRequest.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks raw optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_contentscript_triggeringPrincipal.js:1249"
+    },
+    "TS18048 <expr>.requestBody is possibly 'undefined'. @ result-of:webRequest.onBeforeRequest.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks requestBody optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_contentscript_triggeringPrincipal.js:1249"
+    },
+    "TS18048 <expr>.requestHeaders is possibly 'undefined'. @ result-of:webRequest.onBeforeSendHeaders.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks requestHeaders optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_webRequest_host.js:34"
+    },
+    "TS18048 <expr>.responseHeaders is possibly 'undefined'. @ result-of:webRequest.onCompleted.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks responseHeaders optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_webRequest_cached.js:164"
+    },
+    "TS18048 <expr>.responseHeaders is possibly 'undefined'. @ result-of:webRequest.onHeadersReceived.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks responseHeaders optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_webRequest_cached.js:56"
+    },
+    "TS18048 <expr>.responseHeaders is possibly 'undefined'. @ result-of:webRequest.onResponseStarted.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks responseHeaders optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_webRequest_cached.js:88"
+    },
+    "TS18048 <expr>.sender is possibly 'undefined'. @ result-of:runtime.onConnect.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks sender optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_connect_and_move_tabs.js:28"
+    },
+    "TS18048 <expr>.sender is possibly 'undefined'. @ result-of:runtime.onConnectExternal.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks sender optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_external_messaging.html:34"
+    },
+    "TS18048 <expr>.sender is possibly 'undefined'. @ result-of:runtime.onUserScriptConnect.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks sender optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_userScripts_mv3_messaging.js:434"
+    },
+    "TS18048 <expr>.state is possibly 'undefined'. @ result-of:downloads.onChanged.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks state optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/mochitest/test_chrome_ext_downloads_saveAs.html:111"
+    },
+    "TS18048 <expr>.tab is possibly 'undefined'. @ result-of:runtime.onConnect.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks tab optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_port_disconnect_on_window_close.js:17"
+    },
+    "TS18048 <expr>.tab is possibly 'undefined'. @ result-of:runtime.onMessage.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks tab optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_connect_and_move_tabs.js:47"
+    },
+    "TS18048 <expr>.tab is possibly 'undefined'. @ result-of:runtime.onMessageExternal.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks tab optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_sendmessage_reply2.html:41"
+    },
+    "TS18048 <expr>.tab is possibly 'undefined'. @ result-of:sessions.restore": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks tab optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_sessions_window_tab_value.js:190"
+    },
+    "TS18048 <expr>.tabs is possibly 'undefined'. @ result-of:tabs.highlight": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks tabs optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_highlight.js:87"
+    },
+    "TS18048 <expr>.tabs is possibly 'undefined'. @ result-of:windows.create": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks tabs optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_messaging_windowId.js:48"
+    },
+    "TS18048 <expr>.tabs is possibly 'undefined'. @ result-of:windows.get": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks tabs optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_move_window.js:95"
+    },
+    "TS18048 <expr>.tabs is possibly 'undefined'. @ result-of:windows.getCurrent": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks tabs optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_windows_create_tabId.js:71"
+    },
+    "TS18048 <expr>.tabs is possibly 'undefined'. @ result-of:windows.getLastFocused": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks tabs optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_windows_create_tabId.js:353"
+    },
+    "TS18048 <expr>.title is possibly 'undefined'. @ result-of:windows.get": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks title optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_windows.js:82"
+    },
+    "TS18048 <expr>.title is possibly 'undefined'. @ result-of:windows.update": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks title optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_windows.js:91"
+    },
+    "TS18048 <expr>.url is possibly 'undefined'. @ result-of:history.onVisited.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks url optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/xpcshell/test_ext_history.js:698"
+    },
+    "TS18048 <expr>.url is possibly 'undefined'. @ result-of:runtime.onConnect.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks url optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_runtime_connect.html:18"
+    },
+    "TS18048 <expr>.url is possibly 'undefined'. @ result-of:runtime.onMessage.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks url optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_sendmessage_doublereply.html:20"
+    },
+    "TS18048 <expr>.url is possibly 'undefined'. @ result-of:runtime.onMessageExternal.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks url optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_sendmessage_reply2.html:41"
+    },
+    "TS18048 <expr>.url is possibly 'undefined'. @ result-of:tabs.onUpdated.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks url optional, the test reads it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_contextMenus_targetUrlPatterns.js:234"
+    },
+    "TS18048 <expr>.width is possibly 'undefined'. @ result-of:tabs.get": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks width optional, the test reads it without a check",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_tabs_captureTab.html:52"
+    },
+    "TS2322 Type '(number | undefined)[]' is not assignable to type 'number | number[]'. @ tabs.group": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabGroups_move.js:92"
+    },
+    "TS2322 Type 'OptionalPermissionOrOrigin[]' is not assignable to type <type>. :: Type <type> is not assignable to type <type>. @ permissions.request": {
+      "reason": "test-typing",
+      "note": "the test splits runtime.getManifest().optional_permissions into permissions and origins with a runtime filter, which TypeScript cannot narrow",
+      "example": "browser/components/extensions/test/browser/browser_ext_request_permissions.js:190"
+    },
+    "TS2322 Type 'Promise<Cookie | null> & void' is not assignable to type 'Cookie | null'. @ result-of:cookies.set": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_cookies_samesite.js:82"
+    },
+    "TS2322 Type 'Promise<number> & void' is not assignable to type 'number | undefined'. @ result-of:tabs.group": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_group_splitview.js:394"
+    },
+    "TS2322 Type 'Promise<number> & void' is not assignable to type 'number | undefined'. @ tabs.group": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_group_splitview.js:225"
+    },
+    "TS2322 Type 'Promise<number> & void' is not assignable to type 'number | undefined'. @ tabs.query": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_group_windowId.js:26"
+    },
+    "TS2322 Type 'Tab | undefined' is not assignable to type 'Tab'. @ result-of:tabs.query": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_optionsPage_privileges.js:40"
+    },
+    "TS2322 Type 'null' is not assignable to type 'string | undefined'. @ cookies.get": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_cookies_first_party.html:63"
+    },
+    "TS2322 Type 'null' is not assignable to type 'string | undefined'. @ cookies.getAll": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_cookies_first_party.html:97"
+    },
+    "TS2322 Type 'null' is not assignable to type <type>. @ browserAction.setIcon": {
+      "reason": "stricter-declaration",
+      "note": "Firefox treats null as the default for an optional property (Schemas.sys.mjs ObjectType.normalize), the declaration accepts only undefined",
+      "example": "browser/components/extensions/test/browser/browser_ext_browserAction_context.js:765"
+    },
+    "TS2322 Type 'null' is not assignable to type <type>. @ contextMenus.update": {
+      "reason": "stricter-declaration",
+      "note": "Firefox treats null as the default for an optional property (Schemas.sys.mjs ObjectType.normalize), the declaration accepts only undefined",
+      "example": "browser/components/extensions/test/browser/browser_ext_contextMenus_icons.js:378"
+    },
+    "TS2322 Type 'null' is not assignable to type <type>. @ pageAction.setIcon": {
+      "reason": "stricter-declaration",
+      "note": "Firefox treats null as the default for an optional property (Schemas.sys.mjs ObjectType.normalize), the declaration accepts only undefined",
+      "example": "browser/components/extensions/test/browser/browser_ext_pageAction_context.js:155"
+    },
+    "TS2322 Type 'null' is not assignable to type <type>. @ sidebarAction.setIcon": {
+      "reason": "stricter-declaration",
+      "note": "Firefox treats null as the default for an optional property (Schemas.sys.mjs ObjectType.normalize), the declaration accepts only undefined",
+      "example": "browser/components/extensions/test/browser/browser_ext_sidebarAction_context.js:501"
+    },
+    "TS2322 Type 'number | undefined' is not assignable to type 'number | number[]'. @ tabs.group": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabGroups_collapsed.js:67"
+    },
+    "TS2322 Type 'number | undefined' is not assignable to type 'number'. @ pageAction.isShown": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_action_openPopup_multiple.html:211"
+    },
+    "TS2322 Type 'number | undefined' is not assignable to type 'number'. @ result-of:tabs.create": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_sessions_window_tab_value.js:247"
+    },
+    "TS2322 Type 'number | undefined' is not assignable to type 'number'. @ result-of:tabs.get": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_move_window_multiple.js:58"
+    },
+    "TS2322 Type 'number | undefined' is not assignable to type 'number'. @ result-of:tabs.query": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_lastAccessed.js:41"
+    },
+    "TS2322 Type 'number | undefined' is not assignable to type 'number'. @ result-of:windows.create": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_move_window_multiple.js:96"
+    },
+    "TS2322 Type 'number | undefined' is not assignable to type 'number'. @ scripting.executeScript": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_executeScript_mozextension.html:109"
+    },
+    "TS2322 Type 'number | undefined' is not assignable to type 'number'. @ scripting.removeCSS": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_scripting_removeCSS.html:67"
+    },
+    "TS2322 Type 'number | undefined' is not assignable to type 'number'. @ tabs.group": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_group_splitview.js:391"
+    },
+    "TS2322 Type 'number | undefined' is not assignable to type 'number'. @ tabs.move": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_move_window_multiple.js:189"
+    },
+    "TS2322 Type 'number | undefined' is not assignable to type 'number'. @ userScripts.execute": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_executeScript_mozextension.html:124"
+    },
+    "TS2322 Type 'number | undefined' is not assignable to type 'number'. @ webNavigation.getAllFrames": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_executeScript.js:50"
+    },
+    "TS2322 Type 'string | string[] | null' is not assignable to type 'string | string[] | undefined'. @ contentScripts.register": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_contentScripts_register.js:676"
+    },
+    "TS2322 Type 'string | undefined' is not assignable to type 'string'. @ result-of:tabs.query": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_duplicate.js:282"
+    },
+    "TS2322 Type 'string' is not assignable to type 'ContextType'. @ contextMenus.create": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "browser/components/extensions/test/browser/browser_ext_contextMenus.js:116"
+    },
+    "TS2322 Type 'string' is not assignable to type 'SameSiteStatus | undefined'. @ cookies.set": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_cookies_samesite.js:82"
+    },
+    "TS2322 Type 'string' is not assignable to type 'ViewType | undefined'. @ extension.getViews": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "browser/components/extensions/test/browser/browser_ext_getViews.js:19"
+    },
+    "TS2322 Type 'string' is not assignable to type <type>. @ permissions.request": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "browser/components/extensions/test/browser/browser_ext_user_events.js:92"
+    },
+    "TS2322 Type 'string[]' is not assignable to type 'ContextType[]'. @ menus.create": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "browser/components/extensions/test/browser/browser_ext_menus.js:77"
+    },
+    "TS2322 Type 'string[]' is not assignable to type 'ResourceType[]'. @ declarativeNetRequest.updateSessionRules": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_dnr_modifyHeaders.js:570"
+    },
+    "TS2322 Type 'void[]' is not assignable to type 'InjectionResult<string>[]'. @ result-of:scripting.executeScript": {
+      "reason": "test-typing",
+      "note": "test_ext_scripting_insertCSS.html:346 reuses one variable for results of executeScript and removeCSS",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_scripting_insertCSS.html:346"
+    },
+    "TS2322 Type <type> is not assignable to type 'InjectionTarget'. :: Type 'undefined' is not assignable to type 'number'. @ scripting.executeScript": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_scripting_executeScript_null_principal.html:49"
+    },
+    "TS2322 Type <type> is not assignable to type 'InjectionTarget'. :: Type 'undefined' is not assignable to type 'number'. @ scripting.insertCSS": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_scripting_executeScript_null_principal.html:34"
+    },
+    "TS2322 Type <type> is not assignable to type 'InjectionTarget'. :: Type 'undefined' is not assignable to type 'number'. @ scripting.removeCSS": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_scripting_executeScript_null_principal.html:43"
+    },
+    "TS2322 Type <type> is not assignable to type 'OptionalDataCollectionPermission'. @ permissions.request": {
+      "reason": "test-intentional",
+      "note": "test_ext_permissions_api.js:735 requests data_collection: [\"invalid-permission\"] on purpose inside a try block",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_permissions_api.js:735"
+    },
+    "TS2322 Type <type> is not assignable to type 'RegisteredContentScript'. :: Type 'string' is not assignable to type 'CSSOrigin | undefined'. @ scripting.registerContentScripts": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_scripting_contentScripts_css.js:56"
+    },
+    "TS2322 Type <type> is not assignable to type 'Rule'. :: Type 'string' is not assignable to type <type>. @ declarativeNetRequest.updateSessionRules": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_dnr_tabIds.html:73"
+    },
+    "TS2322 Type <type> is not assignable to type 'Rule'. :: Type 'string' is not assignable to type <type>. @ result-of:declarativeNetRequest": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_dnr_dynamic_rules.js:223"
+    },
+    "TS2322 Type <type> is not assignable to type <type>. :: Type 'string' is not assignable to type 'ResourceType'. @ declarativeNetRequest.updateSessionRules": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_dnr_testMatchOutcome.js:1486"
+    },
+    "TS2322 Type <type> is not assignable to type <type>. :: Type 'string' is not assignable to type 'ResourceType'. @ result-of:declarativeNetRequest": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_dnr_testMatchOutcome.js:1585"
+    },
+    "TS2322 Type <type> is not assignable to type <type>. :: Type 'string' is not assignable to type 'RunAt | undefined'. @ userScripts.update": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_userScripts_mv3_persistence.js:244"
+    },
+    "TS2322 Type <type> is not assignable to type <type>. :: Type 'string' is not assignable to type <type>. @ result-of:declarativeNetRequest": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_dnr_urlFilter.js:48"
+    },
+    "TS2322 Type <type> is not assignable to type <type>. :: Type 'undefined' is not assignable to type <type>. @ result-of:scripting.executeScript": {
+      "reason": "test-typing",
+      "note": "test_ext_scripting_executeScript_null_principal.html reassigns results from a map over the injection results",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_scripting_executeScript_null_principal.html:64"
+    },
+    "TS2339 Property 'RegisteredUserScript' does not exist on type 'typeof userScripts'. @ userScripts.RegisteredUserScript": {
+      "reason": "test-intentional",
+      "note": "test_ext_userScripts_mv3_availability.js asserts that userScripts.RegisteredUserScript, a type-only name, has no value at runtime",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_userScripts_mv3_availability.js:311"
+    },
+    "TS2339 Property 'active' does not exist on type 'Promise<Tab> & void'. @ result-of:tabs.duplicate": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_duplicate.js:30"
+    },
+    "TS2339 Property 'bookmarkId' does not exist on type 'Info'. @ result-of:menus.onShown.addListener": {
+      "reason": "schema-omission",
+      "note": "menus.json onShown info lacks this key, ext-menus.js sets it",
+      "example": "browser/components/extensions/test/browser/browser_ext_menus_replace_menu_context.js:78"
+    },
+    "TS2339 Property 'browser' does not exist on type 'Window'. @ result-of:extension.getViews": {
+      "reason": "test-typing",
+      "note": "the test adds properties to the window it gets from getBackgroundPage or getViews",
+      "example": "browser/components/extensions/test/browser/browser_ext_menus_targetElement_extension.js:20"
+    },
+    "TS2339 Property 'changeInfo' does not exist on type 'Tab[]'. @ result-of:tabs.query": {
+      "reason": "test-typing",
+      "note": "one variable holds the results of different calls (tabs.query, then an object or a single tab)",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_audio.js:86"
+    },
+    "TS2339 Property 'crunk' does not exist on type 'typeof experiments'. @ experiments.crunk": {
+      "reason": "privileged-only",
+      "note": "browser.experiments.* members come from the experiment the test installs, the schema declares no members",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_experiments.js:280"
+    },
+    "TS2339 Property 'discarded' does not exist on type 'Promise<Tab> & void'. @ result-of:tabs.get": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_discard.js:29"
+    },
+    "TS2339 Property 'every' does not exist on type 'Promise<Cookie[]> & void'. @ result-of:cookies.getAll": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_cookies_partitionKey.js:112"
+    },
+    "TS2339 Property 'find' does not exist on type <type> & void. @ result-of:webNavigation.getAllFrames": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_webnavigation_documentId.html:100"
+    },
+    "TS2339 Property 'foo' does not exist on type 'typeof experiments'. @ experiments.foo": {
+      "reason": "privileged-only",
+      "note": "browser.experiments.* members come from the experiment the test installs, the schema declares no members",
+      "example": "browser/components/extensions/test/browser/browser_ext_browserAction_experiment.js:90"
+    },
+    "TS2339 Property 'frameId' does not exist on type 'Info'. @ result-of:menus.onShown.addListener": {
+      "reason": "schema-omission",
+      "note": "menus.json onShown info lacks this key, ext-menus.js sets it",
+      "example": "browser/components/extensions/test/browser/browser_ext_menus_targetElement.js:178"
+    },
+    "TS2339 Property 'fromCache' does not exist on type 'Details'. @ result-of:webRequest.onHeadersReceived.addListener": {
+      "reason": "schema-omission",
+      "note": "web_request.json declares fromCache on onResponseStarted, onBeforeRedirect, onCompleted and onErrorOccurred, not onHeadersReceived. WebRequest.sys.mjs getRequestData sets it for every event",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_webRequest_cached.js:54"
+    },
+    "TS2339 Property 'get' does not exist on type 'typeof browserSettings'. @ result-of:browserSettings": {
+      "reason": "test-typing",
+      "note": "test_ext_browserSettings.js walks a dotted name with apiObj = apiObj[part], so apiObj keeps the type of its first assignment",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_browserSettings.js:55"
+    },
+    "TS2339 Property 'groupId' does not exist on type 'Promise<Tab> & void'. @ result-of:tabs.get": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_groupId.js:53"
+    },
+    "TS2339 Property 'groupId' does not exist on type 'Promise<Tab> & void'. @ result-of:tabs.group": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabGroups_collapsed.js:73"
+    },
+    "TS2339 Property 'hello' does not exist on type 'Window'. @ result-of:runtime.getBackgroundPage": {
+      "reason": "test-typing",
+      "note": "the test adds properties to the window it gets from getBackgroundPage or getViews",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_runtime_getBackgroundPage.js:70"
+    },
+    "TS2339 Property 'id' does not exist on type 'Promise<Tab> & void'. @ result-of:tabs.duplicate": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_sessions_window_tab_value.js:167"
+    },
+    "TS2339 Property 'id' does not exist on type 'Promise<TabGroup> & void'. @ result-of:tabGroups.get": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabGroups.js:105"
+    },
+    "TS2339 Property 'id' does not exist on type 'Promise<TabGroup> & void'. @ result-of:tabGroups.move": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabGroups_move_event_order.js:76"
+    },
+    "TS2339 Property 'id' does not exist on type 'void'. @ tabs.remove": {
+      "reason": "test-typing",
+      "note": "changeTab returns new Promise((resolve, reject) => ...) so .then(browser.tabs.get) types the tab as void",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_audio.js:182"
+    },
+    "TS2339 Property 'index' does not exist on type 'Promise<Tab> & void'. @ result-of:tabs.duplicate": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_duplicate.js:26"
+    },
+    "TS2339 Property 'index' does not exist on type 'Promise<Tab> & void'. @ result-of:tabs.get": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabGroups_collapsed.js:94"
+    },
+    "TS2339 Property 'index' does not exist on type 'Promise<Tab> & void'. @ tabs.get.index": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabGroups_move_event_order.js:81"
+    },
+    "TS2339 Property 'isBackgroundPage' does not exist on type 'Window'. @ result-of:extension.getBackgroundPage": {
+      "reason": "test-typing",
+      "note": "the test adds properties to the window it gets from getBackgroundPage or getViews",
+      "example": "browser/components/extensions/test/browser/browser_ext_incognito_views.js:217"
+    },
+    "TS2339 Property 'isBackgroundPage' does not exist on type 'Window'. @ result-of:runtime.getBackgroundPage": {
+      "reason": "test-typing",
+      "note": "the test adds properties to the window it gets from getBackgroundPage or getViews",
+      "example": "browser/components/extensions/test/browser/browser_ext_incognito_views.js:224"
+    },
+    "TS2339 Property 'length' does not exist on type 'Cookie'. @ result-of:cookies.getAll": {
+      "reason": "test-typing",
+      "note": "test_ext_cookies_expirationDate.js reuses one variable for the results of cookies.set and cookies.getAll",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_cookies_expirationDate.js:83"
+    },
+    "TS2339 Property 'length' does not exist on type 'Promise<Cookie[]> & void'. @ result-of:cookies.getAll": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_cookies_partitionKey.js:113"
+    },
+    "TS2339 Property 'length' does not exist on type 'Promise<InjectionResult[]> & void'. @ result-of:userScripts.execute": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_userScripts_execute.html:218"
+    },
+    "TS2339 Property 'length' does not exist on type 'Promise<Tab[] | Tab> & void'. @ result-of:tabs.move": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_move_window.js:40"
+    },
+    "TS2339 Property 'length' does not exist on type 'Tab'. @ result-of:tabs.query": {
+      "reason": "test-typing",
+      "note": "one variable holds the results of different calls (tabs.query, then an object or a single tab)",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_autoDiscardable.js:101"
+    },
+    "TS2339 Property 'length' does not exist on type 'Tab[] | Tab'. @ result-of:tabs.move": {
+      "reason": "stricter-declaration",
+      "note": "tabs.move resolves Tab | Tab[] in tabs.json, the test reads length without narrowing",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_containerIsolation.js:283"
+    },
+    "TS2339 Property 'length' does not exist on type <type> & void. @ result-of:webNavigation.getAllFrames": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_executeScript.js:51"
+    },
+    "TS2339 Property 'manifest' does not exist on type 'typeof browser'. @ manifest": {
+      "reason": "test-intentional",
+      "note": "test_ext_schema.js probes typeof browser.manifest, which is a type-only namespace and absent at runtime",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_schema.js:9"
+    },
+    "TS2339 Property 'map' does not exist on type 'Promise<InjectionResult[]> & void'. @ result-of:userScripts.execute": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_userScripts_execute_null_principal.html:59"
+    },
+    "TS2339 Property 'map' does not exist on type 'Promise<Tab[] | Tab> & void'. @ result-of:tabs.move": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_move_window_multiple.js:201"
+    },
+    "TS2339 Property 'map' does not exist on type <type> & void. @ result-of:webNavigation.getAllFrames": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_scripting_executeScript.html:505"
+    },
+    "TS2339 Property 'name' does not exist on type 'never'. @ result-of:webRequest.onHeadersReceived.addListener": {
+      "reason": "test-typing",
+      "note": "test_ext_webRequest_restrictedHeaders.js narrows headerToSet, declared without an initializer, to never",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_webRequest_restrictedHeaders.js:57"
+    },
+    "TS2339 Property 'notify_extensionPage_got_onConnect' does not exist on type 'Window'. @ result-of:extension.getBackgroundPage": {
+      "reason": "test-typing",
+      "note": "the test adds properties to the window it gets from getBackgroundPage or getViews",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_eventpage_messaging.js:139"
+    },
+    "TS2339 Property 'notify_extensionPage_got_port_onMessage' does not exist on type 'Window'. @ result-of:extension.getBackgroundPage": {
+      "reason": "test-typing",
+      "note": "the test adds properties to the window it gets from getBackgroundPage or getViews",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_eventpage_messaging.js:196"
+    },
+    "TS2339 Property 'onChange' does not exist on type 'typeof browserSettings'. @ result-of:browserSettings": {
+      "reason": "test-typing",
+      "note": "test_ext_browserSettings.js walks a dotted name with apiObj = apiObj[part], so apiObj keeps the type of its first assignment",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_browserSettings.js:64"
+    },
+    "TS2339 Property 'origin' does not exist on type 'MessageSender'. @ result-of:runtime.onConnect.addListener": {
+      "reason": "schema-omission",
+      "note": "runtime.json MessageSender has no origin, ExtensionParent.sys.mjs sets sender.origin",
+      "example": "browser/components/extensions/test/browser/browser_ext_contentscript_nontab_connect.js:21"
+    },
+    "TS2339 Property 'origin' does not exist on type 'MessageSender'. @ result-of:runtime.onMessage.addListener": {
+      "reason": "schema-omission",
+      "note": "runtime.json MessageSender has no origin, ExtensionParent.sys.mjs sets sender.origin",
+      "example": "browser/components/extensions/test/browser/browser_ext_contentscript_sender_url.js:29"
+    },
+    "TS2339 Property 'parentFrameId' does not exist on type 'Details'. @ result-of:webNavigation.onCommitted.addListener": {
+      "reason": "schema-omission",
+      "note": "web_navigation.json declares parentFrameId on onBeforeNavigate only, WebNavigation.sys.mjs sets it for every event",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_scripting_documentId.html:32"
+    },
+    "TS2339 Property 'parentFrameId' does not exist on type 'Details'. @ result-of:webNavigation.onCompleted.addListener": {
+      "reason": "schema-omission",
+      "note": "web_navigation.json declares parentFrameId on onBeforeNavigate only, WebNavigation.sys.mjs sets it for every event",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_webnavigation_incognito.html:73"
+    },
+    "TS2339 Property 'pinned' does not exist on type 'Promise<Tab> & void'. @ result-of:tabs.duplicate": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_duplicate.js:158"
+    },
+    "TS2339 Property 'pinned' does not exist on type 'Promise<Tab> & void'. @ result-of:tabs.get": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_group_ungroup.js:232"
+    },
+    "TS2339 Property 'port' does not exist on type 'Tab'. @ result-of:tabs.create": {
+      "reason": "test-typing",
+      "note": "test_ext_dnr_tabIds.html:44 attaches port to the tab object",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_dnr_tabIds.html:44"
+    },
+    "TS2339 Property 'proxyInfo' does not exist on type 'Details'. @ result-of:webRequest.onAuthRequired.addListener": {
+      "reason": "schema-omission",
+      "note": "webRequest details gain proxyInfo at runtime (WebRequest.sys.mjs) and web_request.json does not declare it for these events",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_proxy_onauthrequired.js:113"
+    },
+    "TS2339 Property 'proxyInfo' does not exist on type 'Details'. @ result-of:webRequest.onBeforeRequest.addListener": {
+      "reason": "schema-omission",
+      "note": "webRequest details gain proxyInfo at runtime (WebRequest.sys.mjs) and web_request.json does not declare it for these events",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_proxy_settings.js:36"
+    },
+    "TS2339 Property 'proxyInfo' does not exist on type 'Details'. @ result-of:webRequest.onBeforeSendHeaders.addListener": {
+      "reason": "schema-omission",
+      "note": "webRequest details gain proxyInfo at runtime (WebRequest.sys.mjs) and web_request.json does not declare it for these events",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_proxy_onauthrequired.js:76"
+    },
+    "TS2339 Property 'proxyInfo' does not exist on type 'Details'. @ result-of:webRequest.onCompleted.addListener": {
+      "reason": "schema-omission",
+      "note": "webRequest details gain proxyInfo at runtime (WebRequest.sys.mjs) and web_request.json does not declare it for these events",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_proxy_authorization_via_proxyinfo.js:49"
+    },
+    "TS2339 Property 'redirect_uri' does not exist on type <type>. @ result-of:identity.getRedirectURL": {
+      "reason": "test-typing",
+      "note": "test_ext_identity.html:187 adds redirect_uri to an object literal after its first assignment",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_identity.html:187"
+    },
+    "TS2339 Property 'responseSize' does not exist on type 'Details'. @ result-of:webRequest.onBeforeSendHeaders.addListener": {
+      "reason": "schema-omission",
+      "note": "web_request.json declares requestSize and responseSize on onCompleted only, WebRequest.sys.mjs allows them on onBeforeSendHeaders",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_webRequest_requestSize.js:22"
+    },
+    "TS2339 Property 'set' does not exist on type 'typeof browserSettings'. @ result-of:browserSettings": {
+      "reason": "test-typing",
+      "note": "test_ext_browserSettings.js walks a dotted name with apiObj = apiObj[part], so apiObj keeps the type of its first assignment",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_browserSettings.js:72"
+    },
+    "TS2339 Property 'sort' does not exist on type 'Promise<InjectionResult[]> & void'. @ result-of:userScripts.execute": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_userScripts_execute.html:479"
+    },
+    "TS2339 Property 'splitViewId' does not exist on type 'Promise<Tab> & void'. @ result-of:tabs.get": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_move_splitview.js:91"
+    },
+    "TS2339 Property 'splitViewId' does not exist on type 'Promise<Tab> & void'. @ tabs.get.splitViewId": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_splitViewId.js:103"
+    },
+    "TS2339 Property 'startsWith' does not exist on type 'void | string'. @ result-of:identity.launchWebAuthFlow": {
+      "reason": "test-typing",
+      "note": "the test awaits launchWebAuthFlow(...).catch(handler) where the handler returns nothing, so the awaited value is string | void",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_identity.html:372"
+    },
+    "TS2339 Property 'status' does not exist on type 'Promise<Tab> & void'. @ result-of:tabs.get": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_duplicate.js:83"
+    },
+    "TS2339 Property 'tab' does not exist on type 'Tab[]'. @ result-of:tabs.query": {
+      "reason": "test-typing",
+      "note": "one variable holds the results of different calls (tabs.query, then an object or a single tab)",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_audio.js:86"
+    },
+    "TS2339 Property 'title' does not exist on type 'Promise<Tab> & void'. @ result-of:tabs.get": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_duplicate.js:78"
+    },
+    "TS2339 Property 'unload' does not exist on type 'typeof experiments'. @ experiments.unload": {
+      "reason": "privileged-only",
+      "note": "browser.experiments.* members come from the experiment the test installs, the schema declares no members",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_autoDiscardable.js:79"
+    },
+    "TS2339 Property 'unregister' does not exist on type 'Promise<Result> & void & Promise<void>'. @ result-of:userScripts.register": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_userScripts.js:206"
+    },
+    "TS2339 Property 'url' does not exist on type 'Promise<Tab> & void'. @ result-of:tabs.duplicate": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_duplicate.js:21"
+    },
+    "TS2339 Property 'value' does not exist on type 'never'. @ result-of:webRequest.onHeadersReceived.addListener": {
+      "reason": "test-typing",
+      "note": "test_ext_webRequest_restrictedHeaders.js narrows headerToSet, declared without an initializer, to never",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_webRequest_restrictedHeaders.js:58"
+    },
+    "TS2339 Property 'windowId' does not exist on type 'Promise<Tab> & void'. @ result-of:tabs.get": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_group_windowId.js:154"
+    },
+    "TS2339 Property 'windowId' does not exist on type 'Promise<Tab> & void'. @ result-of:windows.create": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabGroups_collapsed.js:73"
+    },
+    "TS2339 Property 'windowId' does not exist on type 'Promise<TabGroup> & void'. @ result-of:tabGroups.get": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabGroups.js:106"
+    },
+    "TS2339 Property 'windowId' does not exist on type 'Promise<TabGroup> & void'. @ result-of:windows.create": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabGroups_move_event_order.js:77"
+    },
+    "TS2345 Argument of type '(info: any, tab: any) => void' is not assignable to parameter of type '() => void'. @ menus.onHidden.addListener": {
+      "reason": "test-bug",
+      "note": "browser_ext_menus_eventpage.js:116 gives the onHidden listener (info, tab) parameters, menus.json declares no parameters and ext-menus.js fires it with none",
+      "example": "browser/components/extensions/test/browser/browser_ext_menus_eventpage.js:116"
+    },
+    "TS2345 Argument of type '(number | undefined)[]' is not assignable to parameter of type 'number | number[]'. @ result-of:tabs.query": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_move_array.js:32"
+    },
+    "TS2345 Argument of type '(number | undefined)[]' is not assignable to parameter of type 'number | number[]'. @ result-of:tabs.query.map": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_remove.js:22"
+    },
+    "TS2345 Argument of type '(number | undefined)[]' is not assignable to parameter of type 'number | number[]'. @ tabs.hide": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_hide.js:386"
+    },
+    "TS2345 Argument of type '(number | undefined)[]' is not assignable to parameter of type 'number | number[]'. @ tabs.remove": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_onHighlighted.js:120"
+    },
+    "TS2345 Argument of type '(number | undefined)[]' is not assignable to parameter of type 'number | number[]'. @ tabs.show": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_hide.js:405"
+    },
+    "TS2345 Argument of type '(number | undefined)[]' is not assignable to parameter of type 'number | number[]'. @ tabs.ungroup": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabGroups_move.js:35"
+    },
+    "TS2345 Argument of type '(result: any) => void' is not assignable to parameter of type '() => void'. @ result-of:alarms.create": {
+      "reason": "stricter-declaration",
+      "note": "the schema callback of this function has no parameters, the test passes a Promise resolve function or a callback that reads a result",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_alarms.js:352"
+    },
+    "TS2345 Argument of type '(result: any) => void' is not assignable to parameter of type '() => void'. @ result-of:webRequest.handlerBehaviorChanged": {
+      "reason": "stricter-declaration",
+      "note": "the schema callback of this function has no parameters, the test passes a Promise resolve function or a callback that reads a result",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_webRequest_handlerBehaviorChanged.js:69"
+    },
+    "TS2345 Argument of type '(value: any) => void' is not assignable to parameter of type '() => void'. @ contextMenus.create": {
+      "reason": "stricter-declaration",
+      "note": "the schema callback of this function has no parameters, the test passes a Promise resolve function or a callback that reads a result",
+      "example": "browser/components/extensions/test/browser/browser_ext_contextMenus.js:814"
+    },
+    "TS2345 Argument of type '(value: any) => void' is not assignable to parameter of type '() => void'. @ menus.create": {
+      "reason": "stricter-declaration",
+      "note": "the schema callback of this function has no parameters, the test passes a Promise resolve function or a callback that reads a result",
+      "example": "browser/components/extensions/test/browser/browser_ext_menus_events.js:90"
+    },
+    "TS2345 Argument of type '(value: any) => void' is not assignable to parameter of type '() => void'. @ scripting.unregisterContentScripts": {
+      "reason": "stricter-declaration",
+      "note": "the schema callback of this function has no parameters, the test passes a Promise resolve function or a callback that reads a result",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_scripting_contentScripts.html:1090"
+    },
+    "TS2345 Argument of type 'Promise<number> & void' is not assignable to parameter of type 'number'. @ result-of:tabs.group": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabGroups_collapsed.js:41"
+    },
+    "TS2345 Argument of type 'Promise<number> & void' is not assignable to parameter of type 'number'. @ tabGroups.move": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabGroups_collapsed.js:89"
+    },
+    "TS2345 Argument of type 'Promise<string> & void' is not assignable to parameter of type 'string'. @ result-of:notifications.create": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_notifications.html:415"
+    },
+    "TS2345 Argument of type 'Result | null' is not assignable to parameter of type <type>. :: Type 'null' is not assignable to type <type>. @ result-of:webNavigation.getFrame": {
+      "reason": "stricter-declaration",
+      "note": "webNavigation.getFrame resolves Result | null (NULL_RESULTS in src/overrides.js), the test passes it on unchecked",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_webnavigation_documentId.html:106"
+    },
+    "TS2345 Argument of type 'Tab' is not assignable to parameter of type 'number | number[]'. @ tabs.remove": {
+      "reason": "test-bug",
+      "note": "browser_ext_tabs_create_invalid_url.js:18 passes the Tab object to tabs.remove, which takes ids. It only runs if tabs.create unexpectedly succeeds",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_create_invalid_url.js:18"
+    },
+    "TS2345 Argument of type 'ThemeBackground | undefined' is not assignable to parameter of type 'URL | RequestInfo'. @ result-of:theme.getCurrent": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/browser/browser_ext_themes_getCurrent_differentExt.js:34"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number | number[]'. @ result-of:runtime.onConnect.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_runtime_connect_iframe.html:108"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number | number[]'. @ result-of:runtime.onMessage.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_connect_and_move_tabs.js:47"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number | number[]'. @ result-of:tabs.create": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_search.js:150"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number | number[]'. @ result-of:tabs.duplicate": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_containerIsolation.js:278"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number | number[]'. @ result-of:tabs.get": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_move_window_pinned.js:33"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number | number[]'. @ result-of:tabs.onCreated.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_onCreated.js:11"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number | number[]'. @ result-of:tabs.onUpdated.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_sidebarAction_click.js:11"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number | number[]'. @ result-of:tabs.query": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_browserAction_context.js:927"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number | number[]'. @ tabs.discard": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_discard_reversed.js:98"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number | number[]'. @ tabs.hide": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_hide.js:561"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number | number[]'. @ tabs.move": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabGroups_move.js:42"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number | number[]'. @ tabs.remove": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_currentWindow.js:47"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ pageAction.show": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_browserAction_pageAction_icon_permissions.js:102"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ result-of:menus.onShown.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_menus_targetElement_extension.js:9"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ result-of:runtime.onConnect.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_port_disconnect_on_window_close.js:17"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ result-of:runtime.onMessage.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_port_disconnect_on_crash.js:70"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ result-of:tabs.create": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_sessions_window_tab_value.js:234"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ result-of:tabs.query": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_autocompletepopup.js:24"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ result-of:tabs.query.0": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_warmup.js:33"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ result-of:tabs.update": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_events_order.js:151"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ result-of:windows.create": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_messaging_windowId.js:48"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ result-of:windows.get": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_move_window.js:110"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ result-of:windows.getAll": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_windows_update.js:37"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ result-of:windows.getCurrent": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_incognito_views.js:164"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ result-of:windows.update": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_windows_create_hidpi.js:89"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ sessions.getTabValue": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_sessions_window_tab_value.js:29"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ sessions.getWindowValue": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_sessions_window_tab_value.js:293"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ sessions.removeTabValue": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_sessions_window_tab_value.js:75"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ sessions.removeWindowValue": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_sessions_window_tab_value.js:339"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ sessions.setTabValue": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_sessions_window_tab_value.js:27"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ sessions.setWindowValue": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_sessions_window_tab_value.js:291"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ tabs.connect": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_runtime_connect2.html:27"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ tabs.duplicate": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_sessions_window_tab_value.js:166"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ tabs.get": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabGroups_move_event_order.js:171"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ tabs.sendMessage": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_sendMessage.js:27"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ windows.remove": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_sessions_window_tab_value.js:417"
+    },
+    "TS2345 Argument of type 'number | undefined' is not assignable to parameter of type 'number'. @ windows.update": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_windows_update.js:259"
+    },
+    "TS2345 Argument of type 'string | undefined' is not assignable to parameter of type 'string | URL'. @ result-of:runtime.onConnect.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_runtime_connect.html:21"
+    },
+    "TS2345 Argument of type 'string | undefined' is not assignable to parameter of type 'string | string[]'. @ result-of:contextMenus.onClicked.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_contextMenus.js:670"
+    },
+    "TS2345 Argument of type 'string | undefined' is not assignable to parameter of type 'string'. @ result-of:bookmarks.create": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/xpcshell/test_ext_bookmarks.js:1604"
+    },
+    "TS2345 Argument of type 'string | undefined' is not assignable to parameter of type 'string'. @ result-of:contextMenus.onClicked.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_contextMenus.js:677"
+    },
+    "TS2345 Argument of type 'string | undefined' is not assignable to parameter of type 'string'. @ result-of:webRequest.onBeforeRequest.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_file_access.js:223"
+    },
+    "TS2345 Argument of type 'string | undefined' is not assignable to parameter of type 'string'. @ runtime": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_incognito_views.js:30"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type '(downloadDelta: DownloadDelta) => void'. :: Property 'state' is optional in type 'DownloadDelta' but required in type <type>. @ downloads.onChanged.addListener": {
+      "reason": "test-typing",
+      "note": "checkJs gives an unannotated destructured callback parameter a required property type, the declaration's property is optional",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_downloads_download.js:485"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type '(value: any) => void | PromiseLike<void>'. :: Type 'Tab' is not assignable to type 'void'. @ tabs": {
+      "reason": "test-typing",
+      "note": "changeTab returns new Promise((resolve, reject) => ...) so .then(browser.tabs.get) types the tab as void",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_audio.js:162"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'CSSInjection'. :: Type 'undefined' is not assignable to type 'number'. @ scripting.insertCSS": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_scripting_insertCSS.html:321"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'CSSInjection'. :: Type 'undefined' is not assignable to type 'number'. @ scripting.removeCSS": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_scripting_removeCSS.html:109"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'ContextOptions'. :: Type 'undefined' is not assignable to type 'ContextOptions'. @ menus.overrideContext": {
+      "reason": "test-typing",
+      "note": "test_ext... passes testCases.shift(), which TypeScript types as possibly undefined",
+      "example": "browser/components/extensions/test/browser/browser_ext_menus_replace_menu_context.js:228"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'CreateNotificationOptions'. :: Type 'string' is not assignable to type 'TemplateType'. @ notifications.create": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_notifications.html:34"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'Details'. :: Type 'string' is not assignable to type 'TransitionType | undefined'. @ history.addUrl": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "browser/components/extensions/test/xpcshell/test_ext_history.js:528"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'Details'. :: Type 'undefined' is not assignable to type 'string'. @ browserAction.setIcon": {
+      "reason": "test-typing",
+      "note": "Object.assign of several path literals gives checkJs an intersection with optional undefined size keys",
+      "example": "browser/components/extensions/test/browser/browser_ext_browserAction_pageAction_icon.js:447"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'Details'. :: Type 'undefined' is not assignable to type 'string'. @ pageAction.setIcon": {
+      "reason": "test-typing",
+      "note": "Object.assign of several path literals gives checkJs an intersection with optional undefined size keys",
+      "example": "browser/components/extensions/test/browser/browser_ext_browserAction_pageAction_icon.js:449"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'Options'. :: Type 'undefined' is not assignable to type 'number | number[]'. @ tabs.group": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id), the test builds tabIds from it",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabGroups_private.js:82"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'Permissions'. :: Type 'string' is not assignable to type 'OptionalDataCollectionPermission'. @ permissions.request": {
+      "reason": "test-intentional",
+      "note": "test_ext_permissions_api.js:735 requests data_collection: [\"invalid-permission\"] on purpose inside a try block",
+      "example": "mobile/android/geckoview/src/androidTest/assets/web_extensions/optional-permission-request/request-permission.js:8"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'Permissions'. :: Type 'string' is not assignable to type <type>. @ permissions.remove": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_management.js:84"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'Permissions'. :: Type 'string' is not assignable to type <type>. @ permissions.request": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "mobile/android/geckoview/src/androidTest/assets/web_extensions/permission-request/request-permission.js:8"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'Permissions'. :: Type <type> is not assignable to type <type>. @ permissions.remove": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_permissions_api.js:130"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'Permissions'. :: Type <type> is not assignable to type <type>. @ permissions.request": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_permissions_api.js:125"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'RegisteredContentScriptOptions'. :: Type 'string' is not assignable to type 'RunAt | undefined'. @ contentScripts.register": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_contentScripts_register.js:420"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'RegisteredContentScript[]'. :: Type 'string' is not assignable to type 'RunAt | undefined'. @ scripting.registerContentScripts": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_scripting_contentScripts.js:84"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'Request'. :: Type 'string' is not assignable to type 'ResourceType'. @ declarativeNetRequest.testMatchOutcome": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_dnr_api.js:61"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'RequestFilter'. :: Type 'string' is not assignable to type 'ResourceType'. @ webRequest.onHeadersReceived.addListener": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_webRequest_set_cookie.js:140"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'ScriptInjection<[], number>'. :: Type 'undefined' is not assignable to type 'number'. @ scripting.executeScript": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_scripting_executeScript.html:455"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'ScriptInjection<[], string>'. :: Type 'undefined' is not assignable to type 'number'. @ scripting.executeScript": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_scripting_executeScript.html:543"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'ScriptInjection<[], void>'. :: Type 'undefined' is not assignable to type 'number'. @ scripting.executeScript": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_scripting_executeScript.html:1249"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'ThemeType'. :: Type <type> has no properties in common with type <type>. @ theme.update": {
+      "reason": "privileged-only",
+      "note": "browser_ext_themes_experiment.js passes theme colors, images and properties that its own theme experiment defines",
+      "example": "toolkit/components/extensions/test/browser/browser_ext_themes_experiment.js:162"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'UpdateFilter'. :: Type 'string' is not assignable to type 'UpdatePropertyName'. @ tabs.onUpdated.addListener": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_update_url.js:162"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'UserScriptInjection'. :: Type 'undefined' is not assignable to type 'number'. @ userScripts.execute": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_userScripts_execute.html:476"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type 'string'. @ result-of:devtools.panels.elements.createSidebarPane": {
+      "reason": "schema-omission",
+      "note": "devtools_panels.json types the setObject jsonObject parameter as string, the tests pass an object",
+      "example": "browser/components/extensions/test/browser/browser_ext_devtools_panels_elements_sidebar.js:116"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type <type>. :: Property 'matches' is optional in type 'RegisteredUserScript' but required in type <type>. @ userScripts.getScripts.map": {
+      "reason": "test-typing",
+      "note": "checkJs gives an unannotated destructured callback parameter a required property type, the declaration's property is optional",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_userScripts_mv3_persistence.js:482"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type <type>. :: Property 'requestHeaders' is optional in type 'Details' but required in type <type>. @ webRequest.onBeforeSendHeaders.addListener": {
+      "reason": "test-typing",
+      "note": "checkJs gives an unannotated destructured callback parameter a required property type, the declaration's property is optional",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_webrequest_basic.html:413"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type <type>. :: Property 'status' is optional in type 'ChangeInfo' but required in type <type>. @ tabs.onUpdated.addListener": {
+      "reason": "test-typing",
+      "note": "checkJs gives an unannotated destructured callback parameter a required property type, the declaration's property is optional",
+      "example": "browser/components/extensions/test/browser/browser_ext_windows_allowScriptsToClose.js:25"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type <type>. :: Property 'status' is optional in type 'ChangeInfo' but required in type <type>. @ tabs.onUpdated.removeListener": {
+      "reason": "test-typing",
+      "note": "checkJs gives an unannotated destructured callback parameter a required property type, the declaration's property is optional",
+      "example": "browser/components/extensions/test/browser/browser_ext_windows_allowScriptsToClose.js:19"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type <type>. :: Property 'tab' is optional in type 'MessageSender' but required in type <type>. @ runtime.onMessage.addListener": {
+      "reason": "test-typing",
+      "note": "checkJs gives an unannotated destructured callback parameter a required property type, the declaration's property is optional",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_browsingData_localStorage.html:41"
+    },
+    "TS2345 Argument of type <type> is not assignable to parameter of type <type>. :: Property 'tab' is optional in type 'MessageSender' but required in type <type>. @ runtime.onMessage.removeListener": {
+      "reason": "test-typing",
+      "note": "checkJs gives an unannotated destructured callback parameter a required property type, the declaration's property is optional",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_browsingData_localStorage.html:37"
+    },
+    "TS2365 Operator '>' cannot be applied to types 'Promise<number> & void' and 'number'. @ result-of:tabs.group": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_group_ungroup.js:229"
+    },
+    "TS2367 This comparison appears to be unintentional because the types 'string' and 'number' have no overlap. @ runtime": {
+      "reason": "test-bug",
+      "note": "test_ext_wasm.js:7 compares runtime.getManifest().version, a string, to the number 2, probably meaning manifest_version",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_wasm.js:7"
+    },
+    "TS2488 Type 'HttpHeaders | undefined' must have a '[Symbol.iterator]()' method that returns an iterator. @ result-of:webRequest.onHeadersReceived.addListener": {
+      "reason": "stricter-declaration",
+      "note": "responseHeaders is optional in web_request.json, the test iterates it unchecked",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_redirects.js:631"
+    },
+    "TS2488 Type 'Promise<BookmarkTreeNode[]> & void' must have a '[Symbol.iterator]()' method that returns an iterator. @ result-of:bookmarks.getChildren": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/xpcshell/test_ext_bookmarks.js:1619"
+    },
+    "TS2488 Type 'Promise<InjectionResult[]> & void' must have a '[Symbol.iterator]()' method that returns an iterator. @ result-of:userScripts.execute": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_userScripts_execute.html:765"
+    },
+    "TS2531 Object is possibly 'null'. @ result-of:pkcs11.getModuleSlots": {
+      "reason": "stricter-declaration",
+      "note": "token is null for a slot without a token (ASYNC_RESULTS in src/overrides.js from ext-pkcs11.js), the test reads token.name unchecked",
+      "example": "browser/components/extensions/test/xpcshell/test_ext_pkcs11_management.js:153"
+    },
+    "TS2532 Object is possibly 'undefined'. @ result-of:cookies.getAll": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_cookies_expirationDate.js:26"
+    },
+    "TS2532 Object is possibly 'undefined'. @ result-of:sessions.getRecentlyClosed": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_sessions_getRecentlyClosed.js:121"
+    },
+    "TS2532 Object is possibly 'undefined'. @ result-of:tabs.query": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_audio.js:116"
+    },
+    "TS2532 Object is possibly 'undefined'. @ runtime": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "browser/components/extensions/test/browser/browser_ext_contentscript_nontab_connect.js:6"
+    },
+    "TS2551 Property 'requestSize' does not exist on type 'Details'. @ result-of:webRequest.onBeforeSendHeaders.addListener": {
+      "reason": "schema-omission",
+      "note": "web_request.json declares requestSize and responseSize on onCompleted only, WebRequest.sys.mjs allows them on onBeforeSendHeaders",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_webRequest_requestSize.js:21"
+    },
+    "TS2551 Property 'srckUrl' does not exist on type 'Info'. @ result-of:menus.onShown.addListener": {
+      "reason": "test-bug",
+      "note": "browser_ext_menus_replace_menu_context.js:72 and :97 read info.srckUrl, a misspelling of srcUrl that exists nowhere, so the assertEq(undefined, ...) is vacuous",
+      "example": "browser/components/extensions/test/browser/browser_ext_menus_replace_menu_context.js:72"
+    },
+    "TS2551 Property 'srckUrl' does not exist on type 'OnClickData'. @ result-of:menus.onClicked.addListener": {
+      "reason": "test-bug",
+      "note": "browser_ext_menus_replace_menu_context.js:72 and :97 read info.srckUrl, a misspelling of srcUrl that exists nowhere, so the assertEq(undefined, ...) is vacuous",
+      "example": "browser/components/extensions/test/browser/browser_ext_menus_replace_menu_context.js:97"
+    },
+    "TS2554 Expected N arguments, but got N. @ activityLog.onExtensionActivity.removeListener": {
+      "reason": "test-bug",
+      "note": "test_ext_activityLog.html:348 passes the extension id to removeListener, which takes only the listener. EventManager.removeListener in ExtensionCommon.sys.mjs reads a second argument as clearPersistentListener, so the string is taken as true",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_activityLog.html:348"
+    },
+    "TS2554 Expected N-N arguments, but got N. @ runtime.getContexts": {
+      "reason": "test-intentional",
+      "note": "test_ext_runtime_getContexts.js:18 calls getContexts() with no filter under the comment that it is expected to be rejected",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_runtime_getContexts.js:18"
+    },
+    "TS2556 A spread argument must either have a tuple type or be passed to a rest parameter. @ declarativeNetRequest.testMatchOutcome": {
+      "reason": "test-typing",
+      "note": "the test spreads an array of arguments into a signature with fixed parameters",
+      "example": "toolkit/components/extensions/test/xpcshell/head_dnr_static_rules.js:32"
+    },
+    "TS2556 A spread argument must either have a tuple type or be passed to a rest parameter. @ devtools.inspectedWindow.eval": {
+      "reason": "test-typing",
+      "note": "the test spreads an array of arguments into a signature with fixed parameters",
+      "example": "browser/components/extensions/test/browser/browser_ext_devtools_inspectedWindow.js:188"
+    },
+    "TS2556 A spread argument must either have a tuple type or be passed to a rest parameter. @ runtime.sendMessage": {
+      "reason": "test-typing",
+      "note": "the test spreads an array of arguments into a signature with fixed parameters",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_runtime_sendMessage_args.js:10"
+    },
+    "TS2556 A spread argument must either have a tuple type or be passed to a rest parameter. @ scripting.registerContentScripts": {
+      "reason": "test-typing",
+      "note": "the test spreads an array of arguments into a signature with fixed parameters",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_scripting_persistAcrossSessions.js:615"
+    },
+    "TS2571 Object is of type 'unknown'. @ result-of:trial.ml.runEngine": {
+      "reason": "stricter-declaration",
+      "note": "the schema gives the result no type, the declaration says unknown (ASYNC_RESULTS in src/overrides.js), the test reads .output",
+      "example": "toolkit/components/extensions/test/browser/browser_ext_trial_ml.js:31"
+    },
+    "TS2683 <expr> implicitly has type 'any' because it does not have a type annotation. @ tabs.create": {
+      "reason": "test-typing",
+      "note": "the test uses this inside a function that is not a method, checkJs cannot type it",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_cookieStoreId.js:101"
+    },
+    "TS2683 <expr> implicitly has type 'any' because it does not have a type annotation. @ tabs.query": {
+      "reason": "test-typing",
+      "note": "the test uses this inside a function that is not a method, checkJs cannot type it",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_cookieStoreId.js:149"
+    },
+    "TS2683 <expr> implicitly has type 'any' because it does not have a type annotation. @ windows.remove": {
+      "reason": "test-typing",
+      "note": "the test uses this inside a function that is not a method, checkJs cannot type it",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_cookieStoreId.js:186"
+    },
+    "TS2722 Cannot invoke an object which is possibly 'undefined'. @ result-of:webRequest.onAuthRequired.addListener": {
+      "reason": "stricter-declaration",
+      "note": "the declared value includes undefined because the schema marks the parameter or property optional, the test uses it without a check",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_webRequest_auth.js:115"
+    },
+    "TS2739 Type 'Promise<Tab> & void' is missing the following properties from type 'Tab': active, highlighted, incognito, index, pinned @ result-of:tabs.create": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_discard_reversed.js:87"
+    },
+    "TS2739 Type 'Promise<Tab> & void' is missing the following properties from type 'Tab': active, highlighted, incognito, index, pinned @ result-of:tabs.get": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_autoDiscardable.js:91"
+    },
+    "TS2739 Type 'Promise<Tab> & void' is missing the following properties from type 'Tab': active, highlighted, incognito, index, pinned @ result-of:tabs.query": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_tabs_captureTab.html:51"
+    },
+    "TS2739 Type 'Promise<Tab> & void' is missing the following properties from type 'Tab': active, highlighted, incognito, index, pinned @ result-of:tabs.update": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_autoDiscardable.js:80"
+    },
+    "TS2739 Type 'Promise<Window> & void' is missing the following properties from type 'Window': alwaysOnTop, focused, incognito @ result-of:windows.create": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_move_window.js:99"
+    },
+    "TS2739 Type 'Promise<Window> & void' is missing the following properties from type 'Window': alwaysOnTop, focused, incognito @ result-of:windows.getCurrent": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_move_window.js:93"
+    },
+    "TS2739 Type 'Promise<Window> & void' is missing the following properties from type 'Window': alwaysOnTop, focused, incognito @ result-of:windows.update": {
+      "reason": "cascade",
+      "note": "TypeScript types a call that failed overload resolution as Promise<T> & void, so this follows an error in the call that produced the value or in a reassigned variable. Probe: one number | undefined argument error turns the result of tabs.get into Promise<Tab> & void.",
+      "example": "browser/components/extensions/test/browser/browser_ext_windows_create_hidpi.js:89"
+    },
+    "TS2739 Type 'Tab[]' is missing the following properties from type 'Tab': active, highlighted, incognito, index, pinned @ result-of:tabs.get": {
+      "reason": "test-typing",
+      "note": "one variable holds the results of different calls",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_autoDiscardable.js:98"
+    },
+    "TS2739 Type 'Tab[]' is missing the following properties from type 'Tab': active, highlighted, incognito, index, pinned @ result-of:tabs.query": {
+      "reason": "test-typing",
+      "note": "one variable holds the results of different calls",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_autoDiscardable.js:107"
+    },
+    "TS2740 Type 'Cookie[]' is missing the following properties from type 'Cookie': domain, firstPartyDomain, hostOnly, httpOnly, and N more. @ result-of:cookies.set": {
+      "reason": "test-typing",
+      "note": "one variable holds the results of different calls",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_cookies_expirationDate.js:78"
+    },
+    "TS2740 Type 'string[]' is missing the following properties from type 'typeof userScripts': ExecutionWorld, onBeforeScript, configureWorld, execute, and N more. @ result-of:userScripts": {
+      "reason": "test-typing",
+      "note": "test_ext_userScripts_mv3_availability.js assigns Object.keys(browser.userScripts) to a variable whose first assignment was the namespace object",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_userScripts_mv3_availability.js:358"
+    },
+    "TS2769 No overload matches this call. :: Argument of type 'string' is not assignable to parameter of type 'CreateNotificationOptions'. @ notifications.create": {
+      "reason": "test-typing",
+      "note": "the test's opts variable widens type: \"basic\" to string, so neither overload of notifications.create matches",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_notifications.html:80"
+    },
+    "TS2769 No overload matches this call. :: Argument of type <type> is not assignable to parameter of type 'string'. @ result-of:devtools.panels.elements.createSidebarPane": {
+      "reason": "schema-omission",
+      "note": "devtools_panels.json types the setObject jsonObject parameter as string, the tests pass an object",
+      "example": "browser/components/extensions/test/browser/browser_ext_devtools_panels_elements_sidebar.js:118"
+    },
+    "TS2769 No overload matches this call. :: Object literal may only specify known properties, and 'scriptMetadata' does not exist in type 'RegisteredUserScript[]'. @ userScripts.register": {
+      "reason": "test-typing",
+      "note": "test_ext_userScripts.js keeps its options in a variable with runAt: \"document_start\", which widens to string. Probe: the same call with runAt: \"document_end\" in a variable fails the same way and without runAt it passes",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_userScripts.js:217"
+    },
+    "TS2769 No overload matches this call. :: Target signature provides too few arguments. Expected N or more, but got N. @ scripting.unregisterContentScripts": {
+      "reason": "stricter-declaration",
+      "note": "the schema callback of this function has no parameters, the test passes a Promise resolve function",
+      "example": "toolkit/components/extensions/test/mochitest/test_ext_scripting_contentScripts.html:1108"
+    },
+    "TS2769 No overload matches this call. :: Type 'string' is not assignable to type 'RunAt | undefined'. @ userScripts.register": {
+      "reason": "test-typing",
+      "note": "the value comes from a variable or array of plain strings, so its literal type widened to string",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_userScripts_mv3_persistence.js:223"
+    },
+    "TS2769 No overload matches this call. :: Type 'undefined' is not assignable to type 'number'. @ result-of:tabs.query": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_duplicate.js:185"
+    },
+    "TS2769 No overload matches this call. :: Type 'undefined' is not assignable to type 'number'. @ result-of:windows.create": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_move_window.js:99"
+    },
+    "TS2769 No overload matches this call. :: Type 'undefined' is not assignable to type 'number'. @ result-of:windows.getCurrent": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_move_window.js:93"
+    },
+    "TS2769 No overload matches this call. :: Type 'undefined' is not assignable to type 'number'. @ tabs.sendMessage": {
+      "reason": "stricter-declaration",
+      "note": "the schema marks the id optional (tabs.json Tab.id, windows.json Window.id), the test passes it where a number is required",
+      "example": "browser/components/extensions/test/browser/browser_ext_tabs_sendMessage.js:30"
+    },
+    "TS2769 No overload matches this call. :: Type <type> is missing the following properties from type 'RegisteredUserScript[]': length, pop, push, concat, and N more. @ userScripts.register": {
+      "reason": "test-typing",
+      "note": "test_ext_userScripts.js keeps its options in a variable with runAt: \"document_start\", which widens to string. Probe: the same call with runAt: \"document_end\" in a variable fails the same way and without runAt it passes",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_userScripts.js:200"
+    },
+    "TS2790 The operand of a 'delete' operator must be optional. @ result-of:downloads.onChanged.addListener": {
+      "reason": "test-typing",
+      "note": "download.js deletes id from a DownloadDelta, where id is required in downloads.json",
+      "example": "mobile/android/geckoview/src/androidTest/assets/web_extensions/download-onChanged/download.js:5"
+    },
+    "TS2820 Type <type> is not assignable to type 'CSSOrigin | undefined'. @ contentScripts.register": {
+      "reason": "test-intentional",
+      "note": "test_ext_contentScripts_register.js:536 passes cssOrigin: \"USER\" on purpose, the declared values are lowercase",
+      "example": "toolkit/components/extensions/test/xpcshell/test_ext_contentScripts_register.js:536"
+    }
+  }
+}

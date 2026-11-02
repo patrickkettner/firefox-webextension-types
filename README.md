@@ -146,6 +146,16 @@ npm run attw       # Check the packed tarball with @arethetypeswrong/cli (part o
 
 `npm run verify` ends with `npm run attw`, which packs the package and checks it with `@arethetypeswrong/cli`. The four ambient `/global*` entrypoints are checked with `cjs-resolves-to-esm` ignored, because nothing imports them and a `.d.cts` copy would declare the globals twice for a project that mixes `.cts` and `.mts` files. `scripts/attw.js` has the reasoning.
 
+### Firefox test corpus
+
+`npm test` also type-checks the `browser.*` calls in Firefox's own extension tests against freshly generated declarations. The code is extracted from `TOPSRCDIR` at test time, checked as JavaScript, and its diagnostics are grouped into families (error code, message with local names and long types elided, and the API involved). `corpus/baseline.json` lists every accepted family with a reason and a note. The test fails on a family that is not in the baseline, on a baseline family that no longer occurs, and on an entry still marked `unclassified`. Calls inside `assertThrows` and `assertRejects` are set aside. The part that reads Firefox skips when `TOPSRCDIR` is unset.
+
+```bash
+TOPSRCDIR=/path/to/firefox npm run corpus:update   # rewrite corpus/baseline.json
+```
+
+The update keeps the reason and note of every family that still occurs and marks new ones `unclassified`. Replace that with one of the reasons listed in `corpus/baseline.js` and a note that names the evidence.
+
 ## License
 
 The generator, its tests, and everything else in this repository are licensed under the [Apache License 2.0](LICENSE).

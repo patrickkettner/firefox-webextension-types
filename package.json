@@ -47,11 +47,13 @@
     "typecheck": "tsc --noEmit",
     "ablate": "node scripts/ablate.js",
     "ledger:update": "node scripts/ledger-update.js",
-    "attw": "node scripts/attw.js"
+    "attw": "node scripts/attw.js",
+    "corpus:update": "node corpus/update-baseline.js"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@types/chrome": "^0.3.7",
+    "acorn": "^8.19.0",
     "typescript": "^7.0.2"
   },
   "repository": {
