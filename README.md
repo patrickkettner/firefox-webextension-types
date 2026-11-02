@@ -135,6 +135,7 @@ npm run build      # Ingest schemas and emit declarations into dist/
 npm test           # Run test suite
 npm run verify     # Run schema parity and type integrity audits
 npm run typecheck  # Validate declarations with tsc
+npm run attw       # Check the packed tarball with @arethetypeswrong/cli
 ```
 
 `schema-key-ledger.json` lists every key in the Firefox schemas by context, as consumed by the generator or declined with a reason. `npm test` fails when a key is missing from it or an entry is no longer true. After a Firefox update or an emitter change, run `npm run ledger:update` to refresh the statuses and fill in the reason for any new key it marks unresolved. `npm run ablate` deletes each key in turn and fails when a consumed key changes no output byte. It takes a few minutes, runs one build at a time at low priority, and is not part of `npm test`.
@@ -142,6 +143,8 @@ npm run typecheck  # Validate declarations with tsc
 `npm test` measures hover text and deprecation strike-through through the TypeScript language service. The installed TypeScript 7 has no JavaScript API, so the first run installs TypeScript 5.9.3 into `node_modules/.cache/` and later runs reuse it.
 
 `npm test` also packs the package and compiles consumer code against the tarball on TypeScript 4.9.5 and 7.0.2, the ends of the supported range, once with the default strict options and once with `exactOptionalPropertyTypes`. Set `CONSUMER_TS_VERSIONS="4.9.5,5.9.3"` to run other versions as well as 7.0.2, or `CONSUMER_TS_VERSIONS=""` to run 7.0.2 only.
+
+`npm run attw` is not part of `npm test`. It exits 1 today: the ambient `/global*` entrypoints resolve to ESM from a CommonJS `require` (`CJSResolvesToESM`) and `/provenance.json` has no resolution under `node10`.
 
 ## License
 
