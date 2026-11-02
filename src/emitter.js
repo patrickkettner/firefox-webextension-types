@@ -119,7 +119,10 @@ function quoteBareAngleTokens(text) {
 export function renderDocText(text, resolveRef = (ref) => `browser.${ref}`) {
   if (!text) return "";
   let out = text
-    .replace(/\$\(ref:([^)]+)\)/g, (_, ref) => `{@link ${resolveRef(ref)}}`)
+    .replace(/\$\(ref:([^)]+)\)/g, (_, ref) => {
+      const target = resolveRef(ref);
+      return target === null ? `\`browser.${ref}\`` : `{@link ${target}}`;
+    })
     .replace(/\$\(topic:([^)]+)\)(?:\[([^\]]*)\])?/g, (_, topic, label) => label ?? topic)
     .replace(/<a\s+href=(["'])([^"']*)\1[^>]*>([\s\S]*?)<\/a>/g, (_, q, href, inner) =>
       /^https?:\/\//.test(href) ? `[${inner}](${href})` : inner
@@ -213,12 +216,17 @@ export class TypeScriptEmitter {
   }
 
   // A $(ref:) whose first segment is not a namespace names something in the
-  // namespace the description sits in.
+  // namespace the description sits in. A namespace that exists only on
+  // another surface has nothing to link to here, so the result is null.
   resolveRef(ref, nsName) {
     const first = ref.split(".")[0];
     if (!nsName || this.availableNamespaces.has(first) || first === nsName.split(".")[0]) {
       return `browser.${ref}`;
     }
+    const onOtherSurface = Object.values(this.surfaces || {}).some((namespaces) =>
+      Object.keys(namespaces).some((name) => name.split(".")[0] === first)
+    );
+    if (onOtherSurface) return null;
     return `browser.${nsName}.${ref}`;
   }
 

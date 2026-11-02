@@ -68,6 +68,16 @@ describe("schema markup rendering", () => {
     assert.equal(renderDocText("limits results to <a href='#type-DownloadItem'>DownloadItems</a> whose"), "limits results to DownloadItems whose");
   });
 
+  it("renders a $(ref:) to a namespace missing from this surface as code, not a link", () => {
+    const mobile = { tabs: namespace("tabs") };
+    const desktop = { tabs: namespace("tabs"), sessions: namespace("sessions"), "privacy.network": namespace("privacy.network") };
+    const emitter = new TypeScriptEmitter({ target: "mobile", surfaces: { desktop, mobile } });
+    emitter.availableNamespaces = new Set(["tabs"]);
+    assert.equal(emitter.docText("see $(ref:sessions) API", "tabs"), "see `browser.sessions` API");
+    assert.equal(emitter.docText("see $(ref:privacy.network.x)", "tabs"), "see `browser.privacy.network.x`");
+    assert.equal(emitter.docText("see $(ref:Tab)", "tabs"), "see {@link browser.tabs.Tab}");
+  });
+
   it("resolves a $(ref:) without a namespace segment against the namespace it is written in", () => {
     const emitter = new TypeScriptEmitter("desktop");
     emitter.availableNamespaces = new Set(["runtime", "networkStatus", "privacy", "webRequest"]);
