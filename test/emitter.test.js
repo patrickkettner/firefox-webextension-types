@@ -644,6 +644,31 @@ describe("TypeScriptEmitter", () => {
     assert.ok(fullText.includes("bytes: string;"));
   });
 
+  it("tags a deprecated entry inside choices", () => {
+    const typeInfo = {
+      choices: [
+        { type: "boolean", enum: [true] },
+        { type: "boolean", enum: [false], deprecated: "Opening inactive windows is not supported." },
+      ],
+    };
+    assert.equal(
+      emitter.emitType(typeInfo, "windows"),
+      "true | /** @deprecated Opening inactive windows is not supported. */ false"
+    );
+
+    const ns = new LoadedNamespace("tabs");
+    ns.types.Focus = {
+      id: "Focus",
+      choices: [
+        { type: "string", enum: ["a"] },
+        { type: "integer", deprecated: true },
+      ],
+    };
+    const lines = [];
+    emitter._emitNamespaceBody(ns, lines, "        ", "tabs");
+    assert.ok(lines.join("\n").includes('export type Focus = "a" | /** @deprecated */ number;'));
+  });
+
   it("cleans parameter shadowing without trailing underscore", () => {
     const fn = {
       name: "createEngine",

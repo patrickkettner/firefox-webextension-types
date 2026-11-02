@@ -303,20 +303,20 @@ export class TypeScriptEmitter {
 
     if ("choices" in typeInfo) {
       const rawChoices = typeInfo.choices.map((c) => this.emitType(c, currentNs, indent));
+      const choiceTags = typeInfo.choices.map((c) => this.choiceDeprecation(c, currentNs));
       const hasBareString = rawChoices.includes("string");
       const hasLiterals = rawChoices.some((c) => c.startsWith('"'));
       const useOpenString =
         hasBareString && (hasLiterals || currentNs === "manifest" || currentNs === "runtime");
 
       const parts = [];
-      for (let part of rawChoices) {
-        if (part === "string" && useOpenString) {
-          part = "(string & {})";
+      rawChoices.forEach((raw, i) => {
+        const part = raw === "string" && useOpenString ? "(string & {})" : raw;
+        const tagged = choiceTags[i] + part;
+        if (!parts.includes(tagged)) {
+          parts.push(tagged);
         }
-        if (!parts.includes(part)) {
-          parts.push(part);
-        }
-      }
+      });
       return parts.length ? parts.join(" | ") : "unknown";
     }
 
@@ -498,6 +498,16 @@ export class TypeScriptEmitter {
       return node.deprecated ? "" : null;
     }
     return parts.join(" ");
+  }
+
+  // An inline tag in front of one union member. Every Schemas.sys.mjs type
+  // reads `deprecated` (Entry) and warns when it normalizes a value
+  // (checkDeprecated), so a choice can be deprecated on its own. TypeScript
+  // does not surface a tag inside a union, so it shows in the declaration
+  // text only.
+  choiceDeprecation(choice, nsName) {
+    const text = this.deprecationText(choice, nsName, "member");
+    return text === null ? "" : `/** @deprecated${text ? ` ${text}` : ""} */ `;
   }
 
   manifestVersionNotes(node) {
@@ -912,10 +922,11 @@ export class TypeScriptEmitter {
         let hasBareString = false;
         for (const c of tInfo.choices) {
           const cStr = this.emitType(c, nsName, indent);
+          const tagged = this.choiceDeprecation(c, nsName) + cStr;
           if (cStr === "string") {
             hasBareString = true;
-          } else if (!choicesEmitted.includes(cStr)) {
-            choicesEmitted.push(cStr);
+          } else if (!choicesEmitted.includes(tagged)) {
+            choicesEmitted.push(tagged);
           }
         }
         if (hasBareString) {
