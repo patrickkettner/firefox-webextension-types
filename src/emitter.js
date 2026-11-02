@@ -274,7 +274,7 @@ export class TypeScriptEmitter {
       return inst;
     }
 
-    if (!("type" in typeInfo) && "value" in typeInfo) {
+    if (!Object.keys(typeInfo).includes("type") && "value" in typeInfo) {
       const val = typeInfo.value;
       if (typeof val === "boolean") {
         return "boolean";
@@ -347,8 +347,10 @@ export class TypeScriptEmitter {
       const items = typeInfo.items || {};
       const innerType = this.emitType(items, currentNs, indent);
       const itemDoc = this.inlineDoc(items.description, currentNs);
-      // Schemas.sys.mjs ArrayType.normalize rejects any other length.
-      if (typeInfo.maxItems !== undefined && typeInfo.minItems === typeInfo.maxItems) {
+      // Schemas.sys.mjs ArrayType.normalize rejects any other length. The
+      // bounds are only read where the schema gives both.
+      const bounds = Object.keys(typeInfo);
+      if (bounds.includes("minItems") && bounds.includes("maxItems") && typeInfo.minItems === typeInfo.maxItems) {
         return `[${new Array(typeInfo.maxItems).fill(itemDoc + innerType).join(", ")}]`;
       }
       if (innerType.includes(" | ")) {
@@ -658,8 +660,10 @@ export class TypeScriptEmitter {
 
   // Names the inline object types of a function, method or event after the
   // parameter they type, in a namespace merged with the owner, and marks
-  // each schema node so every later emission references that name.
-  nameHelpers(node, holder, currentNs) {
+  // each schema node so every later emission references that name. A
+  // function override states the return type whole, so the schema's returns
+  // object is not named.
+  nameHelpers(node, holder, currentNs, returnsOverridden = false) {
     const helpers = [];
     const register = (name, typeInfo) => {
       const existing = helpers.find((h) => h.name === name);
@@ -688,7 +692,7 @@ export class TypeScriptEmitter {
         register(capitalize(sanitizeName(p.name || "arg")), p);
       }
     }
-    if (isInlineObject(node.returns)) {
+    if (!returnsOverridden && isInlineObject(node.returns)) {
       register("Result", node.returns);
     }
     return helpers;
@@ -720,7 +724,7 @@ export class TypeScriptEmitter {
     const override = FUNCTION_OVERRIDES[fnKey] || {};
     const sourceFile = fn._source_file || "";
     const holder = name === "eval" ? "_eval" : name;
-    const helpers = this.nameHelpers(fn, ownerTypeId ? `${ownerTypeId}.${holder}` : holder, currentNs);
+    const helpers = this.nameHelpers(fn, ownerTypeId ? `${ownerTypeId}.${holder}` : holder, currentNs, "returns" in override);
 
     const asyncResult = ASYNC_RESULTS[fnKey];
     let overloads = resolveOverloads(fn);
