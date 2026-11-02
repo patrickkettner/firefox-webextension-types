@@ -295,6 +295,35 @@ for (const { label, tsc } of compilers) for (const mode of modes) {
       );
     });
 
+    it("a .cts and a .mts file can both reference an ambient entrypoint in one program", () => {
+      const ref = '/// <reference types="firefox-webextension-types/global" />\nbrowser.tabs.query({});\nexport {};\n';
+      expectClean(
+        tsc,
+        {
+          files: { "a.cts": ref, "b.mts": ref },
+          options: { module: "node16", moduleResolution: "node16" },
+        },
+        "ambient from CJS and ESM"
+      );
+    });
+
+    // TypeScript 7 removed node10 resolution, and 4.9 calls it "node".
+    const major = Number(label.split(".")[0]);
+    it("node10: provenance.json resolves through typesVersions", { skip: !(major < 7) && "node10 resolution was removed in TypeScript 7" }, () => {
+      expectClean(
+        tsc,
+        {
+          files: {
+            "prov.ts":
+              'import prov = require("firefox-webextension-types/provenance.json");\n' +
+              "export const version: string = prov.firefoxVersion;\n",
+          },
+          options: { module: "commonjs", moduleResolution: major < 5 ? "node" : "node10" },
+        },
+        "node10 provenance"
+      );
+    });
+
     it("without a types entry the ambient browser is not declared", () => {
       expectClean(
         tsc,

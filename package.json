@@ -28,6 +28,9 @@
       ],
       "chrome": [
         "dist/chrome.d.ts"
+      ],
+      "provenance.json": [
+        "dist/provenance.json"
       ]
     }
   },
