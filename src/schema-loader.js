@@ -47,11 +47,26 @@ function manifestVersionsDisjoint(a, b) {
   return max(a) < min(b) || max(b) < min(a);
 }
 
+// Schemas.sys.mjs Namespace.addSchema takes permissions, allowedContexts,
+// defaultContexts and the manifest version bounds from the namespace's own
+// schema entries, last entry wins, and a $import carries none of them.
+export const NAMESPACE_GATES = [
+  "permissions",
+  "allowedContexts",
+  "defaultContexts",
+  "min_manifest_version",
+  "max_manifest_version",
+];
+
 export class LoadedNamespace {
   constructor(name, description = "", permissions = []) {
     this.name = name;
     this.description = description;
     this.permissions = Array.from(permissions);
+    this.allowedContexts = [];
+    this.defaultContexts = [];
+    this.min_manifest_version = undefined;
+    this.max_manifest_version = undefined;
     this.types = {};
     this.functions = {};
     this.events = {};
@@ -158,11 +173,7 @@ export class SchemaRegistry {
         if (!nsName) continue;
 
         if (!namespaces[nsName]) {
-          namespaces[nsName] = new LoadedNamespace(
-            nsName,
-            entry.description || "",
-            entry.permissions || []
-          );
+          namespaces[nsName] = new LoadedNamespace(nsName, entry.description || "");
         }
         const ns = namespaces[nsName];
 
@@ -170,11 +181,9 @@ export class SchemaRegistry {
           ns.description = entry.description;
         }
 
-        if (Array.isArray(entry.permissions)) {
-          for (const p of entry.permissions) {
-            if (!ns.permissions.includes(p)) {
-              ns.permissions.push(p);
-            }
+        for (const key of NAMESPACE_GATES) {
+          if (entry[key]) {
+            ns[key] = Array.isArray(entry[key]) ? Array.from(entry[key]) : entry[key];
           }
         }
 
@@ -326,11 +335,6 @@ export class SchemaRegistry {
             for (const [pname, pval] of Object.entries(superNs.properties)) {
               if (!ns.properties[pname]) {
                 ns.properties[pname] = structuredClone(pval);
-              }
-            }
-            for (const p of superNs.permissions) {
-              if (!ns.permissions.includes(p)) {
-                ns.permissions.push(p);
               }
             }
             if (!ns.description && superNs.description) {

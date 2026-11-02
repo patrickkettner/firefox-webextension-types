@@ -391,6 +391,51 @@ comment */
     assert.ok("propA" in ba.properties);
   });
 
+  it("takes namespace gates from the namespace's own entries, last one wins, never from $import", () => {
+    const root = path.join(tempDir, "ns_gates");
+    const tk = path.join(root, "toolkit", "components", "extensions", "schemas");
+    const br = path.join(root, "browser", "components", "extensions", "schemas");
+    fs.mkdirSync(tk, { recursive: true });
+    fs.mkdirSync(br, { recursive: true });
+    fs.writeFileSync(path.join(tk, "jar.mn"), "menus.json\nmenus_child.json\n", "utf8");
+    fs.writeFileSync(path.join(br, "jar.mn"), "", "utf8");
+    fs.writeFileSync(
+      path.join(tk, "menus.json"),
+      JSON.stringify([
+        { namespace: "contextMenus", permissions: ["contextMenus"], $import: "menus" },
+        {
+          namespace: "menus",
+          permissions: ["menus"],
+          max_manifest_version: 2,
+          functions: [{ name: "create", type: "function", parameters: [] }],
+        },
+      ]),
+      "utf8"
+    );
+    fs.writeFileSync(
+      path.join(tk, "menus_child.json"),
+      JSON.stringify([
+        {
+          namespace: "menus",
+          permissions: ["menus", "contextMenus"],
+          allowedContexts: ["content", "devtools"],
+          functions: [{ name: "getTargetElement", type: "function", parameters: [] }],
+        },
+      ]),
+      "utf8"
+    );
+
+    const namespaces = new SchemaRegistry(root).loadTarget("desktop");
+    assert.deepEqual(namespaces.menus.permissions, ["menus", "contextMenus"]);
+    assert.deepEqual(namespaces.menus.allowedContexts, ["content", "devtools"]);
+    assert.deepEqual(namespaces.menus.defaultContexts, []);
+    assert.equal(namespaces.menus.max_manifest_version, 2);
+    assert.deepEqual(namespaces.contextMenus.permissions, ["contextMenus"]);
+    assert.deepEqual(namespaces.contextMenus.allowedContexts, []);
+    assert.equal(namespaces.contextMenus.max_manifest_version, undefined);
+    assert.ok("getTargetElement" in namespaces.contextMenus.functions);
+  });
+
   it("merges properties via type $import", () => {
     const firefoxDir = tempDir;
     const tImpDir = path.join(firefoxDir, "t_imp_test");
