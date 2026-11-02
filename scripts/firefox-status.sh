@@ -22,7 +22,7 @@ if [ -d "$MOZ/.git" ]; then
   cd "$MOZ" || exit 1
   n=$(git diff --name-only HEAD -- "toolkit/components/extensions/schemas/" "browser/components/extensions/schemas/" "mobile/shared/components/extensions/schemas/" 2>/dev/null | wc -l)
   echo "modified schema files: $n"
-  [ "$n" -eq 0 ] && echo "  (none — the tree is unmodified)"
+  [ "$n" -eq 0 ] && echo "  (none, the tree is unmodified)"
 else
   echo "NO FIREFOX CHECKOUT at $MOZ"
 fi
