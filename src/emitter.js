@@ -1,8 +1,8 @@
 /**
  * emitter.js - TypeScript Definition Code Generator for Firefox WebExtensions
  *
- * 100% pure mathematical schema fidelity against Mozilla Firefox source schemas.
- * Zero unbacked phantom types, zero fabricated readonly modifiers, zero generic overrides.
+ * Types come from the Firefox schemas; what the schemas cannot express comes
+ * from src/overrides.js, where each entry names the Firefox file behind it.
  */
 
 import { isAsyncFunction, resolveOverloads } from "./overload-resolver.js";
