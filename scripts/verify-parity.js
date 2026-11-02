@@ -197,7 +197,7 @@ export function verifySoundnessAndFixedTypes() {
       "browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void"
     )
   ) {
-    errors.push("WebExtensionWebRequestEvent listener return type incorrect");
+    errors.push("webRequest blocking listener return type incorrect");
   }
 
   if (!indexDts.includes("(string & {})")) {

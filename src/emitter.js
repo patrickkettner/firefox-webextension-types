@@ -768,15 +768,6 @@ export class TypeScriptEmitter {
     out.push("    removeListener(callback: TListener): void;");
     out.push("    hasListener(callback: TListener): boolean;");
     out.push("}");
-    out.push(
-      `${exp}interface WebExtensionWebRequestEvent<TListener extends (...args: any[]) => browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void> {`
-    );
-    out.push(
-      "    addListener(callback: TListener, filter?: browser.webRequest.RequestFilter, extraInfoSpec?: string[]): void;"
-    );
-    out.push("    removeListener(callback: TListener): void;");
-    out.push("    hasListener(callback: TListener): boolean;");
-    out.push("}");
     out.push("");
     out.push(`${ambient ? "declare" : "export"} namespace browser {`);
 
