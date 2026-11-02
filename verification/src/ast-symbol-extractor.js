@@ -19,7 +19,7 @@ export function extractSymbolsFromDts(dtsPath) {
   let propCount = 0;
 
   const reNsStart = /^\s*export\s+namespace\s+([a-zA-Z0-9_]+)\s*\{/;
-  const reIface = /^\s*export\s+interface\s+([a-zA-Z0-9_]+)\s*\{/;
+  const reIface = /^\s*export\s+interface\s+([a-zA-Z0-9_]+)\s*(?:<[^{]*>)?\s*(?:extends\s+[a-zA-Z0-9_.]+\s*)?\{/;
   const reType = /^\s*export\s+type\s+([a-zA-Z0-9_]+)\s*=/;
   const reFn = /^\s*export\s+function\s+([a-zA-Z0-9_]+)/;
   const reConst = /^\s*export\s+const\s+([a-zA-Z0-9_]+)\s*:\s*(.*?);/;

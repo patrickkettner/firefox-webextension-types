@@ -1,5 +1,9 @@
 import { describe, it, beforeEach } from "node:test";
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { TypeScriptEmitter, formatEnumVal } from "../src/emitter.js";
 import { LoadedNamespace } from "../src/schema-loader.js";
 
@@ -121,7 +125,7 @@ describe("TypeScriptEmitter", () => {
     };
     const emitted = emitter.emitType(objType, "tabs");
     assert.ok(emitted.includes("url: string;"));
-    assert.ok(emitted.includes("active?: boolean;"));
+    assert.ok(emitted.includes("active?: boolean | undefined;"));
   });
 
   it("adds index signature to empty interfaces to prevent matching primitives", () => {
@@ -150,15 +154,15 @@ describe("TypeScriptEmitter", () => {
     );
   });
 
-  it("emits schema-faithful return type for runtime.getManifest", () => {
+  it("types runtime.getManifest as the normalized WebExtensionManifest", () => {
     const fn = {
       name: "getManifest",
       parameters: [],
-      returns: { type: "object" },
+      returns: { type: "object", properties: {}, additionalProperties: { type: "any" } },
     };
     const lines = emitter.emitFunctionOverloads(fn, "runtime", "        ");
     const fullText = lines.join("\n");
-    assert.ok(fullText.includes("Record<string, unknown>"));
+    assert.ok(fullText.includes("getManifest(): browser.manifest.WebExtensionManifest;"));
   });
 
   it("emits schema-faithful signature for runtime.sendMessage without fabricated generics", () => {
@@ -210,7 +214,7 @@ describe("TypeScriptEmitter", () => {
     const fullText = emitter.generate({ tabs: ns });
     assert.ok(!fullText.includes("TabsQueryInfo"));
     assert.ok(!fullText.includes("interface QueryInfo"));
-    assert.ok(fullText.includes("active?: boolean;"));
+    assert.ok(fullText.includes("active?: boolean | undefined;"));
   });
 
   it("marks immutable properties as readonly when specified in schema", () => {
@@ -230,7 +234,105 @@ describe("TypeScriptEmitter", () => {
     assert.ok(fullText.includes("id: number;"));
     assert.ok(!fullText.includes("readonly id: number;"));
     assert.ok(fullText.includes("readonly created: number;"));
-    assert.ok(fullText.includes("url?: string;"));
+    assert.ok(fullText.includes("url?: string | undefined;"));
+  });
+
+  it("renders typed maps as index signatures", () => {
+    assert.equal(
+      emitter.emitType({ type: "object", additionalProperties: { $ref: "StorageChange" } }, "storage"),
+      "{ [key: string]: StorageChange }"
+    );
+    assert.equal(
+      emitter.emitType({ type: "object", additionalProperties: { type: "any" } }, "storage"),
+      "Record<string, any>"
+    );
+    assert.equal(emitter.emitType({ type: "object", additionalProperties: true }, "storage"), "Record<string, unknown>");
+    assert.equal(emitter.emitType({ type: "object" }, "proxy"), "Record<string, unknown>");
+    assert.equal(
+      emitter.emitType(
+        { type: "object", patternProperties: { "^[1-9]\\d*$": { type: "string" } }, additionalProperties: false },
+        "manifest"
+      ),
+      "{ [key: number]: string }"
+    );
+    assert.equal(
+      emitter.emitType(
+        { type: "object", patternProperties: { "^[a-z]+$": { type: "string" }, "^[a-z]{2}$": { type: "object" } } },
+        "manifest"
+      ),
+      "{ [key: string]: string | Record<string, unknown> }"
+    );
+  });
+
+  it("renders fixed-length arrays as tuples", () => {
+    assert.equal(
+      emitter.emitType({ type: "array", items: { type: "integer" }, minItems: 4, maxItems: 4 }, "action"),
+      "[number, number, number, number]"
+    );
+    assert.equal(
+      emitter.emitType({ type: "array", items: { type: "string" }, minItems: 1 }, "tabs"),
+      "string[]"
+    );
+    assert.equal(
+      emitter.emitType({ type: "array", items: { type: "string" }, maxItems: 15 }, "manifest"),
+      "string[]"
+    );
+  });
+
+  it("maps isInstanceOf to the platform class", () => {
+    assert.equal(
+      emitter.emitType({ type: "object", isInstanceOf: "ImageData", additionalProperties: { type: "any" } }, "action"),
+      "globalThis.ImageData"
+    );
+    assert.equal(
+      emitter.emitType({ type: "object", isInstanceOf: "StreamFilter", additionalProperties: { type: "any" } }, "webRequest"),
+      "StreamFilter"
+    );
+    assert.equal(
+      emitter.emitType({ type: "object", isInstanceOf: "StreamFilter", additionalProperties: { type: "any" } }, "tabs"),
+      "browser.webRequest.StreamFilter"
+    );
+    const ns = new LoadedNamespace("action");
+    ns.types.ImageDataType = {
+      id: "ImageDataType",
+      type: "object",
+      isInstanceOf: "ImageData",
+      additionalProperties: { type: "any" },
+    };
+    const lines = [];
+    emitter._emitNamespaceBody(ns, lines, "        ", "action");
+    assert.ok(lines.join("\n").includes("export type ImageDataType = globalThis.ImageData;"));
+  });
+
+  it("emits WebIDL-backed interfaces", () => {
+    const ns = new LoadedNamespace("webRequest");
+    ns.types.StreamFilter = {
+      id: "StreamFilter",
+      _webidl: {
+        extends: "EventTarget",
+        members: [
+          { kind: "operation", name: "write", returns: "undefined", params: [{ name: "data", type: "(ArrayBuffer or Uint8Array)", optional: false }] },
+          { kind: "attribute", name: "error", type: "DOMString", readonly: true },
+          { kind: "attribute", name: "ondata", type: "EventHandler", readonly: false },
+        ],
+      },
+    };
+    const lines = [];
+    emitter._emitNamespaceBody(ns, lines, "        ", "webRequest");
+    const fullText = lines.join("\n");
+    assert.ok(fullText.includes("export interface StreamFilter extends EventTarget {"));
+    assert.ok(fullText.includes("write(data: ArrayBuffer | Uint8Array): void;"));
+    assert.ok(fullText.includes("readonly error: string;"));
+    assert.ok(fullText.includes("ondata: ((this: StreamFilter, event: StreamFilterDataEvent) => any) | null;"));
+  });
+
+  it("lets optional properties take an explicit undefined", () => {
+    const emitted = emitter.emitType(
+      { type: "object", properties: { url: { type: "string", optional: true }, data: { type: "any", optional: true } } },
+      "tabs"
+    );
+    assert.ok(emitted.includes("url?: string | undefined;"));
+    assert.ok(emitted.includes("data?: any;"));
   });
 
   it("does not fabricate readonly for manifest properties", () => {
@@ -282,5 +384,33 @@ describe("TypeScriptEmitter", () => {
     assert.ok(freshEmitter.availableNamespaces instanceof Set);
     const res = freshEmitter.emitType({ $ref: "foo.Bar" }, "test");
     assert.equal(res, "unknown");
+  });
+
+  it("compiles the exactOptionalPropertyTypes fixture against dist", () => {
+    const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+    if (!fs.existsSync(path.join(root, "dist", "index.d.ts"))) {
+      return;
+    }
+    const res = spawnSync(
+      process.execPath,
+      [
+        path.join(root, "node_modules", "typescript", "bin", "tsc"),
+        "--ignoreConfig",
+        "--noEmit",
+        "--strict",
+        "--exactOptionalPropertyTypes",
+        "--target",
+        "es2022",
+        "--module",
+        "nodenext",
+        "--moduleResolution",
+        "nodenext",
+        "--lib",
+        "es2022,dom",
+        path.join(root, "test", "fixtures", "exact_optional.ts"),
+      ],
+      { encoding: "utf8" }
+    );
+    assert.equal(res.status, 0, res.stdout + res.stderr);
   });
 });

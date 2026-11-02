@@ -7,6 +7,8 @@
 
 import { resolveOverloads } from "./overload-resolver.js";
 import { codePointCompare, entryCodePointCompare } from "./comparator.js";
+import { FUNCTION_OVERRIDES, PLATFORM_TYPES, WEBIDL_EVENT_HANDLERS } from "./overrides.js";
+import { webidlTypeToTs } from "./webidl.js";
 
 export const RESERVED_IDENTIFIERS = {
   default: "defaultValue",
@@ -124,17 +126,10 @@ export class TypeScriptEmitter {
     }
 
     if ("isInstanceOf" in typeInfo) {
-      let inst = typeInfo.isInstanceOf;
-      if (inst === "global") {
-        inst = "Window";
-      } else if (inst === "Date") {
-        inst = "globalThis.Date";
-      } else if (inst === "Promise") {
-        inst = "globalThis.Promise<any>";
-      } else if (inst === "DirectoryEntry") {
-        inst = "Record<string, unknown>";
-      } else if (inst === "StreamFilter") {
-        inst = "Record<string, unknown>";
+      let inst = PLATFORM_TYPES[typeInfo.isInstanceOf] || typeInfo.isInstanceOf;
+      const prefix = `browser.${currentNs}.`;
+      if (inst.startsWith(prefix)) {
+        inst = inst.slice(prefix.length);
       }
       if (typeInfo.optional) {
         return `${inst} | null`;
@@ -218,6 +213,10 @@ export class TypeScriptEmitter {
     } else if (t === "array") {
       const items = typeInfo.items || {};
       const innerType = this.emitType(items, currentNs);
+      // Schemas.sys.mjs ArrayType.normalize rejects any other length.
+      if (typeInfo.maxItems !== undefined && typeInfo.minItems === typeInfo.maxItems) {
+        return `[${new Array(typeInfo.maxItems).fill(innerType).join(", ")}]`;
+      }
       if (innerType.includes(" | ")) {
         return `(${innerType})[]`;
       }
@@ -227,20 +226,17 @@ export class TypeScriptEmitter {
         const props = [];
         const sortedEntries = Object.entries(typeInfo.properties).sort(entryCodePointCompare);
         for (const [pName, pVal] of sortedEntries) {
-          const opt = pVal && pVal.optional ? "?" : "";
           let pType;
           if (pName === "bytes" && currentNs.includes("webRequest")) {
             pType = "ArrayBuffer";
           } else {
             pType = this.emitType(pVal, currentNs);
           }
-          props.push(`${sanitizePropertyName(pName)}${opt}: ${pType}`);
+          props.push(`${sanitizePropertyName(pName)}${this.optionalProperty(pVal, pType)}`);
         }
         return "{\n" + props.join(";\n") + ";\n}";
-      } else if (typeInfo.patternProperties) {
-        return "Record<string, unknown>";
       }
-      return "Record<string, unknown>";
+      return this.emitMapType(typeInfo, currentNs);
     } else if (t === "function") {
       if (!typeInfo.parameters) {
         return "((...args: any[]) => void)";
@@ -265,9 +261,48 @@ export class TypeScriptEmitter {
     return t;
   }
 
-  emitFunctionOverloads(fn, currentNs, indent, isMethod = false) {
+  // Schemas.sys.mjs ObjectType.normalize treats an explicit undefined on an
+  // optional property as absent, so `?: T` must also admit undefined under
+  // exactOptionalPropertyTypes.
+  optionalProperty(pVal, pType) {
+    if (!pVal || !pVal.optional) {
+      return `: ${pType}`;
+    }
+    if (pType === "any" || pType === "unknown") {
+      return `?: ${pType}`;
+    }
+    return `?: ${pType} | undefined`;
+  }
+
+  // Objects without named properties: the key space comes from
+  // patternProperties and the value type from additionalProperties, both
+  // enforced by Schemas.sys.mjs ObjectType.normalize.
+  emitMapType(typeInfo, currentNs) {
+    const patterns = Object.entries(typeInfo.patternProperties || {});
+    if (patterns.length > 0) {
+      const numeric = patterns.every(([pattern]) => pattern === "^[1-9]\\d*$");
+      const valueTypes = [];
+      for (const [, valueSchema] of patterns) {
+        const vt = this.emitType(valueSchema, currentNs);
+        if (!valueTypes.includes(vt)) valueTypes.push(vt);
+      }
+      return `{ [key: ${numeric ? "number" : "string"}]: ${valueTypes.join(" | ")} }`;
+    }
+    const additional = typeInfo.additionalProperties;
+    if (additional && typeof additional === "object") {
+      if (additional.type === "any") {
+        return "Record<string, any>";
+      }
+      return `{ [key: string]: ${this.emitType(additional, currentNs)} }`;
+    }
+    return "Record<string, unknown>";
+  }
+
+  emitFunctionOverloads(fn, currentNs, indent, isMethod = false, ownerTypeId = null) {
     const lines = [];
     const name = sanitizeName(fn.name || "");
+    const fnKey = [currentNs, ownerTypeId, fn.name].filter(Boolean).join(".");
+    const override = FUNCTION_OVERRIDES[fnKey] || {};
     const desc = fn.description || "";
     const sourceFile = fn._source_file || "";
 
@@ -360,7 +395,7 @@ export class TypeScriptEmitter {
             : "void";
         actualRet = `globalThis.Promise<${retType}>`;
       } else {
-        actualRet = this.emitType(ov.returns, currentNs);
+        actualRet = override.returns || this.emitType(ov.returns, currentNs);
       }
 
       if (isMethod) {
@@ -376,6 +411,27 @@ export class TypeScriptEmitter {
       lines.push(`${indent}export { _eval as eval };`);
     }
 
+    return lines;
+  }
+
+  emitWebidlInterface(typeId, idl, indent) {
+    const lines = [];
+    const heritage = idl.extends ? ` extends ${idl.extends}` : "";
+    lines.push(`${indent}export interface ${typeId}${heritage} {`);
+    for (const member of idl.members) {
+      if (member.kind === "attribute") {
+        const ro = member.readonly ? "readonly " : "";
+        const type = webidlTypeToTs(member.type, typeId, member.name, WEBIDL_EVENT_HANDLERS);
+        lines.push(`${indent}    ${ro}${member.name}: ${type};`);
+      } else {
+        const params = member.params
+          .map((p) => `${p.name}${p.optional ? "?" : ""}: ${webidlTypeToTs(p.type, typeId, p.name, WEBIDL_EVENT_HANDLERS)}`)
+          .join(", ");
+        const returns = webidlTypeToTs(member.returns, typeId, member.name, WEBIDL_EVENT_HANDLERS);
+        lines.push(`${indent}    ${member.name}(${params}): ${returns};`);
+      }
+    }
+    lines.push(`${indent}}`);
     return lines;
   }
 
@@ -400,6 +456,10 @@ export class TypeScriptEmitter {
       if ("enum" in tInfo) {
         const enumStr = tInfo.enum.map(formatEnumVal).join(" | ");
         out.push(`${indent}export type ${typeId} = ${enumStr};`);
+      } else if (tInfo._webidl) {
+        out.push(...this.emitWebidlInterface(typeId, tInfo._webidl, indent));
+      } else if ("isInstanceOf" in tInfo) {
+        out.push(`${indent}export type ${typeId} = ${this.emitType(tInfo, nsName)};`);
       } else if ("choices" in tInfo) {
         const choicesEmitted = [];
         let hasBareString = false;
@@ -439,8 +499,6 @@ export class TypeScriptEmitter {
               out.push(...pDocs);
               out.push(`${indent}     */`);
             }
-            const opt = pVal.optional ? "?" : "";
-
             let pType;
             if (pName === "bytes" && nsName.includes("webRequest")) {
               pType = "ArrayBuffer";
@@ -450,19 +508,16 @@ export class TypeScriptEmitter {
 
             const isReadonly = Boolean(pVal.readOnly || pVal.readonly || pVal.unsupported);
             const ro = isReadonly ? "readonly " : "";
-            out.push(`${indent}    ${ro}${sanitizePropertyName(pName)}${opt}: ${pType};`);
+            out.push(
+              `${indent}    ${ro}${sanitizePropertyName(pName)}${this.optionalProperty(pVal, pType)};`
+            );
           }
 
           const sortedFnsList = [...fnsList].sort((a, b) =>
             codePointCompare(a.name || "", b.name || "")
           );
           for (const fn of sortedFnsList) {
-            const fnLines = this.emitFunctionOverloads(
-              fn,
-              nsName,
-              indent + "    ",
-              true
-            );
+            const fnLines = this.emitFunctionOverloads(fn, nsName, indent + "    ", true, typeId);
             out.push(...fnLines);
           }
 

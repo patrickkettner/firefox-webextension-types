@@ -100,7 +100,7 @@ import { chrome } from "firefox-webextension-types/chrome";
 export async function positive() {
     const tabs: browser.tabs.Tab[] = await browser.tabs.query({ active: true, currentWindow: true });
     const tabId: number | undefined = tabs[0].id;
-    const manifest: Record<string, unknown> = browser.runtime.getManifest();
+    const manifest: browser.manifest.WebExtensionManifest = browser.runtime.getManifest();
     const p: browser.manifest.Permission = "tabs";
     await desktopBrowser.windows.getAll();
     await mobileBrowser.tabs.query({});
@@ -123,6 +123,9 @@ export async function negative() {
     browser.notARealNamespace;
     // @ts-expect-error primitives are not image data
     const bad: browser.action.ImageDataType = 42;
+    const validImage: browser.action.ImageDataType = new ImageData(16, 16);
+    // @ts-expect-error Schemas.sys.mjs requires an ImageData instance for isInstanceOf
+    const badImage: browser.action.ImageDataType = { width: 16, height: 16 };
 }
 `;
 

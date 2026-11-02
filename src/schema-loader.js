@@ -2,7 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { parseJarMn } from "./jar-parser.js";
 import { codePointCompare, entryCodePointCompare } from "./comparator.js";
-import { EXCLUDED_NAMESPACES } from "./overrides.js";
+import { EXCLUDED_NAMESPACES, WEBIDL_TYPES } from "./overrides.js";
+import { loadWebidlTypes } from "./webidl.js";
 
 /**
  * Strips comments from raw schema JSON and returns the parsed object/array.
@@ -411,6 +412,13 @@ export class SchemaRegistry {
 
     for (const excluded of Object.keys(EXCLUDED_NAMESPACES)) {
       delete namespaces[excluded];
+    }
+
+    for (const [nsName, files] of Object.entries(WEBIDL_TYPES)) {
+      if (!namespaces[nsName]) continue;
+      for (const t of loadWebidlTypes(this.firefoxRoot, files)) {
+        namespaces[nsName].types[t.id] = t;
+      }
     }
 
     return namespaces;

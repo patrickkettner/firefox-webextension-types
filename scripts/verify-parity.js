@@ -176,8 +176,8 @@ export function verifySoundnessAndFixedTypes() {
   const indexDts = fs.readFileSync(path.join(PROJ, "dist", "index.d.ts"), "utf8");
   const errors = [];
 
-  if (!indexDts.includes("getManifest(): Record<string, unknown>;")) {
-    errors.push("runtime.getManifest() not typed as Record<string, unknown>");
+  if (!indexDts.includes("getManifest(): browser.manifest.WebExtensionManifest;")) {
+    errors.push("runtime.getManifest() not typed as browser.manifest.WebExtensionManifest");
   }
 
   if (!indexDts.includes("getViews(): Window[];")) {
@@ -188,7 +188,7 @@ export function verifySoundnessAndFixedTypes() {
     errors.push("extension.getBackgroundPage() not typed as Window | null");
   }
 
-  if (!indexDts.includes("bytes?: ArrayBuffer;")) {
+  if (!indexDts.includes("bytes?: ArrayBuffer | undefined;")) {
     errors.push("webRequest.UploadData.bytes not typed as ArrayBuffer");
   }
 

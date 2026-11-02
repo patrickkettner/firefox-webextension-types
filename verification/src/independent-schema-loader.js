@@ -17,6 +17,32 @@ export const EXCLUDED_NAMESPACES = {
   },
 };
 
+// Types that come from Firefox WebIDL rather than a JSON schema, because a
+// schema `isInstanceOf` names them. Read here independently of src/.
+export const WEBIDL_BACKED_TYPES = {
+  webRequest: ["dom/webidl/StreamFilter.webidl", "dom/webidl/StreamFilterDataEvent.webidl"],
+};
+
+function readWebidlTypes(firefoxRoot, files) {
+  const types = [];
+  for (const rel of files) {
+    const text = fs
+      .readFileSync(path.join(firefoxRoot, rel), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "");
+    for (const m of text.matchAll(/\b(enum|interface)\s+([A-Za-z_][A-Za-z0-9_]*)[^{]*\{([^}]*)\}/g)) {
+      const [, kind, id, body] = m;
+      const properties = {};
+      if (kind === "interface") {
+        for (const attr of body.matchAll(/\b(readonly\s+)?attribute\s+\S+\s+([A-Za-z_][A-Za-z0-9_]*)\s*;/g)) {
+          properties[attr[2]] = attr[1] ? { readOnly: true } : {};
+        }
+      }
+      types.push({ id, properties });
+    }
+  }
+  return types;
+}
+
 export function verifyExclusionEvidence(firefoxRoot) {
   const failures = [];
   for (const [nsName, { file, evidence }] of Object.entries(EXCLUDED_NAMESPACES)) {
@@ -242,6 +268,15 @@ export function loadIndependentSchemaUniverse(firefoxRoot, target = "desktop") {
           pending = true;
         }
       }
+    }
+  }
+
+  for (const [nsName, files] of Object.entries(WEBIDL_BACKED_TYPES)) {
+    const ns = namespaces.get(nsName);
+    if (!ns) continue;
+    for (const t of readWebidlTypes(firefoxRoot, files)) {
+      ns.types.set(t.id, t);
+      typeCount++;
     }
   }
 
