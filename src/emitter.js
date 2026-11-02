@@ -9,6 +9,8 @@ import { isAsyncFunction, resolveOverloads } from "./overload-resolver.js";
 import { codePointCompare, entryCodePointCompare } from "./comparator.js";
 import {
   ASYNC_RESULTS,
+  EVENT_LISTENER_RETURNS,
+  EVENT_PARAMETERS,
   FUNCTION_OVERRIDES,
   NULL_RESULTS,
   PLATFORM_TYPES,
@@ -494,6 +496,44 @@ export class TypeScriptEmitter {
     return lines;
   }
 
+  // Schemas.sys.mjs Event.getDescriptor: addListener(listener, ...extraParameters)
+  // checks the extra arguments like function parameters, so an optional one
+  // also takes null; removeListener and hasListener take the listener only.
+  emitEventType(ev, nsName, ownerTypeId = null) {
+    const evKey = [nsName, ownerTypeId, ev.name].filter(Boolean).join(".");
+    const paramOverrides = EVENT_PARAMETERS[evKey] || {};
+    const params = ev.parameters || [];
+    const signature = params.map((p, i) => {
+      const name = sanitizeName(p.name || "details");
+      if (paramOverrides[p.name]) {
+        return `${name}: ${paramOverrides[p.name]}`;
+      }
+      const trailingOptional = p.optional && params.slice(i).every((q) => q.optional);
+      if (trailingOptional) {
+        return `${name}?: ${this.emitType(p, nsName)}`;
+      }
+      return `${name}: ${this.emitValueType(p, nsName)}`;
+    });
+    let returns = EVENT_LISTENER_RETURNS[evKey];
+    if (!returns) {
+      returns = ev.returns ? `${this.emitType(ev.returns, nsName)} | void` : "void";
+    }
+    const listener = `(${signature.join(", ")}) => ${returns}`;
+    const extras = ev.extraParameters || [];
+    if (extras.length === 0) {
+      return `WebExtensionEvent<${listener}>`;
+    }
+    const extraSignature = extras.map((p) => {
+      const name = sanitizeName(p.name || "arg");
+      const type = this.emitType(p, nsName);
+      return p.optional ? `${name}?: ${type} | null` : `${name}: ${type}`;
+    });
+    return (
+      `Omit<WebExtensionEvent<${listener}>, "addListener"> & { ` +
+      `addListener(callback: ${listener}, ${extraSignature.join(", ")}): void }`
+    );
+  }
+
   _emitNamespaceBody(ns, out, indent, nsName) {
     const sortedTypes = Object.entries(ns.types).sort(entryCodePointCompare);
     for (const [typeId, tInfo] of sortedTypes) {
@@ -599,23 +639,9 @@ export class TypeScriptEmitter {
               out.push(`${indent}     */`);
             }
 
-            const evParams = ev.parameters || [];
-            const pSignatures = evParams.map(
-              (p) => `${sanitizeName(p.name || "details")}: ${this.emitType(p, nsName)}`
+            out.push(
+              `${indent}    ${sanitizeName(evName)}: ${this.emitEventType(ev, nsName, typeId)};`
             );
-            const sigStr = pSignatures.join(", ");
-
-            if (nsName.includes("webRequest")) {
-              const ret =
-                "browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void";
-              out.push(
-                `${indent}    ${sanitizeName(evName)}: WebExtensionWebRequestEvent<(${sigStr}) => ${ret}>;`
-              );
-            } else {
-              out.push(
-                `${indent}    ${sanitizeName(evName)}: WebExtensionEvent<(${sigStr}) => void>;`
-              );
-            }
           }
         }
 
@@ -646,23 +672,7 @@ export class TypeScriptEmitter {
         out.push(`${indent} */`);
       }
 
-      const evParams = evVal.parameters || [];
-      const pSignatures = evParams.map(
-        (p) => `${sanitizeName(p.name || "details")}: ${this.emitType(p, nsName)}`
-      );
-      const sigStr = pSignatures.join(", ");
-
-      if (nsName.includes("webRequest")) {
-        const ret =
-          "browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void";
-        out.push(
-          `${indent}export const ${sanitizeName(evName)}: WebExtensionWebRequestEvent<(${sigStr}) => ${ret}>;`
-        );
-      } else {
-        out.push(
-          `${indent}export const ${sanitizeName(evName)}: WebExtensionEvent<(${sigStr}) => void>;`
-        );
-      }
+      out.push(`${indent}export const ${sanitizeName(evName)}: ${this.emitEventType(evVal, nsName)};`);
       out.push("");
     }
 

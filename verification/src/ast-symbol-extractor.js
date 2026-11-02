@@ -22,7 +22,7 @@ export function extractSymbolsFromDts(dtsPath) {
   const reIface = /^\s*export\s+interface\s+([a-zA-Z0-9_]+)\s*(?:<[^{]*>)?\s*(?:extends\s+[a-zA-Z0-9_.]+\s*)?\{/;
   const reType = /^\s*export\s+type\s+([a-zA-Z0-9_]+)\s*=/;
   const reFn = /^\s*export\s+function\s+([a-zA-Z0-9_]+)/;
-  const reConst = /^\s*export\s+const\s+([a-zA-Z0-9_]+)\s*:\s*(.*?);/;
+  const reConst = /^\s*export\s+const\s+([a-zA-Z0-9_]+)\s*:\s*(.*)$/;
 
   let i = 0;
   while (i < lines.length) {
@@ -152,12 +152,22 @@ export function extractSymbolsFromDts(dtsPath) {
       continue;
     }
 
-    // Check const (events or properties)
+    // Check const (events or properties); the type may span lines
     const mConst = reConst.exec(line);
     if (mConst) {
       const constName = mConst[1];
-      const constType = mConst[2].trim();
-      if (constType.startsWith("WebExtensionEvent<") || constType.startsWith("WebExtensionWebRequestEvent<")) {
+      let constType = mConst[2].trim();
+      let depth = 0;
+      const countDepth = (text) =>
+        (text.match(/[{(<]/g) || []).length - (text.match(/[})>]/g) || []).length;
+      depth += countDepth(constType);
+      while (!(depth <= 0 && constType.endsWith(";")) && i + 1 < lines.length) {
+        i++;
+        constType += "\n" + lines[i].trim();
+        depth += countDepth(lines[i]);
+      }
+      constType = constType.replace(/;$/, "");
+      if (constType.startsWith("WebExtensionEvent<") || constType.startsWith("Omit<WebExtensionEvent<")) {
         nsObj.events.set(constName, {
           name: constName,
           typeText: constType,

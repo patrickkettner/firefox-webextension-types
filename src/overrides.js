@@ -146,6 +146,19 @@ export const NULL_RESULTS = new Set([
 // Property types on schema types. A name the schema does not declare is
 // added as a required property.
 export const TYPE_OVERRIDES = {
+  // toolkit/components/extensions/ExtensionChild.sys.mjs (Port.getAPI,
+  // recvPortMessage, recvPortDisconnect): the message is whatever was
+  // posted, listeners also receive the port, and error is null until a
+  // disconnect carries one.
+  "runtime.Port": {
+    properties: {
+      disconnect: "() => void",
+      error: "Error | null",
+      onDisconnect: "WebExtensionEvent<(port: Port) => void>",
+      onMessage: "WebExtensionEvent<(message: any, port: Port) => void>",
+      postMessage: "(message: any) => void",
+    },
+  },
   // toolkit/components/extensions/child/ext-scripting.js spreads `args`
   // into `func`; toolkit/components/extensions/ExtensionContent.sys.mjs
   // awaits the script result.
@@ -160,4 +173,38 @@ export const TYPE_OVERRIDES = {
     typeParameters: "<Result = unknown>",
     properties: { result: "Result" },
   },
+};
+
+// Listener return types for events whose schema `returns` is only part of
+// the story.
+export const EVENT_LISTENER_RETURNS = {
+  // toolkit/components/extensions/ExtensionChild.sys.mjs (MessageEvent.wrapResponse):
+  // only `true` or a Promise keeps the channel open; anything else is dropped.
+  "runtime.onMessage": "boolean | Promise<unknown> | void",
+  "runtime.onMessageExternal": "boolean | Promise<unknown> | void",
+  "runtime.onUserScriptMessage": "boolean | Promise<unknown> | void",
+  // toolkit/components/extensions/webrequest/WebRequest.sys.mjs awaits a
+  // thenable result from a blocking listener.
+  "webRequest.onAuthRequired":
+    "browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void",
+  "webRequest.onBeforeRequest":
+    "browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void",
+  "webRequest.onBeforeSendHeaders":
+    "browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void",
+  "webRequest.onHeadersReceived":
+    "browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void",
+};
+
+// Event parameter types the schema leaves as a bare object or function.
+export const EVENT_PARAMETERS = {
+  // toolkit/components/extensions/ProxyChannelFilter.sys.mjs emits a plain
+  // object with these four keys, not an Error.
+  "proxy.onError": {
+    error: "{ message: string; fileName: string; lineNumber: number; stack: string }",
+  },
+  // toolkit/components/extensions/ExtensionChild.sys.mjs (MessageEvent.wrapResponse):
+  // sendResponse takes one value.
+  "runtime.onMessage": { sendResponse: "(response?: unknown) => void" },
+  "runtime.onMessageExternal": { sendResponse: "(response?: unknown) => void" },
+  "runtime.onUserScriptMessage": { sendResponse: "(response?: unknown) => void" },
 };

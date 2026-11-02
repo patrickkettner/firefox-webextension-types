@@ -137,19 +137,104 @@ describe("TypeScriptEmitter", () => {
     assert.ok(fullText.includes("[key: string]: unknown;"));
   });
 
-  it("emits specialized webRequest blocking event return types", () => {
+  it("emits extraParameters on addListener and the blocking return type for webRequest", () => {
     const ns = new LoadedNamespace("webRequest");
     ns.events.onBeforeRequest = {
       name: "onBeforeRequest",
-      parameters: [{ name: "details", type: "object" }],
+      parameters: [{ name: "details", type: "object", properties: { url: { type: "string" } } }],
+      returns: { $ref: "BlockingResponse", optional: true },
+      extraParameters: [
+        { name: "filter", $ref: "RequestFilter" },
+        { name: "extraInfoSpec", type: "array", optional: true, items: { $ref: "OnBeforeRequestOptions" } },
+      ],
+    };
+    ns.events.onErrorOccurred = {
+      name: "onErrorOccurred",
+      parameters: [{ name: "details", type: "object", properties: { url: { type: "string" } } }],
+      extraParameters: [{ name: "filter", $ref: "RequestFilter" }],
     };
     const lines = [];
     emitter._emitNamespaceBody(ns, lines, "        ", "webRequest");
     const fullText = lines.join("\n");
-    assert.ok(fullText.includes("WebExtensionWebRequestEvent"));
+    const blocking = "browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void";
+    assert.ok(fullText.includes(`export const onBeforeRequest: Omit<WebExtensionEvent<(details: {\nurl: string;\n}) => ${blocking}>, "addListener"> & { addListener(callback: (details: {\nurl: string;\n}) => ${blocking}, filter: RequestFilter, extraInfoSpec?: OnBeforeRequestOptions[] | null): void };`));
+    assert.ok(fullText.includes(`export const onErrorOccurred: Omit<WebExtensionEvent<(details: {\nurl: string;\n}) => void>, "addListener"> & { addListener(callback: (details: {\nurl: string;\n}) => void, filter: RequestFilter): void };`));
+    assert.ok(!fullText.includes("WebExtensionWebRequestEvent"));
+  });
+
+  it("emits optional extraParameters and optional listener parameters", () => {
+    const ns = new LoadedNamespace("tabs");
+    ns.events.onUpdated = {
+      name: "onUpdated",
+      parameters: [{ name: "tabId", type: "integer" }],
+      extraParameters: [{ name: "filter", $ref: "UpdateFilter", optional: true }],
+    };
+    ns.events.onClicked = {
+      name: "onClicked",
+      parameters: [
+        { name: "info", $ref: "OnClickData" },
+        { name: "tab", $ref: "Tab", optional: true },
+      ],
+    };
+    ns.events.onRequest = {
+      name: "onRequest",
+      parameters: [
+        { name: "request", type: "any", optional: true },
+        { name: "sender", $ref: "MessageSender" },
+      ],
+    };
+    const lines = [];
+    emitter._emitNamespaceBody(ns, lines, "        ", "tabs");
+    const fullText = lines.join("\n");
+    assert.ok(fullText.includes("addListener(callback: (tabId: number) => void, filter?: UpdateFilter | null): void };"));
+    assert.ok(fullText.includes("export const onClicked: WebExtensionEvent<(info: OnClickData, tab?: Tab) => void>;"));
+    assert.ok(fullText.includes("export const onRequest: WebExtensionEvent<(request: any, sender: MessageSender) => void>;"));
+  });
+
+  it("applies the runtime shape of messaging and proxy error listeners", () => {
+    const runtime = new LoadedNamespace("runtime");
+    runtime.events.onMessage = {
+      name: "onMessage",
+      parameters: [
+        { name: "message", type: "any", optional: true },
+        { name: "sender", $ref: "MessageSender" },
+        { name: "sendResponse", type: "function" },
+      ],
+      returns: { type: "boolean", optional: true },
+    };
+    runtime.types.Port = {
+      id: "Port",
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        disconnect: { type: "function" },
+        onDisconnect: { $ref: "events.Event" },
+        onMessage: { $ref: "events.Event" },
+        postMessage: { type: "function" },
+      },
+      additionalProperties: { type: "any" },
+    };
+    const lines = [];
+    emitter._emitNamespaceBody(runtime, lines, "        ", "runtime");
+    const fullText = lines.join("\n");
     assert.ok(
       fullText.includes(
-        "browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void"
+        "export const onMessage: WebExtensionEvent<(message: any, sender: MessageSender, sendResponse: (response?: unknown) => void) => boolean | Promise<unknown> | void>;"
+      )
+    );
+    assert.ok(fullText.includes("error: Error | null;"));
+    assert.ok(fullText.includes("onMessage: WebExtensionEvent<(message: any, port: Port) => void>;"));
+    assert.ok(fullText.includes("onDisconnect: WebExtensionEvent<(port: Port) => void>;"));
+    assert.ok(fullText.includes("postMessage: (message: any) => void;"));
+    assert.ok(fullText.includes("disconnect: () => void;"));
+
+    const proxy = new LoadedNamespace("proxy");
+    proxy.events.onError = { name: "onError", parameters: [{ name: "error", type: "object" }] };
+    const proxyLines = [];
+    emitter._emitNamespaceBody(proxy, proxyLines, "        ", "proxy");
+    assert.ok(
+      proxyLines.join("\n").includes(
+        "export const onError: WebExtensionEvent<(error: { message: string; fileName: string; lineNumber: number; stack: string }) => void>;"
       )
     );
   });
