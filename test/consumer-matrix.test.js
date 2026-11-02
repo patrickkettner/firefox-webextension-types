@@ -15,6 +15,7 @@ const typesChromeDir = path.join(repoRoot, "node_modules/@types/chrome");
 // scratch project, so every import goes through package.json "exports".
 let workDir;
 let consumerDir;
+const DEFAULT_OLDEST_TS = "4.9.5";
 const compilers = [{ label: "repo", tsc: repoTsc }];
 
 before(() => {
@@ -30,8 +31,10 @@ before(() => {
   execFileSync("tar", ["-xzf", path.join(workDir, packOut), "-C", pkgDir, "--strip-components=1"]);
   fs.writeFileSync(path.join(consumerDir, "package.json"), '{"name":"consumer","private":true}\n');
 
-  // CONSUMER_TS_VERSIONS="4.9.5,5.9.3" repeats every compile on those versions.
-  for (const v of (process.env.CONSUMER_TS_VERSIONS || "").split(",").filter(Boolean)) {
+  // The repo compiler is the newest supported TypeScript. 4.9.5 is the oldest
+  // the README supports, so the default run covers both ends of the range.
+  // CONSUMER_TS_VERSIONS="4.9.5,5.9.3" replaces that list and "" runs the repo compiler only.
+  for (const v of (process.env.CONSUMER_TS_VERSIONS ?? DEFAULT_OLDEST_TS).split(",").filter(Boolean)) {
     compilers.push({ label: v, tsc: installTypeScript(v).tsc });
   }
 });
