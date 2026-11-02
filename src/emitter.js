@@ -518,14 +518,14 @@ export class TypeScriptEmitter {
     return text ? `/** ${text} */ ` : "";
   }
 
-  // The comments in front of one union member: its description, then a
-  // deprecation tag. Every Schemas.sys.mjs type reads `deprecated` (Entry)
+  // The comments in front of one union member: its description and manifest
+  // version bounds, then a deprecation tag. Every Schemas.sys.mjs type reads `deprecated` (Entry)
   // and warns when it normalizes a value (checkDeprecated), so a choice can
   // be deprecated on its own.
   choiceDoc(choice, nsName) {
     const text = this.deprecationText(choice, nsName, "member");
     return {
-      notes: this.inlineDoc(choice.description, nsName),
+      notes: this.inlineDoc(choice.description, nsName, this.manifestVersionNotes(choice)),
       deprecated: text === null ? "" : `/** @deprecated${text ? ` ${text}` : ""} */ `,
     };
   }
