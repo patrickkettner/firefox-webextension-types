@@ -948,10 +948,8 @@ export class TypeScriptEmitter {
             out.push(...this.memberDoc(pVal, nsName, inner));
             const pType = this.emitType(pVal, nsName, inner);
 
-            const isReadonly = Boolean(pVal.readOnly || pVal.readonly || pVal.unsupported);
-            const ro = isReadonly ? "readonly " : "";
             out.push(
-              `${inner}${ro}${sanitizePropertyName(pName)}${this.optionalProperty(pVal, pType)};`
+              `${inner}${sanitizePropertyName(pName)}${this.optionalProperty(pVal, pType)};`
             );
           }
 

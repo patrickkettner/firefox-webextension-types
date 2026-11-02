@@ -303,24 +303,23 @@ describe("TypeScriptEmitter", () => {
     assert.ok(fullText.includes("active?: boolean | undefined;"));
   });
 
-  it("marks immutable properties as readonly when specified in schema", () => {
+  it("does not mark unsupported properties readonly", () => {
     const ns = new LoadedNamespace("tabs");
     ns.types.Tab = {
       id: "Tab",
       type: "object",
       properties: {
         id: { type: "integer" },
+        removed: { type: "number", optional: true, unsupported: true },
         created: { type: "number", readOnly: true },
-        url: { type: "string", optional: true },
       },
     };
     const lines = [];
     emitter._emitNamespaceBody(ns, lines, "        ", "tabs");
     const fullText = lines.join("\n");
-    assert.ok(fullText.includes("id: number;"));
-    assert.ok(!fullText.includes("readonly id: number;"));
-    assert.ok(fullText.includes("readonly created: number;"));
-    assert.ok(fullText.includes("url?: string | undefined;"));
+    assert.ok(fullText.includes("removed?: number | undefined;"));
+    assert.ok(fullText.includes("created: number;"));
+    assert.ok(!fullText.includes("readonly"));
   });
 
   it("renders typed maps as index signatures", () => {

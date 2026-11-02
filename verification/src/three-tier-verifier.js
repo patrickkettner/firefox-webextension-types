@@ -155,7 +155,7 @@ export function verifyDeclarations(schemaUniverse, emittedUniverse) {
         for (const [pName, eProp] of eType.properties.entries()) {
           const sProp = sProps[pName];
           if (sProp && eProp.readonly) {
-            const schemaMarked = Boolean(sProp.readOnly || sProp.readonly || sProp.unsupported);
+            const schemaMarked = Boolean(sProp.readOnly || sProp.readonly);
             if (!schemaMarked) {
               fabricatedReadonly.push(`${nsName}.${tName}.${pName}`);
             }
