@@ -35,17 +35,22 @@ content/extensions/schemas/desktop_only.json
 #ifdef ANDROID
 content/extensions/schemas/mobile_only.json
 #endif
-#if defined(FOO)
-content/extensions/schemas/foo.json
-#endif
 content/extensions/schemas/common.json
 `;
     fs.writeFileSync(jarPath, content, "utf8");
     const files = parseJarMn(jarPath, false);
     assert.ok(files.includes("desktop_only.json"));
     assert.ok(!files.includes("mobile_only.json"));
-    assert.ok(files.includes("foo.json"));
     assert.ok(files.includes("common.json"));
+  });
+
+  it("rejects a conditional it does not model", () => {
+    fs.writeFileSync(
+      jarPath,
+      "#if defined(FOO)\ncontent/extensions/schemas/foo.json\n#endif\n",
+      "utf8"
+    );
+    assert.throws(() => parseJarMn(jarPath, false), /jar\.mn:1: unsupported conditional "#if defined\(FOO\)"/);
   });
 
   it("parses android/mobile schemas properly", () => {
