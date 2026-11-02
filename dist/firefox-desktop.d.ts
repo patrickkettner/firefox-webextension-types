@@ -1812,7 +1812,7 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/browser/components/extensions/schemas/commands.json
          * @platform desktop
          */
-        export const onCommand: WebExtensionEvent<(command: string, tab?: browser.tabs.Tab) => void>;
+        export const onCommand: WebExtensionEvent<(command: string, tab: browser.tabs.Tab) => void>;
 
         /**
          * Returns all the registered extension commands for this extension and their shortcut (if active).
@@ -4562,9 +4562,9 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/downloads.json
          * @platform desktop, mobile
          */
-        export function getFileIcon(downloadId: number, options?: getFileIcon.Options | null): globalThis.Promise<string | undefined>;
-        export function getFileIcon(downloadId: number, options: getFileIcon.Options | null | undefined, callback: ((iconURL: string | undefined) => void)): void;
-        export function getFileIcon(downloadId: number, callback: ((iconURL: string | undefined) => void)): void;
+        export function getFileIcon(downloadId: number, options?: getFileIcon.Options | null): globalThis.Promise<string>;
+        export function getFileIcon(downloadId: number, options: getFileIcon.Options | null | undefined, callback: ((iconURL: string) => void)): void;
+        export function getFileIcon(downloadId: number, callback: ((iconURL: string) => void)): void;
         export namespace getFileIcon {
             export type Options = {
                 /**
@@ -5842,8 +5842,8 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/identity.json
          * @platform desktop
          */
-        export function launchWebAuthFlow(details: launchWebAuthFlow.Details): globalThis.Promise<string | undefined>;
-        export function launchWebAuthFlow(details: launchWebAuthFlow.Details, callback: (( responseUrl: string | undefined) => void)): void;
+        export function launchWebAuthFlow(details: launchWebAuthFlow.Details): globalThis.Promise<string>;
+        export function launchWebAuthFlow(details: launchWebAuthFlow.Details, callback: (( responseUrl: string) => void)): void;
         export namespace launchWebAuthFlow {
             export type Details = {
                 interactive?: boolean | undefined;
@@ -11154,8 +11154,8 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/browser/components/extensions/schemas/tabs.json
          * @platform desktop, mobile
          */
-        export function create(createProperties: create.CreateProperties): globalThis.Promise<Tab | undefined>;
-        export function create(createProperties: create.CreateProperties, callback: ((tab: Tab | undefined) => void)): void;
+        export function create(createProperties: create.CreateProperties): globalThis.Promise<Tab>;
+        export function create(createProperties: create.CreateProperties, callback: ((tab: Tab) => void)): void;
         export namespace create {
             export type CreateProperties = {
                 /**
@@ -11234,9 +11234,9 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/browser/components/extensions/schemas/tabs.json
          * @platform desktop
          */
-        export function duplicate(tabId: number, duplicateProperties?: duplicate.DuplicateProperties | null): globalThis.Promise<Tab | undefined>;
-        export function duplicate(tabId: number, duplicateProperties: duplicate.DuplicateProperties | null | undefined, callback: ((tab: Tab | undefined) => void)): void;
-        export function duplicate(tabId: number, callback: ((tab: Tab | undefined) => void)): void;
+        export function duplicate(tabId: number, duplicateProperties?: duplicate.DuplicateProperties | null): globalThis.Promise<Tab>;
+        export function duplicate(tabId: number, duplicateProperties: duplicate.DuplicateProperties | null | undefined, callback: ((tab: Tab) => void)): void;
+        export function duplicate(tabId: number, callback: ((tab: Tab) => void)): void;
         export namespace duplicate {
             export type DuplicateProperties = {
                 /**
@@ -11262,10 +11262,10 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/browser/components/extensions/schemas/tabs.json
          * @platform desktop, mobile
          */
-        export function executeScript(tabId: number | null | undefined, details: browser.extensionTypes.InjectDetails): globalThis.Promise<any[] | undefined>;
-        export function executeScript(details: browser.extensionTypes.InjectDetails): globalThis.Promise<any[] | undefined>;
-        export function executeScript(tabId: number | null | undefined, details: browser.extensionTypes.InjectDetails, callback: ((result: any[] | undefined) => void)): void;
-        export function executeScript(details: browser.extensionTypes.InjectDetails, callback: ((result: any[] | undefined) => void)): void;
+        export function executeScript(tabId: number | null | undefined, details: browser.extensionTypes.InjectDetails): globalThis.Promise<any[]>;
+        export function executeScript(details: browser.extensionTypes.InjectDetails): globalThis.Promise<any[]>;
+        export function executeScript(tabId: number | null | undefined, details: browser.extensionTypes.InjectDetails, callback: ((result: any[]) => void)): void;
+        export function executeScript(details: browser.extensionTypes.InjectDetails, callback: ((result: any[]) => void)): void;
 
         /**
          * Retrieves details about the specified tab.
@@ -11735,10 +11735,10 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/browser/components/extensions/schemas/tabs.json
          * @platform desktop, mobile
          */
-        export function update(tabId: number | null | undefined, updateProperties: update.UpdateProperties): globalThis.Promise<Tab | undefined>;
-        export function update(updateProperties: update.UpdateProperties): globalThis.Promise<Tab | undefined>;
-        export function update(tabId: number | null | undefined, updateProperties: update.UpdateProperties, callback: ((tab: Tab | undefined) => void)): void;
-        export function update(updateProperties: update.UpdateProperties, callback: ((tab: Tab | undefined) => void)): void;
+        export function update(tabId: number | null | undefined, updateProperties: update.UpdateProperties): globalThis.Promise<Tab>;
+        export function update(updateProperties: update.UpdateProperties): globalThis.Promise<Tab>;
+        export function update(tabId: number | null | undefined, updateProperties: update.UpdateProperties, callback: ((tab: Tab) => void)): void;
+        export function update(updateProperties: update.UpdateProperties, callback: ((tab: Tab) => void)): void;
         export namespace update {
             export type UpdateProperties = {
                 /**
@@ -14746,9 +14746,9 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/browser/components/extensions/schemas/windows.json
          * @platform desktop
          */
-        export function create(createData?: create.CreateData | null): globalThis.Promise<Window | undefined>;
-        export function create(createData: create.CreateData | null | undefined, callback: ((window: Window | undefined) => void)): void;
-        export function create(callback: ((window: Window | undefined) => void)): void;
+        export function create(createData?: create.CreateData | null): globalThis.Promise<Window>;
+        export function create(createData: create.CreateData | null | undefined, callback: ((window: Window) => void)): void;
+        export function create(callback: ((window: Window) => void)): void;
         export namespace create {
             export type CreateData = {
                 /**

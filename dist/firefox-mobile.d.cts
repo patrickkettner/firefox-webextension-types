@@ -2860,9 +2860,9 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/downloads.json
          * @platform desktop, mobile
          */
-        export function getFileIcon(downloadId: number, options?: getFileIcon.Options | null): globalThis.Promise<string | undefined>;
-        export function getFileIcon(downloadId: number, options: getFileIcon.Options | null | undefined, callback: ((iconURL: string | undefined) => void)): void;
-        export function getFileIcon(downloadId: number, callback: ((iconURL: string | undefined) => void)): void;
+        export function getFileIcon(downloadId: number, options?: getFileIcon.Options | null): globalThis.Promise<string>;
+        export function getFileIcon(downloadId: number, options: getFileIcon.Options | null | undefined, callback: ((iconURL: string) => void)): void;
+        export function getFileIcon(downloadId: number, callback: ((iconURL: string) => void)): void;
         export namespace getFileIcon {
             export type Options = {
                 /**
@@ -7380,8 +7380,8 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/mobile/shared/components/extensions/schemas/tabs.json
          * @platform desktop, mobile
          */
-        export function create(createProperties: create.CreateProperties): globalThis.Promise<Tab | undefined>;
-        export function create(createProperties: create.CreateProperties, callback: ((tab: Tab | undefined) => void)): void;
+        export function create(createProperties: create.CreateProperties): globalThis.Promise<Tab>;
+        export function create(createProperties: create.CreateProperties, callback: ((tab: Tab) => void)): void;
         export namespace create {
             export type CreateProperties = {
                 /**
@@ -7438,8 +7438,8 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/mobile/shared/components/extensions/schemas/tabs.json
          * @platform desktop
          */
-        export function duplicate(tabId: number): globalThis.Promise<Tab | undefined>;
-        export function duplicate(tabId: number, callback: ((tab: Tab | undefined) => void)): void;
+        export function duplicate(tabId: number): globalThis.Promise<Tab>;
+        export function duplicate(tabId: number, callback: ((tab: Tab) => void)): void;
 
         /**
          * Injects JavaScript code into a page. For details, see the programmatic injection section of the content scripts doc.
@@ -7453,10 +7453,10 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/mobile/shared/components/extensions/schemas/tabs.json
          * @platform desktop, mobile
          */
-        export function executeScript(tabId: number | null | undefined, details: browser.extensionTypes.InjectDetails): globalThis.Promise<any[] | undefined>;
-        export function executeScript(details: browser.extensionTypes.InjectDetails): globalThis.Promise<any[] | undefined>;
-        export function executeScript(tabId: number | null | undefined, details: browser.extensionTypes.InjectDetails, callback: ((result: any[] | undefined) => void)): void;
-        export function executeScript(details: browser.extensionTypes.InjectDetails, callback: ((result: any[] | undefined) => void)): void;
+        export function executeScript(tabId: number | null | undefined, details: browser.extensionTypes.InjectDetails): globalThis.Promise<any[]>;
+        export function executeScript(details: browser.extensionTypes.InjectDetails): globalThis.Promise<any[]>;
+        export function executeScript(tabId: number | null | undefined, details: browser.extensionTypes.InjectDetails, callback: ((result: any[]) => void)): void;
+        export function executeScript(details: browser.extensionTypes.InjectDetails, callback: ((result: any[]) => void)): void;
 
         /**
          * Retrieves details about the specified tab.
@@ -7779,10 +7779,10 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/mobile/shared/components/extensions/schemas/tabs.json
          * @platform desktop, mobile
          */
-        export function update(tabId: number | null | undefined, updateProperties: update.UpdateProperties): globalThis.Promise<Tab | undefined>;
-        export function update(updateProperties: update.UpdateProperties): globalThis.Promise<Tab | undefined>;
-        export function update(tabId: number | null | undefined, updateProperties: update.UpdateProperties, callback: ((tab: Tab | undefined) => void)): void;
-        export function update(updateProperties: update.UpdateProperties, callback: ((tab: Tab | undefined) => void)): void;
+        export function update(tabId: number | null | undefined, updateProperties: update.UpdateProperties): globalThis.Promise<Tab>;
+        export function update(updateProperties: update.UpdateProperties): globalThis.Promise<Tab>;
+        export function update(tabId: number | null | undefined, updateProperties: update.UpdateProperties, callback: ((tab: Tab) => void)): void;
+        export function update(updateProperties: update.UpdateProperties, callback: ((tab: Tab) => void)): void;
         export namespace update {
             export type UpdateProperties = {
                 /**
