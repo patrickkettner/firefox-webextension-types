@@ -62,7 +62,7 @@ function optionalListenerParameters() {
         return [info.menuItemId, required, optional];
     });
     browser.contextMenus.onClicked.addListener((info, tab) => tab?.id);
-    browser.commands.onCommand.addListener((command, tab) => [command, tab?.id]);
+    browser.commands.onCommand.addListener((command, tab) => [command, tab.id]);
     browser.action.onClicked.addListener((tab, info) => [tab.id, info?.button]);
 }
 

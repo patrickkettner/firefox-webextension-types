@@ -13,6 +13,8 @@ import {
   EVENT_PARAMETERS,
   FUNCTION_OVERRIDES,
   NULL_RESULTS,
+  REQUIRED_EVENT_PARAMETERS,
+  REQUIRED_RESULTS,
   PLATFORM_TYPES,
   TYPE_OVERRIDES,
   WEBIDL_EVENT_HANDLERS,
@@ -145,18 +147,6 @@ function commentLines(text, indent) {
   return text.split("\n").map((line) => (line ? `${indent} * ${line}` : `${indent} *`));
 }
 
-export function cleanDocstring(doc, indent = "        ", resolveRef) {
-  const text = renderDocText(doc, resolveRef);
-  return text ? commentLines(text, indent) : [];
-}
-
-export function formatDeprecatedTag(dep, indent = "        ", resolveRef) {
-  if (typeof dep === "string" && dep) {
-    return `${indent} * @deprecated ${renderDocText(dep, resolveRef).replace(/\n+/g, " ")}`;
-  }
-  return `${indent} * @deprecated`;
-}
-
 export function formatEnumVal(v) {
   if (typeof v === "string") {
     return JSON.stringify(v);
@@ -169,6 +159,17 @@ export function formatEnumVal(v) {
 
 function capitalize(name) {
   return name[0].toUpperCase() + name.slice(1);
+}
+
+function withRequiredPayload(fn) {
+  return {
+    ...fn,
+    parameters: fn.parameters.map((p) =>
+      p.type === "function" && p.parameters
+        ? { ...p, parameters: p.parameters.map((q) => ({ ...q, optional: false })) }
+        : p
+    ),
+  };
 }
 
 function isInlineObject(t) {
@@ -645,6 +646,9 @@ export class TypeScriptEmitter {
     const lines = [];
     const name = sanitizeName(fn.name || "");
     const fnKey = [currentNs, ownerTypeId, fn.name].filter(Boolean).join(".");
+    if (REQUIRED_RESULTS.has(fnKey)) {
+      fn = withRequiredPayload(fn);
+    }
     const override = FUNCTION_OVERRIDES[fnKey] || {};
     const sourceFile = fn._source_file || "";
     const holder = name === "eval" ? "_eval" : name;
@@ -820,7 +824,8 @@ export class TypeScriptEmitter {
   emitEventType(ev, nsName, ownerTypeId = null, indent = "") {
     const evKey = [nsName, ownerTypeId, ev.name].filter(Boolean).join(".");
     const paramOverrides = EVENT_PARAMETERS[evKey] || {};
-    const params = ev.parameters || [];
+    const required = REQUIRED_EVENT_PARAMETERS[evKey] || [];
+    const params = (ev.parameters || []).map((p) => (required.includes(p.name) ? { ...p, optional: false } : p));
     const signature = params.map((p, i) => {
       const name = sanitizeName(p.name || "details");
       if (paramOverrides[p.name]) {

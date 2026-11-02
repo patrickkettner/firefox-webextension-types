@@ -79,7 +79,6 @@ export class LoadedNamespace {
 export class SchemaRegistry {
   constructor(firefoxRoot) {
     this.firefoxRoot = path.resolve(firefoxRoot);
-    this.geckoRoot = this.firefoxRoot;
     this.toolkitDir = path.join(this.firefoxRoot, "toolkit", "components", "extensions", "schemas");
     this.browserDir = path.join(this.firefoxRoot, "browser", "components", "extensions", "schemas");
     this.mobileDir = path.join(this.firefoxRoot, "mobile", "shared", "components", "extensions", "schemas");

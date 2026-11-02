@@ -1,8 +1,7 @@
 /**
  * overrides.js - Behaviour the schemas cannot express.
  *
- * Every entry names the Firefox file that defines the behaviour. Nothing in
- * here is derived from another type package.
+ * Every entry names the Firefox file that defines the behaviour.
  */
 
 // Namespaces the schema declares but Firefox does not expose to extensions.
@@ -143,6 +142,32 @@ export const NULL_RESULTS = new Set([
   "webNavigation.getFrame",
 ]);
 
+// Functions whose schema-optional callback payload is always supplied, so
+// the payload type carries no `undefined`. A rejection replaces every
+// path that would otherwise resolve nothing.
+export const REQUIRED_RESULTS = new Set([
+  // browser/components/extensions/parent/ext-tabs.js: create, update and
+  // duplicate end in tabManager.convert(nativeTab), and
+  // mobile/shared/components/extensions/ext-tabs.js does the same for create
+  // and update. A tab the extension cannot access makes convert throw.
+  "tabs.create",
+  "tabs.duplicate",
+  "tabs.update",
+  // toolkit/components/extensions/parent/ext-tabs-base.js: queryContent
+  // throws "Missing host permission for the tab" when no frame answers, so
+  // the array always has at least one element.
+  "tabs.executeScript",
+  // browser/components/extensions/parent/ext-windows.js ends in
+  // win.convert({ populate: true }).
+  "windows.create",
+  // toolkit/components/extensions/parent/ext-downloads.js returns the
+  // canvas data URL, or img.decode() rejects.
+  "downloads.getFileIcon",
+  // toolkit/components/extensions/parent/ext-identity.js resolves with the
+  // redirect URL, or rejects.
+  "identity.launchWebAuthFlow",
+]);
+
 // Property types on schema types. A name the schema does not declare is
 // added as a required property.
 export const TYPE_OVERRIDES = {
@@ -207,4 +232,15 @@ export const EVENT_PARAMETERS = {
   "runtime.onMessage": { sendResponse: "(response?: unknown) => void" },
   "runtime.onMessageExternal": { sendResponse: "(response?: unknown) => void" },
   "runtime.onUserScriptMessage": { sendResponse: "(response?: unknown) => void" },
+};
+
+// Event parameters the schema marks optional that Firefox always passes.
+export const REQUIRED_EVENT_PARAMETERS = {
+  // browser/components/extensions/parent/ext-commands.js calls
+  // tabManager.convert(tabTracker.activeTab). With no active tab that throws
+  // before fire.async runs (TabManager.canAccessTab reads
+  // nativeTab.documentGlobal), so a listener never sees a missing tab.
+  // toolkit/components/extensions/ExtensionShortcuts.sys.mjs registers keys
+  // only in browser windows, so a key press implies a window to read it from.
+  "commands.onCommand": ["tab"],
 };

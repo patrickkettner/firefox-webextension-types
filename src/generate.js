@@ -150,7 +150,7 @@ export function buildDeclarations(firefoxRootPath, outDirPath, options = {}) {
   const gen = (target, mode, opts = {}) =>
     emitters[target].generate(namespacesFor[target], mode, { firefoxVersion, ...opts });
 
-  // 1. Module declarations. Each has a .d.cts twin for the "require" condition.
+  // Module declarations. Each has a .d.cts twin for the "require" condition.
   const moduleFiles = {
     "index": "desktop",
     "firefox-desktop": "desktop",
@@ -163,12 +163,11 @@ export function buildDeclarations(firefoxRootPath, outDirPath, options = {}) {
     console.log(`   Emitted: ${base}.d.ts and ${base}.d.cts (${Object.keys(namespacesFor[target]).length} namespaces)`);
   }
 
-  // 2. Chrome compatibility module (desktop)
   write("chrome.d.ts", gen("desktop", "chrome", { importSpecifier: "./index.js" }));
   write("chrome.d.cts", gen("desktop", "chrome", { importSpecifier: "./index.cjs" }));
   console.log("   Emitted: chrome.d.ts and chrome.d.cts (Chrome Compatibility)");
 
-  // 3. Ambient globals. The base files declare `browser` only so they can sit
+  // Ambient globals. The base files declare `browser` only so they can sit
   // beside @types/chrome; the -chrome variants add an ambient `chrome`.
   const ambientFiles = { "global": "desktop", "global-mobile": "mobile" };
   for (const [base, target] of Object.entries(ambientFiles)) {
@@ -180,7 +179,7 @@ export function buildDeclarations(firefoxRootPath, outDirPath, options = {}) {
     console.log(`   Emitted: ${base}.d.ts and ${base}-chrome.d.ts (Ambient Global, ${target})`);
   }
 
-  // 5. Runtime stubs. Each export forwards to the live global at access
+  // Runtime stubs. Each export forwards to the live global at access
   // time, so a `browser` assigned after import (a test mock) is still seen.
   const liveGlobal = `function liveGlobal(name) {
   const current = () => globalThis[name];
@@ -232,7 +231,6 @@ export function buildDeclarations(firefoxRootPath, outDirPath, options = {}) {
   fs.writeFileSync(path.join(outDir, "index.cjs"), runtimeStubCjs, "utf8");
   console.log("   Emitted: index.js and index.cjs (Runtime Stubs)");
 
-  // 6. Write provenance.json
   const fileHash = (rel) => {
     const full = path.join(outDir, rel);
     return crypto.createHash("sha256").update(fs.readFileSync(full)).digest("hex");

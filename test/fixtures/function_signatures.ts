@@ -38,7 +38,7 @@ function callbackForms() {
 async function untypedArgumentPicksPromise() {
     const items: Promise<Record<string, any>> = browser.storage.local.get(untyped);
     const zoom: Promise<number> = browser.tabs.getZoom(untyped);
-    const win: Promise<browser.windows.Window | undefined> = browser.windows.create(untyped);
+    const win: Promise<browser.windows.Window> = browser.windows.create(untyped);
     return [items, zoom, win];
 }
 
@@ -88,6 +88,26 @@ async function optionalPayloads() {
     return [id, maybeTabId, name, value, removedUrl, frameUrl, frameCount, doc];
 }
 
+async function alwaysSuppliedPayloads() {
+    const created: number | undefined = (await browser.tabs.create({ url: "about:blank" })).id;
+    const duplicated: number | undefined = (await browser.tabs.duplicate(1)).id;
+    const updated: number | undefined = (await browser.tabs.update(1, { active: true })).id;
+    const results: any[] = await browser.tabs.executeScript(1, { code: "1" });
+    const first: any = results[0];
+    const opened: number | undefined = (await browser.windows.create({})).id;
+    const icon: string = (await browser.downloads.getFileIcon(1)).toUpperCase();
+    const redirect: string = (await browser.identity.launchWebAuthFlow({ url: "https://example.com", interactive: true })).trim();
+    browser.tabs.create({ url: "about:blank" }, (tab) => tab.id);
+    browser.tabs.update(1, { active: true }, (tab) => tab.id);
+    browser.windows.create({}, (win) => win.id);
+    browser.tabs.executeScript(1, { code: "1" }, (found) => found.length);
+    browser.downloads.getFileIcon(1, (iconURL) => iconURL.length);
+    const evaluated = await browser.devtools.inspectedWindow.eval("1");
+    // @ts-expect-error exceptionInfo is absent when the expression did not throw
+    const description: string = evaluated[1].description;
+    return [created, duplicated, updated, first, opened, icon, redirect, description];
+}
+
 async function tuplePayloads() {
     const [result, exceptionInfo] = await browser.devtools.inspectedWindow.eval("1 + 1");
     const isException: boolean | undefined = exceptionInfo?.isException;
@@ -129,6 +149,7 @@ export {
     untypedArgumentPicksPromise,
     promisePayloads,
     optionalPayloads,
+    alwaysSuppliedPayloads,
     tuplePayloads,
     executeScript,
     userScripts,

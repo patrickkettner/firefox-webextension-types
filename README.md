@@ -12,7 +12,7 @@ npm install -D github:patrickkettner/firefox-webextension-types
 
 ## Requirements
 
-TypeScript 4.9 or newer. This was measured, not assumed: the module entrypoints and every ambient entrypoint compile with `skipLibCheck: false` under `node16`, `nodenext` and `bundler` resolution on 4.9.5, 5.9.3 and 7.0.2 (`bundler` needs TypeScript 5.0 or newer, so it is not available on 4.9). On 4.7 and 4.8 a `.cts` file cannot import the package, and 4.6 has no `node16` resolution.
+TypeScript 4.9 or newer. The module entrypoints and every ambient entrypoint compile with `skipLibCheck: false` under `node16`, `nodenext` and `bundler` resolution on 4.9.5, 5.9.3 and 7.0.2 (`bundler` needs TypeScript 5.0 or newer, so it is not available on 4.9). On 4.7 and 4.8 a `.cts` file cannot import the package, and 4.6 has no `node16` resolution.
 
 The ambient entrypoints are not picked up automatically on any version, including TypeScript 7.0.2. List one in `types` or reference it with a triple-slash directive, as shown below.
 
