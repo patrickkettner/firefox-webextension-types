@@ -315,21 +315,17 @@ export class TypeScriptEmitter {
 
     if ("choices" in typeInfo) {
       const rawChoices = typeInfo.choices.map((c) => this.emitType(c, currentNs, indent));
-      const choiceTags = typeInfo.choices.map((c) => this.choiceDeprecation(c, currentNs));
+      const choiceDocs = typeInfo.choices.map((c) => this.choiceDoc(c, currentNs));
       const hasBareString = rawChoices.includes("string");
       const hasLiterals = rawChoices.some((c) => c.startsWith('"'));
       const useOpenString =
         hasBareString && (hasLiterals || currentNs === "manifest" || currentNs === "runtime");
 
-      const parts = [];
-      rawChoices.forEach((raw, i) => {
-        const part = raw === "string" && useOpenString ? "(string & {})" : raw;
-        const tagged = choiceTags[i] + part;
-        if (!parts.includes(tagged)) {
-          parts.push(tagged);
-        }
-      });
-      return parts.length ? parts.join(" | ") : "unknown";
+      const members = rawChoices.map((raw, i) => ({
+        type: raw === "string" && useOpenString ? "(string & {})" : raw,
+        ...choiceDocs[i],
+      }));
+      return members.length ? this.joinUnion(members) : "unknown";
     }
 
     if ("enum" in typeInfo) {
@@ -350,14 +346,15 @@ export class TypeScriptEmitter {
     } else if (t === "array") {
       const items = typeInfo.items || {};
       const innerType = this.emitType(items, currentNs, indent);
+      const itemDoc = this.inlineDoc(items.description, currentNs);
       // Schemas.sys.mjs ArrayType.normalize rejects any other length.
       if (typeInfo.maxItems !== undefined && typeInfo.minItems === typeInfo.maxItems) {
-        return `[${new Array(typeInfo.maxItems).fill(innerType).join(", ")}]`;
+        return `[${new Array(typeInfo.maxItems).fill(itemDoc + innerType).join(", ")}]`;
       }
       if (innerType.includes(" | ")) {
-        return `(${innerType})[]`;
+        return `(${itemDoc}${innerType})[]`;
       }
-      return `${innerType}[]`;
+      return `${itemDoc}${innerType}[]`;
     } else if (t === "object") {
       if (typeInfo.properties && Object.keys(typeInfo.properties).length > 0) {
         return this.emitObjectLiteral(typeInfo, currentNs, indent);
@@ -512,14 +509,38 @@ export class TypeScriptEmitter {
     return parts.join(" ");
   }
 
-  // An inline tag in front of one union member. Every Schemas.sys.mjs type
-  // reads `deprecated` (Entry) and warns when it normalizes a value
-  // (checkDeprecated), so a choice can be deprecated on its own. TypeScript
-  // does not surface a tag inside a union, so it shows in the declaration
-  // text only.
-  choiceDeprecation(choice, nsName) {
+  // A one-line comment for a type that has no declaration of its own. A
+  // schema description can run over several lines, so they are joined.
+  // TypeScript does not surface a comment inside a union or in front of an
+  // array element type, so it shows in the declaration text only.
+  inlineDoc(description, nsName, notes = []) {
+    const text = [this.docText(description, nsName).replace(/\n+/g, " "), ...notes].filter(Boolean).join(" ");
+    return text ? `/** ${text} */ ` : "";
+  }
+
+  // The comments in front of one union member: its description, then a
+  // deprecation tag. Every Schemas.sys.mjs type reads `deprecated` (Entry)
+  // and warns when it normalizes a value (checkDeprecated), so a choice can
+  // be deprecated on its own.
+  choiceDoc(choice, nsName) {
     const text = this.deprecationText(choice, nsName, "member");
-    return text === null ? "" : `/** @deprecated${text ? ` ${text}` : ""} */ `;
+    return {
+      notes: this.inlineDoc(choice.description, nsName),
+      deprecated: text === null ? "" : `/** @deprecated${text ? ` ${text}` : ""} */ `,
+    };
+  }
+
+  // Two choices that emit the same type appear once. When their notes differ
+  // the type holds for both, so neither note applies and both are dropped.
+  joinUnion(members) {
+    const seen = new Map();
+    for (const { type, notes, deprecated } of members) {
+      const key = deprecated + type;
+      const prior = seen.get(key);
+      if (!prior) seen.set(key, { type, notes, deprecated });
+      else if (prior.notes !== notes) prior.notes = "";
+    }
+    return [...seen.values()].map((m) => m.notes + m.deprecated + m.type).join(" | ");
   }
 
   // Schemas.sys.mjs ObjectType.checkProperty and CallEntry.checkParameters
@@ -603,10 +624,17 @@ export class TypeScriptEmitter {
       notes.push("Only privileged extensions can use this key.");
     }
     notes.push(this.defaultNote(pVal));
+    const params =
+      pVal.type === "function"
+        ? (pVal.parameters || [])
+            .filter((q) => q.description)
+            .map((q) => [sanitizeName(q.name || "arg"), this.docText(q.description, nsName)])
+        : [];
     return this.jsdoc(
       {
         description: this.docText(pVal.description, nsName),
         notes,
+        params,
         deprecated: this.deprecationText(pVal, nsName, "member"),
         permissions: pVal.permissions,
       },
@@ -906,6 +934,10 @@ export class TypeScriptEmitter {
     const params = (ev.parameters || [])
       .filter((p) => p.description)
       .map((p) => [sanitizeName(p.name || "details"), this.docText(p.description, nsName)]);
+    // addListener takes these after the listener (see emitEventType).
+    for (const p of ev.extraParameters || []) {
+      if (p.description) params.push([sanitizeName(p.name || "arg"), this.docText(p.description, nsName)]);
+    }
     const notes = this.manifestVersionNotes(ev);
     if (!ownerTypeId) {
       notes.push(this.memberContextNote(ev, nsName));
@@ -915,6 +947,7 @@ export class TypeScriptEmitter {
         description: this.docText(ev.description, nsName),
         notes,
         params,
+        returns: ev.returns ? this.docText(ev.returns.description, nsName) : "",
         deprecated: this.deprecationText(ev, nsName, "event"),
         see: ev._source_file ? this.getSearchfoxUrl(ev._source_file) : null,
         permissions: ev.permissions,
@@ -1028,21 +1061,20 @@ export class TypeScriptEmitter {
       } else if ("isInstanceOf" in tInfo) {
         out.push(`${indent}export type ${typeId} = ${this.emitType(tInfo, nsName, indent)};`);
       } else if ("choices" in tInfo) {
-        const choicesEmitted = [];
+        const members = [];
         let hasBareString = false;
         for (const c of tInfo.choices) {
           const cStr = this.emitType(c, nsName, indent);
-          const tagged = this.choiceDeprecation(c, nsName) + cStr;
           if (cStr === "string") {
             hasBareString = true;
-          } else if (!choicesEmitted.includes(tagged)) {
-            choicesEmitted.push(tagged);
+          } else {
+            members.push({ type: cStr, ...this.choiceDoc(c, nsName) });
           }
         }
         if (hasBareString) {
-          choicesEmitted.push("(string & {})");
+          members.push({ type: "(string & {})", notes: "", deprecated: "" });
         }
-        const unionStr = choicesEmitted.join(" | ");
+        const unionStr = this.joinUnion(members);
         out.push(`${indent}export type ${typeId} = ${unionStr};`);
       } else if (tInfo.type === "object" || "properties" in tInfo) {
         const typeOverride = TYPE_OVERRIDES[`${nsName}.${typeId}`] || {};
