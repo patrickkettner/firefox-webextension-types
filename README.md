@@ -137,6 +137,8 @@ npm run verify     # Run schema parity and type integrity audits
 npm run typecheck  # Validate declarations with tsc
 ```
 
+`schema-key-ledger.json` lists every key in the Firefox schemas by context, as consumed by the generator or declined with a reason. `npm test` fails when a key is missing from it or an entry is no longer true. After a Firefox update or an emitter change, run `npm run ledger:update` to refresh the statuses and fill in the reason for any new key it marks unresolved. `npm run ablate` deletes each key in turn and fails when a consumed key changes no output byte. It takes a few minutes, runs one build at a time at low priority, and is not part of `npm test`.
+
 `npm test` measures hover text and deprecation strike-through through the TypeScript language service. The installed TypeScript 7 has no JavaScript API, so the first run installs TypeScript 5.9.3 into `node_modules/.cache/` and later runs reuse it.
 
 ## License
