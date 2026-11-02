@@ -17,6 +17,15 @@
       "global": [
         "dist/global.d.ts"
       ],
+      "global-chrome": [
+        "dist/global-chrome.d.ts"
+      ],
+      "global-mobile": [
+        "dist/global-mobile.d.ts"
+      ],
+      "global-mobile-chrome": [
+        "dist/global-mobile-chrome.d.ts"
+      ],
       "chrome": [
         "dist/chrome.d.ts"
       ]
@@ -35,6 +44,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@types/chrome": "^0.3.7",
     "typescript": "^7.0.2"
   },
   "repository": {
@@ -50,34 +60,66 @@
   "license": "Apache-2.0 AND MPL-2.0 AND BSD-3-Clause",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
       "default": "./dist/index.js"
     },
     "./desktop": {
-      "types": "./dist/firefox-desktop.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
+      "import": {
+        "types": "./dist/firefox-desktop.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/firefox-desktop.d.cts",
+        "default": "./dist/index.cjs"
+      },
       "default": "./dist/index.js"
     },
     "./mobile": {
-      "types": "./dist/firefox-mobile.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
+      "import": {
+        "types": "./dist/firefox-mobile.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/firefox-mobile.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "default": "./dist/index.js"
+    },
+    "./chrome": {
+      "import": {
+        "types": "./dist/chrome.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/chrome.d.cts",
+        "default": "./dist/index.cjs"
+      },
       "default": "./dist/index.js"
     },
     "./global": {
       "types": "./dist/global.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
       "default": "./dist/index.js"
     },
-    "./chrome": {
-      "types": "./dist/chrome.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
+    "./global-chrome": {
+      "types": "./dist/global-chrome.d.ts",
       "default": "./dist/index.js"
-    }
+    },
+    "./global-mobile": {
+      "types": "./dist/global-mobile.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./global-mobile-chrome": {
+      "types": "./dist/global-mobile-chrome.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./provenance.json": "./dist/provenance.json",
+    "./package.json": "./package.json"
   }
 }

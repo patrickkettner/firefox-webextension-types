@@ -125,3 +125,19 @@ async function testWebExtensionConsumer() {
     );
     panel.onShown.addListener((win) => {});
 }
+async function testRejectedUsage() {
+    // @ts-expect-error tabs.query takes an object, not a number
+    await browser.tabs.query(42);
+
+    // @ts-expect-error id is a number
+    const badTab: browser.tabs.Tab = { id: "1", index: 0, highlighted: false, active: true, pinned: false, incognito: false };
+
+    // @ts-expect-error not a tabs.MutedInfoReason
+    const badReason: browser.tabs.MutedInfoReason = "loud";
+
+    // @ts-expect-error no such namespace
+    browser.notARealNamespace;
+
+    // @ts-expect-error webRequest listeners cannot return a number
+    browser.webRequest.onBeforeRequest.addListener(() => 1, { urls: ["<all_urls>"] });
+}

@@ -355,22 +355,19 @@ export function verifyPackageExports() {
 
   // Check exports map
   const exportsMap = pkg.exports || {};
-  for (const [subpath, entry] of Object.entries(exportsMap)) {
-    if (typeof entry === "object" && entry !== null) {
-      for (const [cond, relPath] of Object.entries(entry)) {
-        const p = path.join(PROJ, relPath.replace(/^\.\//, ""));
-        if (!fs.existsSync(p)) {
-          errors.push(
-            `package.json exports['${subpath}']['${cond}'] (${relPath}) does not exist on disk`
-          );
-        }
+  const checkTarget = (where, target) => {
+    if (typeof target === "string") {
+      if (!fs.existsSync(path.join(PROJ, target.replace(/^\.\//, "")))) {
+        errors.push(`package.json exports${where} (${target}) does not exist on disk`);
       }
-    } else if (typeof entry === "string") {
-      const p = path.join(PROJ, entry.replace(/^\.\//, ""));
-      if (!fs.existsSync(p)) {
-        errors.push(`package.json exports['${subpath}'] (${entry}) does not exist on disk`);
+    } else if (target && typeof target === "object") {
+      for (const [cond, inner] of Object.entries(target)) {
+        checkTarget(`${where}['${cond}']`, inner);
       }
     }
+  };
+  for (const [subpath, entry] of Object.entries(exportsMap)) {
+    checkTarget(`['${subpath}']`, entry);
   }
 
   // Check typesVersions

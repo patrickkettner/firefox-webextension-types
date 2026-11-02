@@ -25,7 +25,7 @@ describe("Determinism Matrix", () => {
         const full = path.join(curr, entry.name);
         if (entry.isDirectory()) {
           walk(full);
-        } else if (entry.isFile() && entry.name.endsWith(".d.ts")) {
+        } else if (entry.isFile() && /\.(d\.c?ts|c?js|json)$/.test(entry.name)) {
           const rel = path.relative(dir, full);
           hashes[rel] = crypto.createHash("sha256").update(fs.readFileSync(full)).digest("hex");
         }
@@ -34,6 +34,27 @@ describe("Determinism Matrix", () => {
     walk(dir);
     return hashes;
   }
+
+  it("emits a .d.cts twin identical to each module .d.ts", {
+    skip: !firefoxRoot && "no Firefox checkout: set TOPSRCDIR",
+  }, () => {
+    const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "ff-types-cts-"));
+    try {
+      buildDeclarations(firefoxRoot, outDir, { emitCommitHeader: false });
+      for (const base of ["index", "firefox-desktop", "firefox-mobile"]) {
+        assert.equal(
+          fs.readFileSync(path.join(outDir, `${base}.d.cts`), "utf8"),
+          fs.readFileSync(path.join(outDir, `${base}.d.ts`), "utf8"),
+          `${base}.d.cts differs from ${base}.d.ts`
+        );
+      }
+      const chromeCts = fs.readFileSync(path.join(outDir, "chrome.d.cts"), "utf8");
+      assert.ok(chromeCts.includes('from "./index.cjs"'));
+      assert.ok(!chromeCts.includes('"./index.js"'));
+    } finally {
+      fs.rmSync(outDir, { recursive: true, force: true });
+    }
+  });
 
   it("produces 100% bit-for-bit identical output across locales and timezones", {
     skip: !firefoxRoot && "no Firefox checkout: set TOPSRCDIR",

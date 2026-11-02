@@ -559,11 +559,24 @@ export class TypeScriptEmitter {
     }
   }
 
-  generate(namespaces, mode = "module") {
+  /**
+   * @param {object} namespaces
+   * @param {"module"|"chrome"|"ambient"|"ambient-chrome"} mode
+   *   module: importable declarations. chrome: importable `chrome` aliases.
+   *   ambient: script file declaring the global `browser` namespace, no imports.
+   *   ambient-chrome: script file adding the global `chrome` aliases.
+   * @param {{firefoxVersion?: string, importSpecifier?: string, ambientBase?: string}} [opts]
+   *   importSpecifier is the module the chrome mode imports `browser` from;
+   *   ambientBase is the file the ambient-chrome mode references.
+   */
+  generate(namespaces, mode = "module", opts = {}) {
     const out = [];
     out.push("// Type definitions for Firefox WebExtensions");
     out.push("// Project: firefox-webextension-types");
     out.push(`// Target: ${this.target[0].toUpperCase() + this.target.slice(1)}`);
+    if (opts.firefoxVersion) {
+      out.push(`// Firefox Version: ${opts.firefoxVersion}`);
+    }
     if (this.emitCommitHeader) {
       out.push(`// Firefox Commit: ${this.commitSha}`);
     }
@@ -580,29 +593,6 @@ export class TypeScriptEmitter {
     out.push("// found in the LICENSE-CHROMIUM file.");
     out.push("");
 
-    if (mode === "ambient") {
-      out.push("import {");
-      out.push("    browser as _browser,");
-      out.push("    chrome as _chrome,");
-      out.push("    WebExtensionEvent as _WebExtensionEvent,");
-      out.push("    WebExtensionWebRequestEvent as _WebExtensionWebRequestEvent,");
-      out.push('} from "./index.js";');
-      out.push("");
-      out.push("declare global {");
-      out.push("    export import browser = _browser;");
-      out.push("    export import chrome = _chrome;");
-      out.push(
-        "    type WebExtensionEvent<TCallback extends (...args: any[]) => any> = _WebExtensionEvent<TCallback>;"
-      );
-      out.push(
-        "    type WebExtensionWebRequestEvent<TCallback extends (...args: any[]) => any> = _WebExtensionWebRequestEvent<TCallback>;"
-      );
-      out.push("}");
-      out.push("");
-      out.push("export {};");
-      return out.join("\n");
-    }
-
     const rootNsNames = new Set();
     const subNsMap = {};
     for (const nsName of Object.keys(namespaces).sort(codePointCompare)) {
@@ -618,11 +608,15 @@ export class TypeScriptEmitter {
 
     this.availableNamespaces = rootNsNames;
 
+    const sortedRoots = Array.from(rootNsNames).sort(codePointCompare);
+    const ambient = mode === "ambient";
+    const exp = ambient ? "" : "export ";
+
     if (mode === "chrome") {
-      out.push('import { browser } from "./index.js";');
+      out.push(`import { browser } from "${opts.importSpecifier ?? "./index.js"}";`);
       out.push("");
       out.push("export namespace chrome {");
-      for (const nsName of Array.from(rootNsNames).sort(codePointCompare)) {
+      for (const nsName of sortedRoots) {
         out.push(`    export import ${nsName} = browser.${nsName};`);
       }
       out.push("}");
@@ -631,13 +625,25 @@ export class TypeScriptEmitter {
       return out.join("\n");
     }
 
-    out.push("export interface WebExtensionEvent<TListener extends (...args: any[]) => void> {");
+    if (mode === "ambient-chrome") {
+      out.push(`/// <reference path="${opts.ambientBase}" />`);
+      out.push("");
+      out.push("declare namespace chrome {");
+      for (const nsName of sortedRoots) {
+        out.push(`    export import ${nsName} = browser.${nsName};`);
+      }
+      out.push("}");
+      out.push("");
+      return out.join("\n");
+    }
+
+    out.push(`${exp}interface WebExtensionEvent<TListener extends (...args: any[]) => void> {`);
     out.push("    addListener(callback: TListener): void;");
     out.push("    removeListener(callback: TListener): void;");
     out.push("    hasListener(callback: TListener): boolean;");
     out.push("}");
     out.push(
-      "export interface WebExtensionWebRequestEvent<TListener extends (...args: any[]) => browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void> {"
+      `${exp}interface WebExtensionWebRequestEvent<TListener extends (...args: any[]) => browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void> {`
     );
     out.push(
       "    addListener(callback: TListener, filter?: browser.webRequest.RequestFilter, extraInfoSpec?: string[]): void;"
@@ -646,9 +652,9 @@ export class TypeScriptEmitter {
     out.push("    hasListener(callback: TListener): boolean;");
     out.push("}");
     out.push("");
-    out.push("export namespace browser {");
+    out.push(`${ambient ? "declare" : "export"} namespace browser {`);
 
-    for (const nsName of Array.from(rootNsNames).sort(codePointCompare)) {
+    for (const nsName of sortedRoots) {
       const ns = namespaces[nsName];
       out.push(`    export namespace ${nsName} {`);
 
@@ -673,14 +679,16 @@ export class TypeScriptEmitter {
 
     out.push("}");
     out.push("");
-    out.push("export namespace chrome {");
-    for (const nsName of Array.from(rootNsNames).sort(codePointCompare)) {
-      out.push(`    export import ${nsName} = browser.${nsName};`);
+    if (!ambient) {
+      out.push("export namespace chrome {");
+      for (const nsName of sortedRoots) {
+        out.push(`    export import ${nsName} = browser.${nsName};`);
+      }
+      out.push("}");
+      out.push("");
+      out.push("export default browser;");
+      out.push("");
     }
-    out.push("}");
-    out.push("");
-    out.push("export default browser;");
-    out.push("");
 
     return out.join("\n");
   }

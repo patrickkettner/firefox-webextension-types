@@ -10,6 +10,12 @@ Install directly from GitHub:
 npm install -D github:patrickkettner/firefox-webextension-types
 ```
 
+## Requirements
+
+TypeScript 4.9 or newer. This was measured, not assumed: the module entrypoints and every ambient entrypoint compile with `skipLibCheck: false` under `node16`, `nodenext` and `bundler` resolution on 4.9.5, 5.9.3 and 7.0.2 (`bundler` needs TypeScript 5.0 or newer, so it is not available on 4.9). On 4.7 and 4.8 a `.cts` file cannot import the package, and 4.6 has no `node16` resolution.
+
+The ambient entrypoints are not picked up automatically on any version, including TypeScript 7.0.2. List one in `types` or reference it with a triple-slash directive, as shown below.
+
 ## Usage
 
 ### 1. Modular Imports
@@ -29,9 +35,13 @@ async function getActiveTab() {
 }
 ```
 
+`import` and `require` both work. Under `node16` and `nodenext`, a `.cts` file or a CommonJS project gets the `.d.cts` declarations, so it type-checks the same as an ES module.
+
+The root entrypoint and `/desktop` are the desktop surface. `/mobile` is the Firefox for Android surface and has no `windows`, `bookmarks` and the other namespaces Android does not ship.
+
 ### 2. Ambient Globals
 
-To declare ambient `browser` and `chrome` globals across your project, add the global entrypoint to your `tsconfig.json`:
+To declare an ambient `browser` across your project, add a global entrypoint to `tsconfig.json`:
 
 ```json
 {
@@ -47,12 +57,31 @@ Or via a triple-slash directive in any TypeScript file:
 /// <reference types="firefox-webextension-types/global" />
 ```
 
+| Entrypoint | Declares |
+|---|---|
+| `firefox-webextension-types/global` | `browser`, desktop surface |
+| `firefox-webextension-types/global-chrome` | `browser` and `chrome`, desktop surface |
+| `firefox-webextension-types/global-mobile` | `browser`, Android surface |
+| `firefox-webextension-types/global-mobile-chrome` | `browser` and `chrome`, Android surface |
+
+The base entrypoints declare no `chrome`, so they leave that name to `@types/chrome`.
+
+`@types/chrome` also declares a global `browser`. Two global `browser` declarations cannot share a program: with `skipLibCheck: false` TypeScript reports `TS2300: Duplicate identifier 'browser'`, and with `skipLibCheck: true` the error is hidden and `@types/chrome`'s `browser` is the one you get. If `@types/chrome` is installed, import `browser` from the module entrypoints instead. That combination compiles.
+
 ### 3. Chrome Compatibility Module
 
-For extensions referencing `chrome.*` without `@types/chrome` collisions:
+For extensions referencing `chrome.*` without an ambient global:
 
 ```typescript
 import { chrome } from "firefox-webextension-types/chrome";
+```
+
+### 4. Which Firefox it matches
+
+`firefox-webextension-types/provenance.json` records the Firefox version (`firefoxVersion`, read from `browser/config/version.txt`), the source commit, and a hash of every declaration file. Each `.d.ts` header also names the version. The package version is its own semver and does not follow Firefox.
+
+```typescript
+import provenance from "firefox-webextension-types/provenance.json" with { type: "json" };
 ```
 
 ## Local Development & Linking

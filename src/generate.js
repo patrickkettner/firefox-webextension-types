@@ -2,13 +2,16 @@
 /**
  * generate.js - Main Generator Entrypoint for firefox-webextension-types
  *
- * 100% Pure Schema Fidelity Generator:
- * - Emits all 67 Desktop namespaces into dist/firefox-desktop.d.ts and dist/index.d.ts
- * - Emits all 44 Mobile namespaces into dist/firefox-mobile.d.ts
- * - Emits ambient declarations into dist/global.d.ts
- * - Emits chrome compatibility module into dist/chrome.d.ts
- * - Emits runtime stubs into dist/index.js and dist/index.cjs
- * - Emits content-addressed provenance into dist/provenance.json
+ * Output in dist/:
+ * - index.d.ts, firefox-desktop.d.ts, firefox-mobile.d.ts, chrome.d.ts, each with a
+ *   .d.cts twin so the package.json "require" condition resolves CommonJS-flavoured
+ *   declarations
+ * - global.d.ts and global-mobile.d.ts: ambient `browser` only
+ * - global-chrome.d.ts and global-mobile-chrome.d.ts: the same plus an ambient `chrome`
+ * - index.js and index.cjs: runtime stubs
+ * - provenance.json: Firefox version and commit, schema tree hash, artifact hashes
+ *
+ * Namespace counts are logged at run time from the loaded schemas.
  */
 
 import { execSync } from "node:child_process";
@@ -69,6 +72,18 @@ export function getFirefoxCommitSha(firefoxRoot) {
 
 export const getGeckoCommitSha = getFirefoxCommitSha;
 
+export function getFirefoxVersion(firefoxRoot) {
+  const file = path.join(firefoxRoot, "browser", "config", "version.txt");
+  if (!fs.existsSync(file)) {
+    throw new Error(`Firefox version file not found: ${file}`);
+  }
+  const version = fs.readFileSync(file, "utf8").trim();
+  if (!version) {
+    throw new Error(`Firefox version file is empty: ${file}`);
+  }
+  return version;
+}
+
 export function getLastSchemaCommitSha(firefoxRoot) {
   try {
     const out = execSync(
@@ -98,11 +113,13 @@ export function buildDeclarations(firefoxRootPath, outDirPath, options = {}) {
   fs.mkdirSync(outDir, { recursive: true });
 
   const commitSha = getFirefoxCommitSha(firefoxRoot);
+  const firefoxVersion = getFirefoxVersion(firefoxRoot);
   const lastSchemaCommitSha = getLastSchemaCommitSha(firefoxRoot);
   const emitCommitHeader = Boolean(options.emitCommitHeader);
 
   console.log("=== Generating Firefox WebExtension Types (100% Schema Pure) ===");
   console.log(`Firefox Source      : ${firefoxRoot}`);
+  console.log(`Firefox Version     : ${firefoxVersion}`);
   console.log(`Firefox Commit      : ${commitSha}`);
   console.log(`Last Schema Commit  : ${lastSchemaCommitSha}`);
   console.log(`Emit Commit Header  : ${emitCommitHeader}`);
@@ -124,36 +141,44 @@ export function buildDeclarations(firefoxRootPath, outDirPath, options = {}) {
   const mobileNs = registry.loadTarget("mobile");
   console.log(`   Discovered ${Object.keys(mobileNs).length} namespaces.`);
 
-  // 1. Pure schema Desktop declarations (Canonical)
-  const emitterDesktop = new TypeScriptEmitter({
-    target: "desktop",
-    commitSha,
-    emitCommitHeader,
-  });
-  const desktopDts = emitterDesktop.generate(desktopNs, "module");
-  fs.writeFileSync(path.join(outDir, "firefox-desktop.d.ts"), desktopDts, "utf8");
-  fs.writeFileSync(path.join(outDir, "index.d.ts"), desktopDts, "utf8");
-  console.log(`   Emitted: firefox-desktop.d.ts and index.d.ts (${Object.keys(desktopNs).length} namespaces)`);
+  const write = (name, text) => fs.writeFileSync(path.join(outDir, name), text, "utf8");
+  const emitters = {};
+  for (const target of ["desktop", "mobile"]) {
+    emitters[target] = new TypeScriptEmitter({ target, commitSha, emitCommitHeader });
+  }
+  const namespacesFor = { desktop: desktopNs, mobile: mobileNs };
+  const gen = (target, mode, opts = {}) =>
+    emitters[target].generate(namespacesFor[target], mode, { firefoxVersion, ...opts });
 
-  // 2. Pure schema Mobile declarations
-  const emitterMobile = new TypeScriptEmitter({
-    target: "mobile",
-    commitSha,
-    emitCommitHeader,
-  });
-  const mobileDts = emitterMobile.generate(mobileNs, "module");
-  fs.writeFileSync(path.join(outDir, "firefox-mobile.d.ts"), mobileDts, "utf8");
-  console.log(`   Emitted: firefox-mobile.d.ts (${Object.keys(mobileNs).length} namespaces)`);
+  // 1. Module declarations. Each has a .d.cts twin for the "require" condition.
+  const moduleFiles = {
+    "index": "desktop",
+    "firefox-desktop": "desktop",
+    "firefox-mobile": "mobile",
+  };
+  for (const [base, target] of Object.entries(moduleFiles)) {
+    const dts = gen(target, "module");
+    write(`${base}.d.ts`, dts);
+    write(`${base}.d.cts`, dts);
+    console.log(`   Emitted: ${base}.d.ts and ${base}.d.cts (${Object.keys(namespacesFor[target]).length} namespaces)`);
+  }
 
-  // 3. Ambient global declarations
-  const ambientDts = emitterDesktop.generate(desktopNs, "ambient");
-  fs.writeFileSync(path.join(outDir, "global.d.ts"), ambientDts, "utf8");
-  console.log("   Emitted: global.d.ts (Ambient Global)");
+  // 2. Chrome compatibility module (desktop)
+  write("chrome.d.ts", gen("desktop", "chrome", { importSpecifier: "./index.js" }));
+  write("chrome.d.cts", gen("desktop", "chrome", { importSpecifier: "./index.cjs" }));
+  console.log("   Emitted: chrome.d.ts and chrome.d.cts (Chrome Compatibility)");
 
-  // 4. Isolated Chrome compatibility module
-  const chromeDts = emitterDesktop.generate(desktopNs, "chrome");
-  fs.writeFileSync(path.join(outDir, "chrome.d.ts"), chromeDts, "utf8");
-  console.log("   Emitted: chrome.d.ts (Chrome Compatibility)");
+  // 3. Ambient globals. The base files declare `browser` only so they can sit
+  // beside @types/chrome; the -chrome variants add an ambient `chrome`.
+  const ambientFiles = { "global": "desktop", "global-mobile": "mobile" };
+  for (const [base, target] of Object.entries(ambientFiles)) {
+    write(`${base}.d.ts`, gen(target, "ambient"));
+    write(
+      `${base}-chrome.d.ts`,
+      gen(target, "ambient-chrome", { ambientBase: `./${base}.d.ts` })
+    );
+    console.log(`   Emitted: ${base}.d.ts and ${base}-chrome.d.ts (Ambient Global, ${target})`);
+  }
 
   // 5. Runtime stubs
   const runtimeStubEsm =
@@ -181,18 +206,29 @@ export function buildDeclarations(firefoxRootPath, outDirPath, options = {}) {
     return crypto.createHash("sha256").update(fs.readFileSync(full)).digest("hex");
   };
 
+  const artifactNames = [
+    "index.d.ts",
+    "index.d.cts",
+    "firefox-desktop.d.ts",
+    "firefox-desktop.d.cts",
+    "firefox-mobile.d.ts",
+    "firefox-mobile.d.cts",
+    "chrome.d.ts",
+    "chrome.d.cts",
+    "global.d.ts",
+    "global-chrome.d.ts",
+    "global-mobile.d.ts",
+    "global-mobile-chrome.d.ts",
+  ];
   const provenance = {
+    firefoxVersion,
     firefoxCommit: commitSha,
     lastSchemaModifyingCommit: lastSchemaCommitSha,
     schemaTreeSha256,
     generatorVersion: "0.2.0",
-    artifacts: {
-      "index.d.ts": { sha256: fileHash("index.d.ts") },
-      "firefox-desktop.d.ts": { sha256: fileHash("firefox-desktop.d.ts") },
-      "firefox-mobile.d.ts": { sha256: fileHash("firefox-mobile.d.ts") },
-      "global.d.ts": { sha256: fileHash("global.d.ts") },
-      "chrome.d.ts": { sha256: fileHash("chrome.d.ts") },
-    },
+    artifacts: Object.fromEntries(
+      artifactNames.map((name) => [name, { sha256: fileHash(name) }])
+    ),
   };
   fs.writeFileSync(
     path.join(outDir, "provenance.json"),
