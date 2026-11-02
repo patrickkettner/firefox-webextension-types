@@ -5,6 +5,7 @@ import path from "node:path";
 import os from "node:os";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { installTypeScript } from "./helpers/install-typescript.js";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const repoTsc = path.join(repoRoot, "node_modules/.bin/tsc");
@@ -15,20 +16,6 @@ const typesChromeDir = path.join(repoRoot, "node_modules/@types/chrome");
 let workDir;
 let consumerDir;
 const compilers = [{ label: "repo", tsc: repoTsc }];
-
-function installTypeScript(version) {
-  const cache = path.join(os.tmpdir(), `fwt-ts-${version}`);
-  const bin = path.join(cache, "node_modules/.bin/tsc");
-  if (!fs.existsSync(bin)) {
-    fs.mkdirSync(cache, { recursive: true });
-    fs.writeFileSync(path.join(cache, "package.json"), "{}\n");
-    execFileSync("npm", ["install", "--silent", "--no-audit", "--no-fund", `typescript@${version}`], {
-      cwd: cache,
-      stdio: "pipe",
-    });
-  }
-  return bin;
-}
 
 before(() => {
   workDir = fs.mkdtempSync(path.join(os.tmpdir(), "fwt-consumer-"));
@@ -45,7 +32,7 @@ before(() => {
 
   // CONSUMER_TS_VERSIONS="4.9.5,5.9.3" repeats every compile on those versions.
   for (const v of (process.env.CONSUMER_TS_VERSIONS || "").split(",").filter(Boolean)) {
-    compilers.push({ label: v, tsc: installTypeScript(v) });
+    compilers.push({ label: v, tsc: installTypeScript(v).tsc });
   }
 });
 
