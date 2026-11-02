@@ -7,6 +7,31 @@
 import fs from "node:fs";
 import path from "node:path";
 
+// Namespaces the generator leaves out on purpose. Each entry names the
+// Firefox file and the line of code that justifies it; the audit fails if
+// that code is gone, so the exclusion is re-examined whenever Firefox changes.
+export const EXCLUDED_NAMESPACES = {
+  test: {
+    file: "toolkit/components/extensions/child/ext-test.js",
+    evidence: "if (!Cu.isInAutomation && !isXpcshell) {\n      return { test: {} };",
+  },
+};
+
+export function verifyExclusionEvidence(firefoxRoot) {
+  const failures = [];
+  for (const [nsName, { file, evidence }] of Object.entries(EXCLUDED_NAMESPACES)) {
+    const full = path.join(firefoxRoot, file);
+    if (!fs.existsSync(full)) {
+      failures.push(`${nsName}: ${file} does not exist`);
+      continue;
+    }
+    if (!fs.readFileSync(full, "utf8").includes(evidence)) {
+      failures.push(`${nsName}: ${file} no longer contains the guard that justified the exclusion`);
+    }
+  }
+  return failures;
+}
+
 function stripComments(raw) {
   const noBlock = raw.replace(/\/\*[\s\S]*?\*\//g, "");
   return noBlock
@@ -220,8 +245,16 @@ export function loadIndependentSchemaUniverse(firefoxRoot, target = "desktop") {
     }
   }
 
+  const excluded = [];
+  for (const nsName of Object.keys(EXCLUDED_NAMESPACES)) {
+    if (namespaces.delete(nsName)) {
+      excluded.push(nsName);
+    }
+  }
+
   return {
     namespaces,
+    excluded,
     schemaFileCount: schemaFiles.length,
     counts: {
       namespaces: namespaces.size,

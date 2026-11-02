@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { parseJarMn } from "./jar-parser.js";
 import { codePointCompare, entryCodePointCompare } from "./comparator.js";
+import { EXCLUDED_NAMESPACES } from "./overrides.js";
 
 /**
  * Strips comments from raw schema JSON and returns the parsed object/array.
@@ -406,6 +407,10 @@ export class SchemaRegistry {
       for (const prop of Object.values(ns.properties)) {
         resolveObjImports(prop, ns);
       }
+    }
+
+    for (const excluded of Object.keys(EXCLUDED_NAMESPACES)) {
+      delete namespaces[excluded];
     }
 
     return namespaces;

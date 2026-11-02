@@ -448,12 +448,7 @@ export class TypeScriptEmitter {
               pType = this.emitType(pVal, nsName);
             }
 
-            let isReadonly = false;
-            if (pVal.readOnly || pVal.readonly || pVal.unsupported) {
-              isReadonly = true;
-            } else if (nsName === "manifest" || typeId.endsWith("Manifest")) {
-              isReadonly = true;
-            }
+            const isReadonly = Boolean(pVal.readOnly || pVal.readonly || pVal.unsupported);
             const ro = isReadonly ? "readonly " : "";
             out.push(`${indent}    ${ro}${sanitizePropertyName(pName)}${opt}: ${pType};`);
           }

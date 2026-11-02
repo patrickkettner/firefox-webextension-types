@@ -233,6 +233,23 @@ describe("TypeScriptEmitter", () => {
     assert.ok(fullText.includes("url?: string;"));
   });
 
+  it("does not fabricate readonly for manifest properties", () => {
+    const ns = new LoadedNamespace("manifest");
+    ns.types.WebExtensionManifest = {
+      id: "WebExtensionManifest",
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        version: { type: "string" },
+      },
+    };
+    const lines = [];
+    emitter._emitNamespaceBody(ns, lines, "        ", "manifest");
+    const fullText = lines.join("\n");
+    assert.ok(fullText.includes("name: string;"));
+    assert.ok(!fullText.includes("readonly"));
+  });
+
   it("emits @deprecated tag in JSDoc", () => {
     const fn = {
       name: "getURL",

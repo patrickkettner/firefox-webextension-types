@@ -87,8 +87,7 @@ export function verifyDeclarations(schemaUniverse, emittedUniverse) {
           const sProp = sProps[pName];
           if (sProp && eProp.readonly) {
             const schemaMarked = Boolean(sProp.readOnly || sProp.readonly || sProp.unsupported);
-            const isManifest = nsName === "manifest" || tName.endsWith("Manifest");
-            if (!schemaMarked && !isManifest) {
+            if (!schemaMarked) {
               fabricatedReadonly.push(`${nsName}.${tName}.${pName}`);
             }
           }

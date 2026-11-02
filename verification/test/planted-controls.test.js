@@ -113,6 +113,42 @@ describe("ThreeTierVerifier Planted Controls", () => {
     assert.strictEqual(result.summary.fabricatedReadonly, 1);
   });
 
+  it("NEGATIVE CONTROL 3b: fails RED on fabricated readonly in the manifest namespace", () => {
+    const { schemaUniverse, emittedUniverse } = makeBaseUniverses();
+    schemaUniverse.namespaces.set("manifest", {
+      name: "manifest",
+      types: new Map([
+        ["WebExtensionManifest", { id: "WebExtensionManifest", properties: { name: { type: "string" } } }],
+      ]),
+      functions: new Map(),
+      events: new Map(),
+      properties: new Map(),
+    });
+    emittedUniverse.namespaces = new Map([
+      ["manifest", {
+        name: "manifest",
+        types: new Map([
+          ["WebExtensionManifest", {
+            kind: "interface",
+            name: "WebExtensionManifest",
+            properties: new Map([
+              ["name", { name: "name", readonly: true, optional: false, type: "string" }],
+            ]),
+          }],
+        ]),
+        functions: new Map(),
+        events: new Map(),
+        properties: new Map(),
+      }],
+      ["tabs", emittedUniverse.namespaces.get("tabs")],
+    ]);
+
+    const result = verifyDeclarations(schemaUniverse, emittedUniverse, { strict: true });
+    assert.strictEqual(result.passed, false, "Expected verifier to fail RED on manifest readonly");
+    assert.ok(result.errors.some((e) => e.includes("manifest.WebExtensionManifest.name")));
+    assert.strictEqual(result.summary.fabricatedReadonly, 1);
+  });
+
   it("NEGATIVE CONTROL 4: fails RED on sequential collation violation", () => {
     const { schemaUniverse, emittedUniverse } = makeBaseUniverses();
     // Add two namespaces in reverse code-point order

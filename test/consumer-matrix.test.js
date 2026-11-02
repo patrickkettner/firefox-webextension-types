@@ -106,7 +106,8 @@ export async function positive() {
     await mobileBrowser.tabs.query({});
     await browserDefault.storage.local.get("theme");
     chrome.tabs.query({ active: true }, () => {});
-    desktopBrowser.test.log("test namespace is on the canonical entrypoints");
+    // @ts-expect-error test is {} outside automation (ext-test.js) and is not emitted
+    desktopBrowser.test.log("test namespace is not on the canonical entrypoints");
 }
 
 export async function negative() {

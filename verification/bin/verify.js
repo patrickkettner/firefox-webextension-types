@@ -8,7 +8,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 
-import { loadIndependentSchemaUniverse } from "../src/independent-schema-loader.js";
+import {
+  loadIndependentSchemaUniverse,
+  verifyExclusionEvidence,
+} from "../src/independent-schema-loader.js";
 import { extractSymbolsFromDts } from "../src/ast-symbol-extractor.js";
 import { verifyDeclarations } from "../src/three-tier-verifier.js";
 
@@ -22,10 +25,19 @@ export function runVerificationForTarget(firefoxRoot, target, dtsPath) {
     return false;
   }
 
+  const exclusionFailures = verifyExclusionEvidence(firefoxRoot);
+  if (exclusionFailures.length > 0) {
+    console.error("FAIL: namespace exclusions no longer backed by Firefox source:");
+    for (const f of exclusionFailures) {
+      console.error(`  [X] ${f}`);
+    }
+    return false;
+  }
+
   const schemaUniverse = loadIndependentSchemaUniverse(firefoxRoot, target);
   console.log(`Schema Universe Denominators (Independent Parser):`);
   console.log(`  Schemas     : ${schemaUniverse.schemaFileCount}`);
-  console.log(`  Namespaces  : ${schemaUniverse.counts.namespaces}`);
+  console.log(`  Namespaces  : ${schemaUniverse.counts.namespaces} (excluded on purpose: ${schemaUniverse.excluded.join(", ") || "none"})`);
   console.log(`  Types       : ${schemaUniverse.counts.types}`);
   console.log(`  Functions   : ${schemaUniverse.counts.functions}`);
   console.log(`  Events      : ${schemaUniverse.counts.events}`);

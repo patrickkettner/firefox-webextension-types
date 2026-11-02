@@ -281,6 +281,29 @@ comment */
     }
   });
 
+  it("drops the test namespace, which Firefox only exposes in automation", () => {
+    const exclDir = path.join(tempDir, "excl_test");
+    const tk = path.join(exclDir, "toolkit", "components", "extensions", "schemas");
+    const br = path.join(exclDir, "browser", "components", "extensions", "schemas");
+    fs.mkdirSync(tk, { recursive: true });
+    fs.mkdirSync(br, { recursive: true });
+    fs.writeFileSync(path.join(tk, "jar.mn"), "test.json\nalarms.json\n", "utf8");
+    fs.writeFileSync(path.join(br, "jar.mn"), "", "utf8");
+    fs.writeFileSync(
+      path.join(tk, "test.json"),
+      JSON.stringify([{ namespace: "test", functions: [{ name: "assertEq", type: "function" }] }]),
+      "utf8"
+    );
+    fs.writeFileSync(
+      path.join(tk, "alarms.json"),
+      JSON.stringify([{ namespace: "alarms", functions: [{ name: "clearAll", type: "function", async: true }] }]),
+      "utf8"
+    );
+
+    const namespaces = new SchemaRegistry(exclDir).loadTarget("desktop");
+    assert.deepEqual(Object.keys(namespaces), ["alarms"]);
+  });
+
   it("inherits types, functions, events, properties via namespace $import", () => {
     const firefoxDir = tempDir;
     const nsImpDir = path.join(firefoxDir, "ns_imp_test");

@@ -8,6 +8,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseJarMn } from "../src/jar-parser.js";
 import { loadRawSchemaJson } from "../src/schema-loader.js";
+import { EXCLUDED_NAMESPACES } from "../src/overrides.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJ = path.resolve(__dirname, "..");
@@ -86,7 +87,7 @@ export function parseSchemaNamespaces(schemaPath) {
   const namespaces = [];
   for (const entry of data) {
     const ns = entry.namespace;
-    if (ns && !ns.includes(".")) {
+    if (ns && !ns.includes(".") && !(ns in EXCLUDED_NAMESPACES)) {
       namespaces.push(ns);
     }
   }
