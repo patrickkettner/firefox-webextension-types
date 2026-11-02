@@ -16,10 +16,12 @@ export const EXCLUDED_NAMESPACES = {
 // platform classes an extension really has to hand over.
 export const PLATFORM_TYPES = {
   global: "Window",
+  Window: "Window",
   Date: "globalThis.Date",
-  Promise: "globalThis.Promise<unknown>",
   DirectoryEntry: "FileSystemDirectoryEntry",
   ImageData: "globalThis.ImageData",
+  ArrayBuffer: "ArrayBuffer",
+  Element: "Element",
   // Declared in dom/webidl/StreamFilter.webidl and loaded into the
   // webRequest namespace by WEBIDL_TYPES.
   StreamFilter: "browser.webRequest.StreamFilter",
@@ -127,6 +129,159 @@ export const ASYNC_RESULTS = {
   "webRequest.getSecurityInfo": "SecurityInfo | undefined",
 };
 
+// Async functions whose schema declares no callback payload and no `returns`
+// and that ASYNC_RESULTS does not type. The emitter gives them Promise<void>.
+// The value says what the implementation really resolves with:
+//   none          nothing, or null where no data is meant
+//   incidental    a value the API does not document, so void stays
+//   indeterminate the value comes from a promise Firefox does not pin down
+// A function that does resolve a documented value belongs in ASYNC_RESULTS.
+// The audit fails when a schema function of this kind is in neither table.
+export const ASYNC_NO_PAYLOAD = {
+  "alarms.create": "none",
+  "alarms.clearAll": "none",
+  "action.setTitle": "none",
+  "action.setIcon": "none",
+  "action.setPopup": "none",
+  "action.setBadgeText": "none",
+  "action.setBadgeBackgroundColor": "none",
+  "action.setBadgeTextColor": "none",
+  "action.enable": "none",
+  "action.disable": "none",
+  "action.openPopup": "none",
+  "browserAction.setTitle": "none",
+  "browserAction.setIcon": "none",
+  "browserAction.setPopup": "none",
+  "browserAction.setBadgeText": "none",
+  "browserAction.setBadgeBackgroundColor": "none",
+  "browserAction.setBadgeTextColor": "none",
+  "browserAction.enable": "none",
+  "browserAction.disable": "none",
+  "browserAction.openPopup": "none",
+  "bookmarks.remove": "none",
+  "bookmarks.removeTree": "none",
+  "browsingData.remove": "incidental",
+  "browsingData.removeCache": "incidental",
+  "browsingData.removeCookies": "incidental",
+  "browsingData.removeDownloads": "incidental",
+  "browsingData.removeFormData": "incidental",
+  "browsingData.removeHistory": "incidental",
+  "browsingData.removeLocalStorage": "incidental",
+  "browsingData.removePasswords": "incidental",
+  "browsingData.removePluginData": "incidental",
+  "clipboard.setImageData": "none",
+  "commands.update": "none",
+  "commands.reset": "none",
+  "commands.openShortcutSettings": "none",
+  "contentScripts.RegisteredContentScript.unregister": "none",
+  "contextMenus.update": "none",
+  "contextMenus.remove": "none",
+  "contextMenus.removeAll": "none",
+  "contextMenus.refresh": "none",
+  "contextualIdentities.move": "none",
+  "contextualIdentities.setSiteAssociation": "none",
+  "contextualIdentities.removeSiteAssociation": "none",
+  "declarativeNetRequest.updateDynamicRules": "none",
+  "declarativeNetRequest.updateSessionRules": "none",
+  "declarativeNetRequest.updateEnabledRulesets": "none",
+  "declarativeNetRequest.updateStaticRules": "none",
+  "devtools.panels.ExtensionSidebarPane.setExpression": "none",
+  "devtools.panels.ExtensionSidebarPane.setObject": "none",
+  "devtools.panels.ExtensionSidebarPane.setPage": "none",
+  "downloads.pause": "indeterminate",
+  "downloads.resume": "indeterminate",
+  "downloads.cancel": "indeterminate",
+  "downloads.open": "none",
+  "downloads.removeFile": "none",
+  "find.highlightResults": "none",
+  "find.removeHighlighting": "none",
+  "geckoProfiler.start": "none",
+  "geckoProfiler.stop": "none",
+  "geckoProfiler.pause": "none",
+  "geckoProfiler.resume": "none",
+  "geckoProfiler.dumpProfileToFile": "none",
+  "history.addUrl": "none",
+  "history.deleteUrl": "none",
+  "history.deleteRange": "none",
+  "history.deleteAll": "none",
+  "management.uninstallSelf": "none",
+  "management.setEnabled": "none",
+  "menus.update": "none",
+  "menus.remove": "none",
+  "menus.removeAll": "none",
+  "menus.refresh": "none",
+  "pageAction.show": "none",
+  "pageAction.hide": "none",
+  "pageAction.setIcon": "none",
+  "pageAction.setPopup": "none",
+  "pageAction.openPopup": "none",
+  "pkcs11.installModule": "none",
+  "pkcs11.uninstallModule": "none",
+  "runtime.openOptionsPage": "none",
+  "runtime.setUninstallURL": "none",
+  "scripting.insertCSS": "none",
+  "scripting.removeCSS": "none",
+  "scripting.registerContentScripts": "none",
+  "scripting.unregisterContentScripts": "none",
+  "scripting.updateContentScripts": "none",
+  "search.search": "none",
+  "search.query": "none",
+  "sessions.forgetClosedTab": "none",
+  "sessions.forgetClosedWindow": "none",
+  "sessions.setTabValue": "none",
+  "sessions.removeTabValue": "none",
+  "sessions.setWindowValue": "none",
+  "sessions.removeWindowValue": "none",
+  "sidebarAction.setTitle": "none",
+  "sidebarAction.setIcon": "none",
+  "sidebarAction.setPanel": "none",
+  "sidebarAction.open": "none",
+  "sidebarAction.close": "none",
+  "sidebarAction.toggle": "none",
+  "storage.StorageArea.set": "none",
+  "storage.StorageArea.remove": "none",
+  "storage.StorageArea.clear": "none",
+  "tabs.reload": "none",
+  "tabs.warmup": "none",
+  "tabs.remove": "none",
+  "tabs.discard": "none",
+  "tabs.toggleReaderMode": "none",
+  "tabs.insertCSS": "none",
+  "tabs.removeCSS": "none",
+  "tabs.setZoom": "none",
+  "tabs.setZoomSettings": "none",
+  "tabs.printPreview": "none",
+  "tabs.show": "none",
+  "tabs.moveInSuccession": "none",
+  "tabs.goForward": "none",
+  "tabs.goBack": "none",
+  "tabs.ungroup": "none",
+  "telemetry.submitPing": "none",
+  "telemetry.scalarAdd": "none",
+  "telemetry.scalarSet": "none",
+  "telemetry.scalarSetMaximum": "none",
+  "telemetry.keyedScalarAdd": "none",
+  "telemetry.keyedScalarSet": "none",
+  "telemetry.keyedScalarSetMaximum": "none",
+  "telemetry.recordEvent": "none",
+  "telemetry.registerScalars": "none",
+  "telemetry.registerEvents": "none",
+  "telemetry.setEventRecordingEnabled": "none",
+  "theme.update": "none",
+  "theme.reset": "none",
+  "trial.ml.createEngine": "none",
+  // The manifest_version 3 form. The manifest_version 2 form in
+  // toolkit/components/extensions/child/ext-userScripts.js resolves an
+  // object with unregister(), and the generator drops that overload.
+  "userScripts.register": "none",
+  "userScripts.update": "none",
+  "userScripts.unregister": "none",
+  "userScripts.configureWorld": "none",
+  "userScripts.resetWorldConfiguration": "none",
+  "webRequest.handlerBehaviorChanged": "none",
+  "windows.remove": "none",
+};
+
 // Functions whose schema-optional callback payload is null, not undefined.
 export const NULL_RESULTS = new Set([
   // toolkit/components/extensions/parent/ext-contextualIdentities.js
@@ -140,6 +295,16 @@ export const NULL_RESULTS = new Set([
   // toolkit/components/extensions/parent/ext-webNavigation.js
   "webNavigation.getAllFrames",
   "webNavigation.getFrame",
+]);
+
+// Functions whose schema-optional callback payload really is undefined on
+// some path. Every function with an optional payload is in exactly one of
+// NULL_RESULTS, REQUIRED_RESULTS and this set.
+export const OPTIONAL_RESULT_UNDEFINED = new Set([
+  // toolkit/components/extensions/parent/ext-alarms.js
+  "alarms.get",
+  // browser/components/extensions/parent/ext-tabs.js
+  "tabs.getCurrent",
 ]);
 
 // Functions whose schema-optional callback payload is always supplied, so
@@ -238,6 +403,29 @@ export const EVENT_PARAMETERS = {
   "runtime.onMessage": { sendResponse: "(response?: unknown) => void" },
   "runtime.onMessageExternal": { sendResponse: "(response?: unknown) => void" },
   "runtime.onUserScriptMessage": { sendResponse: "(response?: unknown) => void" },
+};
+
+// Event parameters the schema marks optional that Firefox does leave out on
+// some path. Every optional event parameter is here or in
+// REQUIRED_EVENT_PARAMETERS.
+export const OPTIONAL_EVENT_PARAMETERS = {
+  "action.onClicked": ["info"],
+  "browserAction.onClicked": ["info"],
+  "pageAction.onClicked": ["info"],
+  "contextMenus.onClicked": ["tab"],
+  "menus.onClicked": ["tab"],
+  "runtime.onMessage": ["message"],
+  "runtime.onMessageExternal": ["message"],
+  "runtime.onUserScriptMessage": ["message"],
+  "webRequest.onAuthRequired": ["asyncCallback"],
+};
+
+// Event parameters the schema leaves as a bare object that Firefox fills
+// with a shape the schema does not describe, so the type stays open.
+export const OPEN_EVENT_PARAMETERS = {
+  // toolkit/components/extensions/parent/ext-trial-ml.js forwards the
+  // progress object of the ML engine.
+  "trial.ml.onProgress": ["progressData"],
 };
 
 // Event parameters the schema marks optional that Firefox always passes.
@@ -352,14 +540,275 @@ const DNR = TK + "ExtensionDNR.sys.mjs";
 const SHORTCUTS = TK + "ExtensionShortcuts.sys.mjs";
 const CONTEXTUAL = TK + "parent/ext-contextualIdentities.js";
 
+const CLICK_INFO = [
+  at(BR + "parent/ext-browserAction.js", 'this.buttonDelegate.emit("click", tab, clickInfo);'),
+  at(ACTIONS, "triggerClickOrPopup(tab, clickInfo = undefined) {"),
+];
+const MENU_CLICK_TAB = at(BR + "parent/ext-menus.js", "let tab = nativeTab && extension.tabManager.convert(nativeTab);");
+const MESSAGE_ARG = at(EXT_CHILD, "result = fire.raw(message, sender, sendResponse);");
+const ASYNC_NO_PAYLOAD_EVIDENCE = {
+  "alarms.create": at(TK + "parent/ext-alarms.js", "self.alarms.set(alarm.name, alarm); },"),
+  "alarms.clearAll": at(TK + "parent/ext-alarms.js", "for (let alarm of self.alarms.values()) { alarm.clear(); } },"),
+  "action.setTitle": ACTION_NONE.setTitle,
+  "action.setIcon": ACTION_NONE.setIcon,
+  "action.setPopup": ACTION_NONE.setPopup,
+  "action.setBadgeText": ACTION_NONE.setBadgeText,
+  "action.setBadgeBackgroundColor": ACTION_NONE.setBadgeBackgroundColor,
+  "action.setBadgeTextColor": ACTION_NONE.setBadgeTextColor,
+  "action.enable": ACTION_NONE.enable,
+  "action.disable": ACTION_NONE.disable,
+  "action.openPopup": ACTION_NONE.openPopup,
+  "browserAction.setTitle": ACTION_NONE.setTitle,
+  "browserAction.setIcon": ACTION_NONE.setIcon,
+  "browserAction.setPopup": ACTION_NONE.setPopup,
+  "browserAction.setBadgeText": ACTION_NONE.setBadgeText,
+  "browserAction.setBadgeBackgroundColor": ACTION_NONE.setBadgeBackgroundColor,
+  "browserAction.setBadgeTextColor": ACTION_NONE.setBadgeTextColor,
+  "browserAction.enable": ACTION_NONE.enable,
+  "browserAction.disable": ACTION_NONE.disable,
+  "browserAction.openPopup": ACTION_NONE.openPopup,
+  "bookmarks.remove": [
+    at(BR + "parent/ext-bookmarks.js", ".remove(info, { preventRemovalOfNonEmptyFolders: true }) .catch(error => Promise.reject({ message: error.message }));"),
+    at("toolkit/components/places/Bookmarks.sys.mjs", "await removeBookmarks(removeItems, options);"),
+  ],
+  "bookmarks.removeTree": [
+    at(BR + "parent/ext-bookmarks.js", ".remove(info) .catch(error => Promise.reject({ message: error.message }));"),
+    at("toolkit/components/places/Bookmarks.sys.mjs", "await removeBookmarks(removeItems, options);"),
+  ],
+  "browsingData.remove": browsingData("dataToRemove"),
+  "browsingData.removeCache": browsingData("{ cache: true }"),
+  "browsingData.removeCookies": browsingData("{ cookies: true }"),
+  "browsingData.removeDownloads": browsingData("{ downloads: true }"),
+  "browsingData.removeFormData": browsingData("{ formData: true }"),
+  "browsingData.removeHistory": browsingData("{ history: true }"),
+  "browsingData.removeLocalStorage": browsingData("{ localStorage: true }"),
+  "browsingData.removePasswords": browsingData("{ passwords: true }"),
+  "browsingData.removePluginData": browsingData("{ pluginData: true }"),
+  "clipboard.setImageData": at(
+    TK + "parent/ext-clipboard.js",
+    "Services.clipboard.setData( transferable, null, Services.clipboard.kGlobalClipboard ); },"
+  ),
+  "commands.update": [
+    at(BR + "parent/ext-commands.js", "update: args => this.extension.shortcuts.updateCommand(args),"),
+    at(SHORTCUTS, "if (command.shortcut !== oldShortcut) { this.onShortcutChanged({ name, newShortcut: command.shortcut, oldShortcut, }); } }"),
+  ],
+  "commands.reset": [
+    at(BR + "parent/ext-commands.js", "reset: name => this.extension.shortcuts.resetCommand(name),"),
+    at(SHORTCUTS, "this.registerKeys(commands); } }"),
+  ],
+  "commands.openShortcutSettings": [
+    at(BR + "parent/ext-commands.js", "openShortcutSettings: () => this.extension.shortcuts.openShortcutSettings(),"),
+    at(SHORTCUTS, "await window.BrowserAddonUI.openAddonsMgr(viewId); }"),
+  ],
+  "contentScripts.RegisteredContentScript.unregister": [
+    at(
+      TK + "parent/ext-contentScripts.js",
+      'await extension.broadcast("Extension:UnregisterContentScripts", { id: extension.id, scriptIds: [scriptId], }); },'
+    ),
+    at(TK + "child/ext-contentScripts.js", "unregister: () => { return context.wrapPromise(this.unregister()); },"),
+  ],
+  "contextMenus.update": MENUS_NONE.update,
+  "contextMenus.remove": MENUS_NONE.remove,
+  "contextMenus.removeAll": MENUS_NONE.removeAll,
+  "contextMenus.refresh": MENUS_NONE.refresh,
+  "contextualIdentities.move": at(CONTEXTUAL, "`Contextual identities failed to move: ${cookieStoreIds}` ); } },"),
+  "contextualIdentities.setSiteAssociation": at(CONTEXTUAL, "ContextualIdentityService.setSiteAssociation(site, containerId); },"),
+  "contextualIdentities.removeSiteAssociation": at(CONTEXTUAL, "ContextualIdentityService.removeSiteAssociation(details.site); },"),
+  "declarativeNetRequest.updateDynamicRules": [
+    at(TK + "parent/ext-declarativeNetRequest.js", "return ExtensionDNR.updateDynamicRules(extension, {"),
+    at(DNR, "await lazy.ExtensionDNRStore.updateDynamicRules(extension, updateRuleOptions); }"),
+  ],
+  "declarativeNetRequest.updateSessionRules": at(
+    TK + "parent/ext-declarativeNetRequest.js",
+    "ruleManager.setSessionRules(validatedRules); },"
+  ),
+  "declarativeNetRequest.updateEnabledRulesets": [
+    at(TK + "parent/ext-declarativeNetRequest.js", "return ExtensionDNR.updateEnabledStaticRulesets(extension, {"),
+    at(DNR, "await lazy.ExtensionDNRStore.updateEnabledStaticRulesets( extension, updateRulesetOptions ); }"),
+  ],
+  "declarativeNetRequest.updateStaticRules": [
+    at(TK + "parent/ext-declarativeNetRequest.js", "return ExtensionDNR.updateStaticRules(extension, {"),
+    at(DNR, "await lazy.ExtensionDNRStore.updateStaticRules( extension, updateStaticRulesOptions ); }"),
+  ],
+  "devtools.panels.ExtensionSidebarPane.setExpression": [
+    at(DEVTOOLS_PANELS, "return sidebar.setExpressionResult(evalResult, rootTitle); },"),
+    at(DEVTOOLS_PANELS, "this._setLazySidebarInit(() => { this.extensionSidebar.setExpressionResult(expressionResult, rootTitle); }); } }"),
+  ],
+  "devtools.panels.ExtensionSidebarPane.setObject": [
+    at(DEVTOOLS_PANELS, "return sidebar.setObject(jsonObject, rootTitle); },"),
+    at(DEVTOOLS_PANELS, "this._setLazySidebarInit(() => this.extensionSidebar.setObject(object)); } }"),
+  ],
+  "devtools.panels.ExtensionSidebarPane.setPage": [
+    at(DEVTOOLS_PANELS, "return sidebar.setPage(extensionPageURL); },"),
+    at(DEVTOOLS_PANELS, "this._setLazySidebarInit(() => this.extensionSidebar.setExtensionPage(WEBEXT_PANELS_URL) ); } }"),
+  ],
+  "downloads.pause": [
+    at(DOWNLOADS, "return item.download.cancel();"),
+    at(DOWNLOAD_CORE, "this._promiseCanceled = new Promise(resolve => { this._currentAttempt.then(resolve, resolve); });"),
+  ],
+  "downloads.resume": [
+    at(DOWNLOADS, "item.error = null; return item.download.start();"),
+    at(DOWNLOAD_CORE, "return this._currentAttempt;"),
+  ],
+  "downloads.cancel": [
+    at(DOWNLOADS, "return item.download.finalize(true);"),
+    at(DOWNLOAD_CORE, "promise = this.cancel();"),
+  ],
+  "downloads.open": [
+    at(DOWNLOADS, "return download.launch();"),
+    at(
+      "toolkit/components/downloads/DownloadIntegration.sys.mjs",
+      "lazy.NetUtil.newURI(file), Services.scriptSecurityManager.getSystemPrincipal() ); },"
+    ),
+  ],
+  "downloads.removeFile": at(DOWNLOADS, "inadvertent disclosure of potentially sensitive information. throw err; } },"),
+  "find.highlightResults": [
+    at(BR + "parent/ext-find.js", 'return runFindOperation(context, params, "HighlightResults");'),
+    at(BR + "parent/ext-find.js", 'else if (responses.includes("Success")) { return; }'),
+  ],
+  "find.removeHighlighting": at(BR + "parent/ext-find.js", 'sendMessageToAllActors(tab.linkedBrowser, "ClearHighlighting", {}); },'),
+  "geckoProfiler.start": at(GECKO_PROFILER, "[], 0, windowLength ); } },"),
+  "geckoProfiler.stop": at(GECKO_PROFILER, "Services.profiler.StopProfiler(); },"),
+  "geckoProfiler.pause": at(GECKO_PROFILER, "Services.profiler.Pause(); },"),
+  "geckoProfiler.resume": at(GECKO_PROFILER, "Services.profiler.Resume(); },"),
+  "geckoProfiler.dumpProfileToFile": at(GECKO_PROFILER, "throw new ExtensionError(`Dumping profile to ${filePath} failed.`); } },"),
+  "history.addUrl": at(BR + "parent/ext-history.js", "return PlacesUtils.history.insert(pageInfo).then(() => undefined);"),
+  "history.deleteUrl": at(BR + "parent/ext-history.js", "return PlacesUtils.history.remove(url).then(() => undefined);"),
+  "history.deleteRange": at(BR + "parent/ext-history.js", ".removeVisitsByFilter(newFilter) .then(() => undefined);"),
+  "history.deleteAll": [
+    at(BR + "parent/ext-history.js", "return PlacesUtils.history.clear();"),
+    at("toolkit/components/places/History.sys.mjs", "var clear = async function (db) {"),
+  ],
+  "management.uninstallSelf": at(TK + "parent/ext-management.js", "addon.uninstall(); },"),
+  "management.setEnabled": at(TK + "parent/ext-management.js", "await addon.disable(); } },"),
+  "menus.update": MENUS_NONE.update,
+  "menus.remove": MENUS_NONE.remove,
+  "menus.removeAll": MENUS_NONE.removeAll,
+  "menus.refresh": MENUS_NONE.refresh,
+  "pageAction.show": [at(ACTIONS, "show: (...args) => this.enable(...args),"), ACTION_NONE.enable[1]],
+  "pageAction.hide": [at(ACTIONS, "hide: (...args) => this.disable(...args),"), ACTION_NONE.disable[1]],
+  "pageAction.setIcon": ACTION_NONE.setIcon,
+  "pageAction.setPopup": ACTION_NONE.setPopup,
+  "pageAction.openPopup": [
+    at(PAGE_ACTION, "action.throwIfOpenPopupIsBlockedByAnyAction(window); this.triggerAction(window); },"),
+    at(PAGE_ACTION, "triggerAction(window) { this.handleClick(window, { button: 0, modifiers: [] }); }"),
+  ],
+  "pkcs11.installModule": at(BR + "parent/ext-pkcs11.js", "await pkcs11db.addModule( manifest.description, manifest.path, flags, 0 ); },"),
+  "pkcs11.uninstallModule": at(BR + "parent/ext-pkcs11.js", "await pkcs11db.deleteModule(module.name); },"),
+  "runtime.openOptionsPage": at(TK + "parent/ext-runtime.js", "return openOptionsPage(extension).then(() => {});"),
+  "runtime.setUninstallURL": at(TK + "parent/ext-runtime.js", "extension.uninstallURL = url; return Promise.resolve(); },"),
+  "scripting.insertCSS": at(SCRIPTING, 'return execute(context, details, "css", "insertCSS").then(() => {});'),
+  "scripting.removeCSS": at(SCRIPTING, 'return execute(context, details, "css", "removeCSS").then(() => {});'),
+  "scripting.registerContentScripts": at(
+    SCRIPTING,
+    'await extension.broadcast("Extension:RegisterContentScripts", { id: extension.id, scripts: Array.from(scriptsToRegister.values()), }); },'
+  ),
+  "scripting.unregisterContentScripts": at(
+    SCRIPTING,
+    'await extension.broadcast("Extension:UnregisterContentScripts", { id: extension.id, scriptIds, }); },'
+  ),
+  "scripting.updateContentScripts": at(
+    SCRIPTING,
+    'await extension.broadcast("Extension:UpdateContentScripts", { id: extension.id, scripts: Array.from(scriptsToUpdate.values()), }); },'
+  ),
+  "search.search": at(BR + "parent/ext-search.js", 'sapSource: "webextension", }); },'),
+  "search.query": at(BR + "parent/ext-search.js", 'await SearchUIUtils.loadSearch({ window: windowTracker.topWindow, searchText: queryProperties.text,'),
+  "sessions.forgetClosedTab": at(SESSIONS, "SessionStore.forgetClosedTabById(closedId, window); },"),
+  "sessions.forgetClosedWindow": at(SESSIONS, "SessionStore.forgetClosedWindow(closedWindowIndex); },"),
+  "sessions.setTabValue": at(SESSIONS, "SessionStore.setCustomTabValue( tab, encodedKey, JSON.stringify(value) ); },"),
+  "sessions.removeTabValue": at(SESSIONS, "SessionStore.deleteCustomTabValue(tab, encodedKey); },"),
+  "sessions.setWindowValue": at(SESSIONS, "SessionStore.setCustomWindowValue( win, encodedKey, JSON.stringify(value) ); },"),
+  "sessions.removeWindowValue": at(SESSIONS, "SessionStore.deleteCustomWindowValue(win, encodedKey); },"),
+  "sidebarAction.setTitle": at(SIDEBAR, 'async setTitle(details) { sidebarAction.setPropertyFromDetails(details, "title", details.title); },'),
+  "sidebarAction.setIcon": at(SIDEBAR, 'sidebarAction.setPropertyFromDetails(details, "icon", icon); },'),
+  "sidebarAction.setPanel": at(SIDEBAR, 'sidebarAction.setPropertyFromDetails(details, "panel", url); },'),
+  "sidebarAction.open": [at(SIDEBAR, "sidebarAction.open(window); } },"), at(SIDEBAR, "SidebarController.show(this.id); } }")],
+  "sidebarAction.close": [at(SIDEBAR, "sidebarAction.close(window); } },"), at(SIDEBAR, "window.SidebarController.hide(); } }")],
+  "sidebarAction.toggle": [at(SIDEBAR, "sidebarAction.toggle(window); } },"), at(SIDEBAR, "} else { SidebarController.hide(); } }")],
+  "storage.StorageArea.set": [
+    at(
+      STORAGE_SYNC,
+      "let changes = this._parseRustStorageValueChangeList( await rustStore.set(extId, ...sargs) ); this.notifyListeners(extId, changes); return null;"
+    ),
+    at(CHILD_STORAGE, "const changes = await db.set(items, { serialize, }); if (changes) { fireOnChanged(changes); } } ); },"),
+    at(TK + "parent/ext-storage.js", "extensionStorageSession.set(extension, items); },"),
+  ],
+  "storage.StorageArea.remove": [
+    at(
+      STORAGE_SYNC,
+      "let changes = this._parseRustStorageValueChangeList( await rustStore.remove(extId, ...sargs) ); this.notifyListeners(extId, changes); return null;"
+    ),
+    at(CHILD_STORAGE, "const changes = await db.remove(keys); if (changes) { fireOnChanged(changes); } },"),
+    at(TK + "parent/ext-storage.js", "extensionStorageSession.remove(extension, keys); },"),
+  ],
+  "storage.StorageArea.clear": [
+    at(
+      STORAGE_SYNC,
+      "let changes = this._parseRustStorageValueChangeList( await rustStore.clear(extId) ); this.notifyListeners(extId, changes); return null;"
+    ),
+    at(CHILD_STORAGE, "const changes = await db.clear(context.extension); if (changes) { fireOnChanged(changes); } },"),
+    at(TK + "parent/ext-storage.js", "extensionStorageSession.clear(extension); },"),
+  ],
+  "tabs.reload": at(TABS, "nativeTab.linkedBrowser.reloadWithFlags(flags); },"),
+  "tabs.warmup": at(TABS, "tabbrowser.warmupTab(nativeTab); },"),
+  "tabs.remove": at(TABS, "suppressWarnAboutClosingWindow: true, }); } },"),
+  "tabs.discard": at(TABS, "renderDiscarded: true, skipOnClose: false, }); } },"),
+  "tabs.toggleReaderMode": at(TABS, '"Reader:ToggleReaderMode", {}, "AboutReader" ); },'),
+  "tabs.insertCSS": [
+    at(TABS, "return tab.insertCSS(context, details); },"),
+    at(TABS_BASE, 'return this._execute(context, details, "css", "insertCSS").then(() => {});'),
+  ],
+  "tabs.removeCSS": [
+    at(TABS, "return tab.removeCSS(context, details); },"),
+    at(TABS_BASE, 'return this._execute(context, details, "css", "removeCSS").then(() => {});'),
+  ],
+  "tabs.setZoom": at(TABS, "return Promise.resolve(); },"),
+  "tabs.setZoomSettings": at(TABS, "`Unsupported zoom settings: ${JSON.stringify(settings)}` ); } },"),
+  "tabs.printPreview": at(TABS, "printPreview() { return Promise.resolve(this.print()); },"),
+  "tabs.show": at(TABS, "tab.documentGlobal.gBrowser.showTab(tab); } } },"),
+  "tabs.moveInSuccession": at(TABS, "referenceWindow.gBrowser.setSuccessor(previousTab, lastSuccessor); } },"),
+  "tabs.goForward": at(TABS, "nativeTab.linkedBrowser.goForward(false); },"),
+  "tabs.goBack": at(TABS, "nativeTab.linkedBrowser.goBack(false); },"),
+  "tabs.ungroup": at(TABS, "group.documentGlobal.gBrowser.moveTabsAfter(tabs, group); } } },"),
+  "telemetry.submitPing": at(TELEMETRY, "TelemetryController.submitExternalPing(type, payload, options); } catch (ex) {"),
+  "telemetry.scalarAdd": noOp("scalarAdd(_name, _value)", "1930196 (Fx134)"),
+  "telemetry.scalarSet": noOp("scalarSet(_name, _value)", "1930196 (Fx134)"),
+  "telemetry.scalarSetMaximum": noOp("scalarSetMaximum(_name, _value)", "1930196 (Fx134)"),
+  "telemetry.keyedScalarAdd": noOp("keyedScalarAdd(_name, _key, _value)", "1930196 (Fx134)"),
+  "telemetry.keyedScalarSet": noOp("keyedScalarSet(_name, _key, _value)", "1930196 (Fx134)"),
+  "telemetry.keyedScalarSetMaximum": noOp("keyedScalarSetMaximum(_name, _key, _value)", "1930196 (Fx134)"),
+  "telemetry.recordEvent": noOp("recordEvent(_category, _method, _object, _value, _extra)", "1894533 (Fx132)"),
+  "telemetry.registerScalars": noOp("registerScalars(_category, _data)", "1930196 (Fx134)"),
+  "telemetry.registerEvents": noOp("registerEvents(_category, _data)", "1894533 (Fx132)"),
+  "telemetry.setEventRecordingEnabled": noOp("setEventRecordingEnabled(_category, _enabled)", "1920562 (Fx133)"),
+  "theme.update": at(TK + "parent/ext-theme.js", "experiment: this.extension.manifest.theme_experiment, }); },"),
+  "theme.reset": at(TK + "parent/ext-theme.js", "if (defaultTheme.extension === extension) { Theme.unload(); } },"),
+  "trial.ml.createEngine": at(
+    TK + "parent/ext-trial-ml.js",
+    "await this.#createEngine(this.#pipelineOptions); } catch (error) { throw new ExtensionError(error.message); } },"
+  ),
+  "userScripts.register": at(USER_SCRIPTS, "await usm.registerNewScripts(scripts); });"),
+  "userScripts.update": at(USER_SCRIPTS, "await usm.updateScripts(scripts); });"),
+  "userScripts.unregister": at(USER_SCRIPTS, "await usm.unregisterScripts(ids); });"),
+  "userScripts.configureWorld": at(USER_SCRIPTS, "await usm.configureWorld(properties); });"),
+  "userScripts.resetWorldConfiguration": at(USER_SCRIPTS, "await usm.resetWorldConfiguration(worldId); });"),
+  "webRequest.handlerBehaviorChanged": at(TK + "parent/ext-webRequest.js", 'ChromeUtils.clearResourceCache({ target: "content" }); },'),
+  "windows.remove": at(BR + "parent/ext-windows.js", 'windowTracker.addListener("domwindowclosed", listener); }); },'),
+};
+
 export const EVIDENCE = {
   EXCLUDED_NAMESPACES: {
     test: at(TK + "child/ext-test.js", "if (!Cu.isInAutomation && !isXpcshell) { return { test: {} };"),
   },
   PLATFORM_TYPES: {
+    Window: at(TK + "schemas/runtime.json", '"isInstanceOf": "Window"'),
     global: at(BR + "child/ext-devtools-panels.js", 'this.emit("shown", this.panelContext.contentWindow);'),
     Date: at(TK + "schemas/extension_types.json", '"isInstanceOf": "Date"'),
-    Promise: at(TK + "schemas/test.json", '"isInstanceOf": "Promise"'),
+    ArrayBuffer: at(TK + "schemas/clipboard.json", '"isInstanceOf": "ArrayBuffer"'),
+    Element: [
+      at(BR + "schemas/menus_child.json", '"isInstanceOf": "Element"'),
+      at(SCHEMAS, '(this.isInstanceOf !== "Element" || value.nodeType !== 1)'),
+    ],
     DirectoryEntry: at(TK + "schemas/runtime.json", '"isInstanceOf": "DirectoryEntry"'),
     ImageData: at(TK + "schemas/browser_action.json", '"isInstanceOf": "ImageData"'),
     StreamFilter: at(TK + "schemas/web_request.json", '"isInstanceOf": "StreamFilter"'),
@@ -518,6 +967,33 @@ export const EVIDENCE = {
       "if (channel) { return lazy.SecurityInfo.getSecurityInfo( channel.channel, details.options ); }"
     ),
   },
+  OPTIONAL_RESULT_UNDEFINED: {
+    "alarms.get": at(
+      TK + "parent/ext-alarms.js",
+      "return Promise.resolve(self.alarms.get(name).data); } return Promise.resolve();"
+    ),
+    "tabs.getCurrent": at(
+      BR + "parent/ext-tabs.js",
+      "tabData = tabManager.get(context.tabId).convert(); } return Promise.resolve(tabData);"
+    ),
+  },
+  OPTIONAL_EVENT_PARAMETERS: {
+    "action.onClicked": CLICK_INFO,
+    "browserAction.onClicked": CLICK_INFO,
+    "pageAction.onClicked": [
+      at(BR + "parent/ext-pageAction.js", 'this.buttonDelegate.emit("click", tab, clickInfo);'),
+      at(ACTIONS, "triggerClickOrPopup(tab, clickInfo = undefined) {"),
+    ],
+    "contextMenus.onClicked": MENU_CLICK_TAB,
+    "menus.onClicked": MENU_CLICK_TAB,
+    "runtime.onMessage": MESSAGE_ARG,
+    "runtime.onMessageExternal": MESSAGE_ARG,
+    "runtime.onUserScriptMessage": MESSAGE_ARG,
+    "webRequest.onAuthRequired": at(TK + "child/ext-webRequest.js", "fire.raw(details, asyncCallback);"),
+  },
+  OPEN_EVENT_PARAMETERS: {
+    "trial.ml.onProgress": at(TK + "parent/ext-trial-ml.js", "extension.emit(ENGINE_EVENT, progressData);"),
+  },
   NULL_RESULTS: {
     "contextualIdentities.getSiteAssociation": at(
       TK + "parent/ext-contextualIdentities.js",
@@ -606,6 +1082,7 @@ export const EVIDENCE = {
       at(TK + "ExtensionShortcuts.sys.mjs", "for (let window of lazy.global.windowTracker.browserWindows()) { this.registerKeysToDocument(window, commands);"),
     ],
   },
+  ASYNC_NO_PAYLOAD: ASYNC_NO_PAYLOAD_EVIDENCE,
   HAND_COPIED_RULES: {
     "injection.envTypes": [
       at(EXT_CHILD, 'this.context.envType === "content_child" &&'),
