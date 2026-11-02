@@ -20,6 +20,7 @@ import {
   WEBIDL_EVENT_HANDLERS,
 } from "./overrides.js";
 import { webidlTypeToTs } from "./webidl.js";
+import { copyNode } from "./schema-trace.js";
 
 export const RESERVED_IDENTIFIERS = {
   default: "defaultValue",
@@ -162,14 +163,13 @@ function capitalize(name) {
 }
 
 function withRequiredPayload(fn) {
-  return {
-    ...fn,
+  return copyNode(fn, {
     parameters: fn.parameters.map((p) =>
       p.type === "function" && p.parameters
-        ? { ...p, parameters: p.parameters.map((q) => ({ ...q, optional: false })) }
+        ? copyNode(p, { parameters: p.parameters.map((q) => copyNode(q, { optional: false })) })
         : p
     ),
-  };
+  });
 }
 
 function isInlineObject(t) {
@@ -851,7 +851,7 @@ export class TypeScriptEmitter {
     const evKey = [nsName, ownerTypeId, ev.name].filter(Boolean).join(".");
     const paramOverrides = EVENT_PARAMETERS[evKey] || {};
     const required = REQUIRED_EVENT_PARAMETERS[evKey] || [];
-    const params = (ev.parameters || []).map((p) => (required.includes(p.name) ? { ...p, optional: false } : p));
+    const params = (ev.parameters || []).map((p) => (required.includes(p.name) ? copyNode(p, { optional: false }) : p));
     const signature = params.map((p, i) => {
       const name = sanitizeName(p.name || "details");
       if (paramOverrides[p.name]) {
@@ -1029,7 +1029,7 @@ export class TypeScriptEmitter {
 
         const propsDict = { ...(tInfo.properties || {}) };
         for (const [pName, ts] of Object.entries(overriddenProps)) {
-          propsDict[pName] = pName in propsDict ? { ...propsDict[pName], ts } : { ts };
+          propsDict[pName] = pName in propsDict ? copyNode(propsDict[pName], { ts }) : { ts };
         }
         const fnsList = tInfo.functions || [];
         const evsList = tInfo.events || [];

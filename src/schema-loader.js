@@ -4,6 +4,7 @@ import { parseJarMn } from "./jar-parser.js";
 import { codePointCompare, entryCodePointCompare } from "./comparator.js";
 import { EXCLUDED_NAMESPACES, WEBIDL_TYPES } from "./overrides.js";
 import { loadWebidlTypes } from "./webidl.js";
+import { instrument } from "./schema-trace.js";
 
 /**
  * Strips comments from raw schema JSON and returns the parsed object/array.
@@ -36,7 +37,7 @@ export function loadRawSchemaJson(schemaPath) {
     throw new Error(`Failed to parse schema JSON in ${schemaPath}: ${err.message}`);
   }
 
-  return [Array.isArray(data) ? data : [data], rawText];
+  return [instrument(Array.isArray(data) ? data : [data]), rawText];
 }
 
 // Schemas.sys.mjs keeps several definitions of one function as fallback
