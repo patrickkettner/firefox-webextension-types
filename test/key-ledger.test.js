@@ -32,7 +32,7 @@ describe("ledger comparison logic", () => {
       entry("functions[]", "name", "consumed"),
       entry("functions[]", "format", "declined", { reason: "TypeScript has no string formats" }),
       entry("events[]", "optional", "consumed"),
-      entry("events[]", "filters", "unresolved", { reason: "no finding names it" }),
+      entry("events[]", "filters", "declined", { reason: "Firefox ignores it" }),
     ];
     assert.deepEqual(ledgerProblems(trace, ledger), []);
   });
@@ -49,7 +49,7 @@ describe("ledger comparison logic", () => {
       entry("functions[]", "name", "consumed"),
       entry("functions[]", "format", "consumed"),
       entry("events[]", "optional", "consumed"),
-      entry("events[]", "filters", "unresolved", { reason: "x" }),
+      entry("events[]", "filters", "declined", { reason: "x" }),
     ];
     const [p] = ledgerProblems(trace, ledger);
     assert.match(p, /key "format" in context "functions\[\]" is marked consumed but the generator no longer reads it/);
@@ -60,24 +60,40 @@ describe("ledger comparison logic", () => {
       entry("functions[]", "name", "declined", { reason: "ignored" }),
       entry("functions[]", "format", "declined", { reason: "r" }),
       entry("events[]", "optional", "consumed"),
-      entry("events[]", "filters", "unresolved", { reason: "x" }),
+      entry("events[]", "filters", "declined", { reason: "x" }),
     ];
     const [p] = ledgerProblems(trace, ledger);
     assert.match(p, /key "name" in context "functions\[\]" is marked declined \("ignored"\) but the generator now reads it/);
   });
 
-  it("names an entry no schema has, and a declined or unresolved entry with no reason", () => {
+  it("names an entry no schema has, and a declined entry with no reason", () => {
     const ledger = [
       entry("functions[]", "name", "consumed"),
-      entry("functions[]", "format", "declined"),
+      entry("functions[]", "format", "declined", { reason: " " }),
       entry("events[]", "optional", "consumed"),
-      entry("events[]", "filters", "unresolved", { reason: " " }),
+      entry("events[]", "filters", "declined", { reason: "r" }),
       entry("events[]", "gone", "consumed"),
     ];
     const text = ledgerProblems(trace, ledger).join("\n");
     assert.match(text, /key "gone" in context "events\[\]" is in schema-key-ledger\.json but no loaded schema has it/);
     assert.match(text, /key "format" in context "functions\[\]" is declined with no reason/);
-    assert.match(text, /key "filters" in context "events\[\]" is unresolved with no reason/);
+  });
+
+  it("fails an unresolved entry, with or without a reason, and says what to do", () => {
+    const ledger = [
+      entry("functions[]", "name", "consumed"),
+      entry("functions[]", "format", "unresolved", { reason: "no finding names it" }),
+      entry("events[]", "optional", "consumed"),
+      entry("events[]", "filters", "unresolved"),
+    ];
+    const problems = ledgerProblems(trace, ledger);
+    assert.equal(problems.length, 2);
+    assert.match(problems[0], /key "format" in context "functions\[\]" is unresolved \("no finding names it"\)/);
+    assert.match(problems[1], /key "filters" in context "events\[\]" is unresolved\. Decide it/);
+    for (const p of problems) {
+      assert.match(p, /make src\/emitter\.js use it and run npm run ledger:update/);
+      assert.match(p, /set the status to declined with a one-line "reason"/);
+    }
   });
 
   it("update keeps reasons for pairs that stay unread and never declines on its own", () => {
@@ -98,19 +114,19 @@ describe("ledger comparison logic", () => {
     assert.equal(changes.length, 3);
   });
 
-  it("update demotes a consumed pair that stopped being read and leaves readNoEffect alone", () => {
+  it("update demotes a consumed pair that stopped being read and promotes an unresolved one that is read", () => {
     const old = [
       entry("functions[]", "name", "consumed"),
       entry("functions[]", "format", "consumed"),
-      entry("events[]", "optional", "unresolved", { reason: "r", readNoEffect: true }),
+      entry("events[]", "optional", "unresolved", { reason: "r" }),
       entry("events[]", "filters", "unresolved", { reason: "r" }),
     ];
     const { entries } = updateLedger(trace, old);
     const get = (c, k) => entries.find((e) => e.context === c && e.key === k);
     assert.equal(get("functions[]", "format").status, "unresolved");
     assert.match(get("functions[]", "format").reason, /no longer read/);
-    assert.equal(get("events[]", "optional").readNoEffect, true);
-    assert.equal(get("events[]", "optional").status, "unresolved");
+    assert.deepEqual(get("events[]", "optional"), entry("events[]", "optional", "consumed"));
+    assert.equal(get("events[]", "filters").status, "unresolved");
   });
 });
 
@@ -129,10 +145,10 @@ describe("sweep verdicts", () => {
     assert.match(sweepFailure({ context: "c", key: "k", status: "declined", reason: "r" }, some), /declined .* changes the output/);
     assert.equal(sweepFailure({ context: "c", key: "k", status: "declined", reason: "r" }, none), null);
   });
-  it("expects readNoEffect pairs to stay without effect", () => {
-    const e = { context: "c", key: "k", status: "unresolved", reason: "r", readNoEffect: true };
+  it("fails an unresolved pair that is unread yet changes output", () => {
+    const e = { context: "c", key: "k", status: "unresolved", reason: "r" };
     assert.equal(sweepFailure(e, none), null);
-    assert.match(sweepFailure(e, some), /Set status consumed and remove readNoEffect/);
+    assert.match(sweepFailure(e, some), /unresolved and unread by the trace, yet deleting it changes the output/);
   });
 });
 

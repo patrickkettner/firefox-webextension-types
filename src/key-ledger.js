@@ -3,9 +3,10 @@
  *
  * schema-key-ledger.json lists every (context, key) pair that occurs in the
  * Firefox schemas the generator loads. Each is "consumed" (the generator reads
- * it and the output depends on it), "declined" (deliberately ignored, with a
- * reason) or "unresolved" (ignored or read to no effect, nobody has said why).
- * Contexts are defined in schema-trace.js.
+ * it and the output depends on it) or "declined" (deliberately ignored, with a
+ * reason). "unresolved" is what npm run ledger:update writes for a pair nobody
+ * has decided yet, and ledgerProblems fails on it. Contexts are defined in
+ * schema-trace.js.
  */
 
 import fs from "node:fs";
@@ -24,8 +25,7 @@ export const STATUSES = ["consumed", "declined", "unresolved"];
 const ABOUT =
   "Every key in the Firefox schemas, by context. consumed: the generator reads it and output depends on it. " +
   "declined: ignored on purpose, reason required, firefox names the Firefox file when the reason is Firefox behavior. " +
-  "unresolved: ignored or read to no effect and not yet explained, reason required. " +
-  "readNoEffect: unresolved pair the generator reads although deleting it changes no output. " +
+  "unresolved: a new or newly unread pair nobody has decided, npm test fails until it is consumed or declined. " +
   "Regenerate statuses with npm run ledger:update, check with npm test and npm run ablate.";
 
 export function readLedger(file = LEDGER_PATH) {
@@ -106,7 +106,7 @@ export function diffOutputs(base, cur) {
 
 /**
  * Problems between a trace and the ledger, each with the pair and what to do.
- * Unresolved entries are not a problem as long as they say why.
+ * An unresolved entry is always a problem.
  *
  * @param {Map<string, {present: number, read: number}>} pairs
  * @param {Array<object>} entries
@@ -153,10 +153,15 @@ export function ledgerProblems(pairs, entries, { firefoxRoot } = {}) {
         `${name(e)} is in schema-key-ledger.json but no loaded schema has it. Delete the entry (npm run ledger:update does this).`
       );
     }
-    if ((e.status === "declined" || e.status === "unresolved") && !String(e.reason ?? "").trim()) {
+    if (e.status === "unresolved") {
       problems.push(
-        `${name(e)} is ${e.status} with no reason. Add a one-line "reason" to its entry in schema-key-ledger.json.`
+        `${name(e)} is unresolved${e.reason ? ` ("${e.reason}")` : ""}. Decide it in schema-key-ledger.json. ` +
+          `If the output should depend on it, make src/emitter.js use it and run npm run ledger:update. ` +
+          `Otherwise set the status to declined with a one-line "reason" and, when the reason is Firefox behavior, ` +
+          `the Firefox file in "firefox". Check the Firefox source (toolkit/components/extensions/Schemas.sys.mjs) before declining.`
       );
+    } else if (e.status === "declined" && !String(e.reason ?? "").trim()) {
+      problems.push(`${name(e)} is declined with no reason. Add a one-line "reason" to its entry in schema-key-ledger.json.`);
     }
     if (e.firefox && firefoxRoot && !fs.existsSync(path.join(firefoxRoot, e.firefox))) {
       problems.push(`${name(e)} cites ${e.firefox}, which does not exist under ${firefoxRoot}. Fix the "firefox" path.`);
@@ -182,10 +187,6 @@ export function updateLedger(pairs, entries) {
     const prev = old.get(pair);
     const label = `${context} / ${key}`;
     if (c.read > 0) {
-      if (prev?.status === "unresolved" && prev.readNoEffect) {
-        out.push(prev);
-        continue;
-      }
       out.push({ context, key, status: "consumed" });
       if (!prev) changes.push(`new, consumed: ${label}`);
       else if (prev.status !== "consumed") changes.push(`${prev.status} -> consumed: ${label}`);
@@ -225,10 +226,7 @@ export function sweepFailure(entry, result) {
       `Read tracing missed a use of it. Find the read, then mark the entry consumed.`
     );
   }
-  if (entry.status === "unresolved" && entry.readNoEffect && effect) {
-    return `${name} is unresolved with readNoEffect but deleting it now changes the output. Set status consumed and remove readNoEffect.`;
-  }
-  if (entry.status === "unresolved" && !entry.readNoEffect && effect) {
+  if (entry.status === "unresolved" && effect) {
     return `${name} is unresolved and unread by the trace, yet deleting it changes the output. Read tracing missed a use of it.`;
   }
   return null;

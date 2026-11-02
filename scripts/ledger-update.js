@@ -26,7 +26,7 @@ const count = (s) => entries.filter((e) => e.status === s).length;
 console.log(
   `${entries.length} pairs: ${count("consumed")} consumed, ${count("declined")} declined, ${count("unresolved")} unresolved`
 );
-const blank = entries.filter((e) => e.status !== "consumed" && !String(e.reason ?? "").trim());
-if (blank.length) {
-  console.log(`${blank.length} entries need a reason in schema-key-ledger.json before npm test passes.`);
+const open = entries.filter((e) => e.status === "unresolved");
+if (open.length) {
+  console.log(`${open.length} unresolved entries fail npm test until each is consumed in src/emitter.js or declined with a reason.`);
 }
