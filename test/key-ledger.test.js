@@ -18,6 +18,7 @@ const needFirefox = !firefoxRoot && "no Firefox checkout: set TOPSRCDIR";
 
 const pairs = (list) => new Map(list.map(([ctx, key, present, read]) => [pairKey(ctx, key), { present, read }]));
 
+// Tooling: the comparison runs on small fixtures, no declaration text is asserted
 describe("ledger comparison logic", () => {
   const trace = pairs([
     ["functions[]", "name", 4, 4],
@@ -130,6 +131,7 @@ describe("ledger comparison logic", () => {
   });
 });
 
+// Tooling: the verdicts run on fixtures, no declaration text is asserted
 describe("sweep verdicts", () => {
   const none = { changed: [], bytes: 0 };
   const some = { changed: ["index.d.ts"], bytes: 12 };
@@ -152,6 +154,7 @@ describe("sweep verdicts", () => {
   });
 });
 
+// Firefox: Schemas.sys.mjs (it reads each schema key the ledger lists), tabs.json, manifest.json
 describe("schema key ledger against the Firefox schemas", { skip: needFirefox }, () => {
   const traced = firefoxRoot ? traceBuild(firefoxRoot) : null;
 

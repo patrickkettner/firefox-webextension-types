@@ -28,6 +28,7 @@ function trace(fn) {
   return stopTrace();
 }
 
+// Tooling: the trace is this repository's instrumentation of the schema loader, no declaration text is asserted
 describe("schema read tracing", () => {
   afterEach(() => {
     setAblation(null);

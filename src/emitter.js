@@ -372,13 +372,14 @@ export class TypeScriptEmitter {
   // Schemas.sys.mjs ObjectType.normalize hands a key outside `properties` to
   // additionalProperties, and AnyType accepts every value. That matters for
   // an object the extension hands to Firefox, and the manifest is the one
-  // place such an object has open keys: BrowserSpecificSettings takes the
+  // place such an object has open keys (the namespace the schema gives an
+  // empty permissions list, see neverInjected): BrowserSpecificSettings takes the
   // settings of other browsers. Port and lastError are values Firefox hands
   // to the extension, and a $ref here is manifest.json UnrecognizedProperty,
   // which accepts the key with a warning, so a misspelled key stays a
   // compile error.
   acceptsAnyKey(typeInfo, nsName) {
-    if (nsName !== "manifest") return false;
+    if (!this.namespaces[nsName]?.neverInjected) return false;
     const additional = typeInfo.additionalProperties;
     return Boolean(additional) && typeof additional === "object" && additional.type === "any";
   }

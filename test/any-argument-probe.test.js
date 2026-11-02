@@ -23,6 +23,7 @@ before(() => {
   ts = createRequire(import.meta.url)(installTypeScript("5.9.3").api);
 });
 
+// TypeScript: a call with an any argument resolves to the first overload of that arity in declaration order
 describe("any-argument overload probe", () => {
   describe("on a synthetic declaration", () => {
     let dir;

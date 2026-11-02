@@ -63,6 +63,7 @@ function unresolvedLinks(name) {
   return { total, unresolved };
 }
 
+// TypeScript: the language service resolves a {@link} target through getDefinitionAtPosition, as an editor does
 describe("{@link} targets", { skip: !built && "dist not built" }, () => {
   for (const name of files) {
     it(`every link in ${name} resolves to a declaration`, (t) => {

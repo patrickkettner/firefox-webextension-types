@@ -54,6 +54,7 @@ declare namespace browser {
 }
 `;
 
+// Tooling: a fixture tree and declaration file written for this test, no generated declaration text is asserted
 describe("corpus extraction and checking on a fixture", () => {
   let dir;
   let result;
@@ -117,6 +118,7 @@ describe("corpus extraction and checking on a fixture", () => {
   });
 });
 
+// Tooling: the key is this repository's grouping of diagnostics, no declaration text is asserted
 describe("family keys", () => {
   it("keep declaration names and drop test-local names", () => {
     assert.equal(
@@ -141,6 +143,7 @@ describe("family keys", () => {
   });
 });
 
+// Tooling: the comparison reads corpus/baseline.json, no declaration text is asserted
 describe("baseline comparison", () => {
   const seen = new Map([
     ["kept", { count: 2, example: "a.js:1" }],
@@ -180,6 +183,7 @@ describe("baseline comparison", () => {
   });
 });
 
+// Firefox: browser_ext_tabs_create.js and the other extension tests under browser/components/extensions/test, which are written against the schemas
 describe("Firefox test corpus", { skip: !firefoxRoot && "no Firefox checkout: set TOPSRCDIR" }, () => {
   let dir;
   let run;

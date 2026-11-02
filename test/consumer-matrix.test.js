@@ -172,10 +172,10 @@ const modes = [
 for (const { label, tsc } of compilers) for (const mode of modes) {
   // moduleResolution "bundler" arrived in TypeScript 5.0.
   const noBundler = Number(label.split(".")[0]) < 5 && "bundler resolution needs TypeScript 5";
-  // Packaging: the packed tarball is what npm installs, and its exports map decides what each module resolution sees
-  // TypeScript: moduleResolution node16, nodenext and bundler pick different export conditions
   const expectClean = (compiler, spec, what) =>
     expectCleanOn(compiler, { ...spec, options: { ...spec.options, ...mode.options } }, what + mode.name);
+  // Packaging: the packed tarball is what npm installs, and its exports map decides what each module resolution sees
+  // TypeScript: moduleResolution node16, nodenext and bundler pick different export conditions
   describe(`ConsumerMatrix (tarball, TypeScript ${label}${mode.name})`, () => {
     for (const res of ["node16", "nodenext"]) {
       it(`${res}: ESM (.mts) consumer resolves every module entrypoint`, () => {

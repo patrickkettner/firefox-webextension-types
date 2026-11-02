@@ -17,6 +17,8 @@ const ALLOWED = [
   ...["object", "string", "number", "boolean", "function"].map((literal) => ({ literal, why: "typeof result or schema type kind" })),
   // Schema type kinds and the sentinel types the emitter builds. Schemas.sys.mjs defines the kinds.
   ...["integer", "null", "any", "array", "void", "unknown"].map((literal) => ({ literal, why: "schema type kind or emitted TypeScript keyword" })),
+  // Keys of a schema array type, which the emitter reads to find a fixed length.
+  ...["minItems", "maxItems"].map((literal) => ({ literal, why: "schema array bound key" })),
   // Which node a comparison reads, not what an API is called.
   ...["member", "namespace", "event", "type", "attribute"].map((literal) => ({ literal, why: "internal node kind" })),
   // Build targets and emit modes, set by generate.js.

@@ -57,6 +57,7 @@ const HANDLED = new Set([...Object.keys(HANDLED_MARKUP), ...Object.keys(LITERAL_
 
 const firefoxRoot = firefoxRootFromEnv();
 
+// Tooling: the table is this repository's renderer contract, no generated declaration text is asserted
 describe("description markup inventory", () => {
   it("renderDocText gives each handled form the Markdown this table says", () => {
     for (const [form, [input, expected]] of Object.entries({ ...HANDLED_MARKUP, ...LITERAL_TOKENS })) {
@@ -73,6 +74,7 @@ describe("description markup inventory", () => {
     assert.ok(message.includes("fake.json"), message);
   });
 
+  // Firefox: tabs.json, manifest.json (schema descriptions, which carry the markup forms)
   describe("schemas", { skip: !firefoxRoot && "no Firefox checkout: set TOPSRCDIR" }, () => {
     const strings = firefoxRoot ? collectDocStrings(firefoxRoot) : [];
     const forms = inventoryOf(strings);
