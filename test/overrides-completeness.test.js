@@ -18,6 +18,7 @@ const emptyMod = () => ({
   REQUIRED_RESULTS: new Set(),
   OPTIONAL_RESULT_UNDEFINED: new Set(),
   PLATFORM_TYPES: {},
+  REF_TYPES: {},
   EVENT_LISTENER_PROMISES: {},
   EVENT_PARAMETERS: {},
   OPEN_EVENT_PARAMETERS: {},
@@ -159,6 +160,14 @@ describe("overrides completeness against synthetic schemas", () => {
     mod.OPEN_EVENT_PARAMETERS["ns.onX"] = ["blob"];
     mod.OPTIONAL_EVENT_PARAMETERS["ns.onX"] = ["extra"];
     assert.deepEqual(failuresFor(mod, universe({ events: [ev] })), []);
+  });
+
+  it("fails a REF_TYPES entry no schema refers to", () => {
+    const mod = emptyMod();
+    mod.REF_TYPES.Gone = "unknown";
+    assert.match(failuresFor(mod, universe())[0], /REF_TYPES Gone: no schema uses this \$ref any more/);
+    const fn = { name: "f", parameters: [{ name: "p", $ref: "Gone" }] };
+    assert.deepEqual(failuresFor(mod, universe({ functions: [fn] })), []);
   });
 
   it("fails an override for a function or type the schema dropped", () => {

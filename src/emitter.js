@@ -17,6 +17,7 @@ import {
   REQUIRED_EVENT_PARAMETERS,
   REQUIRED_RESULTS,
   PLATFORM_TYPES,
+  REF_TYPES,
   TYPE_OVERRIDES,
   WEBIDL_EVENT_HANDLERS,
 } from "./overrides.js";
@@ -288,20 +289,8 @@ export class TypeScriptEmitter {
 
     if ("$ref" in typeInfo) {
       const ref = typeInfo.$ref;
-      if (ref === "Promise") {
-        return "globalThis.Promise<any>";
-      }
-      if (ref === "PlatformNaclArch") {
-        return "(string & {})";
-      }
-      if (ref === "Resource" || ref === "devtools.inspectedWindow.Resource") {
-        return "browser.devtools.inspectedWindow.Resource";
-      }
-      if (ref === "ExtensionPanel") {
-        return "browser.devtools.panels.ExtensionPanel";
-      }
-      if (ref === "Date") {
-        return "globalThis.Date";
+      if (Object.hasOwn(REF_TYPES, ref)) {
+        return REF_TYPES[ref];
       }
       if (ref.includes(".")) {
         const ns = ref.split(".")[0];
@@ -318,8 +307,7 @@ export class TypeScriptEmitter {
       const choiceDocs = typeInfo.choices.map((c) => this.choiceDoc(c, currentNs));
       const hasBareString = rawChoices.includes("string");
       const hasLiterals = rawChoices.some((c) => c.startsWith('"'));
-      const useOpenString =
-        hasBareString && (hasLiterals || currentNs === "manifest" || currentNs === "runtime");
+      const useOpenString = hasBareString && hasLiterals;
 
       const members = rawChoices.map((raw, i) => ({
         type: raw === "string" && useOpenString ? "(string & {})" : raw,

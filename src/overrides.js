@@ -27,6 +27,21 @@ export const PLATFORM_TYPES = {
   StreamFilter: "browser.webRequest.StreamFilter",
 };
 
+// TypeScript names for schema `$ref` values that would not resolve by name.
+// A $ref the schema never defines, or one written without the namespace of a
+// nested namespace, gets this type instead of a guess.
+export const REF_TYPES = {
+  // toolkit/components/extensions/schemas/runtime.json refers to a type no
+  // schema defines, from an unsupported property.
+  PlatformNaclArch: "(string & {})",
+  // browser/components/extensions/schemas/devtools_inspected_window.json
+  // and devtools_panels.json name these types from the nested namespaces
+  // devtools.inspectedWindow and devtools.panels.
+  Resource: "browser.devtools.inspectedWindow.Resource",
+  "devtools.inspectedWindow.Resource": "browser.devtools.inspectedWindow.Resource",
+  ExtensionPanel: "browser.devtools.panels.ExtensionPanel",
+};
+
 // WebIDL files whose interfaces and enums are emitted into a namespace
 // because a schema `isInstanceOf` names them.
 export const WEBIDL_TYPES = {
@@ -812,6 +827,12 @@ export const EVIDENCE = {
     DirectoryEntry: at(TK + "schemas/runtime.json", '"isInstanceOf": "DirectoryEntry"'),
     ImageData: at(TK + "schemas/browser_action.json", '"isInstanceOf": "ImageData"'),
     StreamFilter: at(TK + "schemas/web_request.json", '"isInstanceOf": "StreamFilter"'),
+  },
+  REF_TYPES: {
+    PlatformNaclArch: at(TK + "schemas/runtime.json", '"$ref": "PlatformNaclArch"'),
+    Resource: at(BR + "schemas/devtools_inspected_window.json", '"$ref": "Resource"'),
+    "devtools.inspectedWindow.Resource": at(BR + "schemas/devtools_panels.json", '"$ref": "devtools.inspectedWindow.Resource"'),
+    ExtensionPanel: at(BR + "schemas/devtools_panels.json", '"$ref": "ExtensionPanel"'),
   },
   WEBIDL_TYPES: {
     webRequest: [

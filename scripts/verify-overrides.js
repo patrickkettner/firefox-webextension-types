@@ -124,6 +124,7 @@ export function schemaFacts(universes) {
     asyncNoPayload: new Set(),
     optionalPayload: new Set(),
     isInstanceOf: new Set(),
+    refs: new Set(),
     eventsWithReturns: new Set(),
     bareEventParams: new Set(),
     optionalEventParams: new Set(),
@@ -145,6 +146,7 @@ export function schemaFacts(universes) {
       const keyOf = (owner, member) => [nsName, owner, member.name].filter(Boolean).join(".");
       walk([...ns.types.values(), ...ns.functions.values(), ...ns.events.values(), ...ns.properties.values()], (node) => {
         if (typeof node.isInstanceOf === "string") facts.isInstanceOf.add(node.isInstanceOf);
+        if (typeof node.$ref === "string") facts.refs.add(node.$ref);
       });
       for (const [owner, fn] of functions) {
         const key = keyOf(owner, fn);
@@ -263,6 +265,14 @@ export function checkCompleteness(mod, facts) {
       extra: () => "is listed but the schema no longer marks it optional. Delete the entry and its evidence.",
     })
   );
+
+  for (const ref of Object.keys(mod.REF_TYPES)) {
+    if (!facts.refs.has(ref)) {
+      failures.push(
+        `REF_TYPES ${ref}: no schema uses this $ref any more. Firefox fixed or removed it. Delete the entry and its evidence.`
+      );
+    }
+  }
 
   const missingMembers = (label, keys, known) =>
     [...keys].filter((k) => !known.has(k)).map((k) => `${label} ${k}: not in the Firefox schemas any more. Firefox renamed or removed it. Update or delete the entry and its evidence.`);
