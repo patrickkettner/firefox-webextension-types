@@ -124,6 +124,12 @@ async function testWebExtensionConsumer() {
         "panel.html"
     );
     panel.onShown.addListener((win) => {});
+
+    // 21. browser_specific_settings carries the settings of other browsers
+    const otherBrowsers: browser.manifest.BrowserSpecificSettings = {
+        gecko: { id: "ext@example.com" },
+        safari: { strict_min_version: "15.4" },
+    };
 }
 async function testRejectedUsage() {
     // @ts-expect-error tabs.query takes an object, not a number
@@ -137,6 +143,9 @@ async function testRejectedUsage() {
 
     // @ts-expect-error no such namespace
     browser.notARealNamespace;
+
+    // @ts-expect-error the manifest warns about an unknown key and a misspelled one stays an error
+    const typo: browser.manifest.WebExtensionManifest = { manifest_version: 3, name: "x", version: "1", nmae: "y" };
 
     // @ts-expect-error webRequest listeners cannot return a number
     browser.webRequest.onBeforeRequest.addListener(() => 1, { urls: ["<all_urls>"] });
