@@ -43,19 +43,43 @@ function readWebidlTypes(firefoxRoot, files) {
   return types;
 }
 
-export function verifyExclusionEvidence(firefoxRoot) {
+const collapseSpace = (s) => s.replace(/\s+/g, " ").trim();
+
+// Each entry is { label, file, anchor }. The anchor is code or text that
+// produces the behavior a hand-written entry copies, matched with runs of
+// whitespace collapsed so it can span lines. Returns one message per entry
+// that Firefox no longer backs.
+export function checkEvidence(firefoxRoot, entries) {
   const failures = [];
-  for (const [nsName, { file, evidence }] of Object.entries(EXCLUDED_NAMESPACES)) {
+  const cache = new Map();
+  for (const { label, file, anchor } of entries) {
     const full = path.join(firefoxRoot, file);
-    if (!fs.existsSync(full)) {
-      failures.push(`${nsName}: ${file} does not exist`);
-      continue;
+    if (!cache.has(full)) {
+      cache.set(full, fs.existsSync(full) ? collapseSpace(fs.readFileSync(full, "utf8")) : null);
     }
-    if (!fs.readFileSync(full, "utf8").includes(evidence)) {
-      failures.push(`${nsName}: ${file} no longer contains the guard that justified the exclusion`);
+    const text = cache.get(full);
+    if (text === null) {
+      failures.push(
+        `${label}: ${file} does not exist in this Firefox checkout. Find where Firefox implements this now, then update the file and anchor in src/overrides.js, or delete the entry if the behavior is gone.`
+      );
+    } else if (!text.includes(collapseSpace(anchor))) {
+      failures.push(
+        `${label}: ${file} no longer contains ${JSON.stringify(anchor)}. Read that file, check the entry still matches what Firefox does, then update the anchor in src/overrides.js (or fix the entry if it no longer holds).`
+      );
     }
   }
   return failures;
+}
+
+export function verifyExclusionEvidence(firefoxRoot) {
+  return checkEvidence(
+    firefoxRoot,
+    Object.entries(EXCLUDED_NAMESPACES).map(([nsName, { file, evidence }]) => ({
+      label: `EXCLUDED_NAMESPACES.${nsName}`,
+      file,
+      anchor: evidence,
+    }))
+  );
 }
 
 function stripComments(raw) {

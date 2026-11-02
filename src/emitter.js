@@ -12,6 +12,7 @@ import {
   EVENT_LISTENER_PROMISES,
   EVENT_PARAMETERS,
   FUNCTION_OVERRIDES,
+  MANIFEST_VERSION_RANGE,
   NULL_RESULTS,
   REQUIRED_EVENT_PARAMETERS,
   REQUIRED_RESULTS,
@@ -47,9 +48,8 @@ export function sanitizePropertyName(name) {
 
 const TARGET_PRODUCT = { desktop: "Firefox", mobile: "Firefox for Android" };
 
-// Schemas.sys.mjs: MIN_MANIFEST_VERSION and MAX_MANIFEST_VERSION.
-const MIN_MANIFEST_VERSION = 2;
-const MAX_MANIFEST_VERSION = 3;
+const MIN_MANIFEST_VERSION = MANIFEST_VERSION_RANGE.min;
+const MAX_MANIFEST_VERSION = MANIFEST_VERSION_RANGE.max;
 
 // The three kinds of process an API can be injected into, named after the
 // envType values ExtensionChild.sys.mjs shouldInject compares against.
