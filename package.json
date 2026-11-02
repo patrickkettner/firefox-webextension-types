@@ -42,12 +42,12 @@
   ],
   "scripts": {
     "build": "node src/generate.js",
-    "verify": "node verification/bin/verify.js && node scripts/verify-parity.js",
+    "verify": "node verification/bin/verify.js && node scripts/verify-parity.js && npm run attw",
     "test": "node --test test/*.test.js verification/test/*.test.js",
     "typecheck": "tsc --noEmit",
     "ablate": "node scripts/ablate.js",
     "ledger:update": "node scripts/ledger-update.js",
-    "attw": "attw --pack ."
+    "attw": "node scripts/attw.js"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
