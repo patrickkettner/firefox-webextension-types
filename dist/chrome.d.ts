@@ -48,7 +48,6 @@ export namespace chrome {
     export import manifest = browser.manifest;
     export import menus = browser.menus;
     export import networkStatus = browser.networkStatus;
-    export import normandyAddonStudy = browser.normandyAddonStudy;
     export import notifications = browser.notifications;
     export import omnibox = browser.omnibox;
     export import pageAction = browser.pageAction;

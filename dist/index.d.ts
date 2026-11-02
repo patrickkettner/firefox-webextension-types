@@ -4181,6 +4181,25 @@ showConfirmDialog?: boolean;
             readonly gecko_android?: GeckoAndroidSpecificProperties;
         }
 
+        export interface BuiltinWidget {
+            /**
+             * Size the widget is displayed at until one is chosen. Defaults to the first of sizes.
+             */
+            readonly default_size?: WidgetSize;
+            /**
+             * Path to the widget content.
+             */
+            readonly page: ExtensionURL;
+            /**
+             * Pref branch that stores whether the widget is enabled and the size chosen for it, in .enabled and .size.
+             */
+            readonly pref_branch?: string;
+            /**
+             * Sizes the widget can be displayed at.
+             */
+            readonly sizes: WidgetSize[];
+        }
+
         export type CommonDataCollectionPermission = "authenticationInfo" | "bookmarksInfo" | "browsingActivity" | "financialAndPaymentInfo" | "healthInfo" | "locationInfo" | "personalCommunications" | "personallyIdentifyingInfo" | "searchTerms" | "websiteActivity" | "websiteContent";
 
         /**
@@ -4342,7 +4361,7 @@ type: "storage";
 
         export type PermissionOrOrigin = Permission | MatchPattern;
 
-        export type PermissionPrivileged = "mozillaAddons" | "activityLog" | "networkStatus" | "telemetry" | "normandyAddonStudy";
+        export type PermissionPrivileged = "mozillaAddons" | "activityLog" | "networkStatus" | "telemetry";
 
         /**
          * Represents a protocol handler definition.
@@ -4584,6 +4603,10 @@ type?: "module" | "classic";
 };
             readonly browser_action?: ActionManifest;
             readonly browser_specific_settings?: BrowserSpecificSettings;
+            /**
+             * Declares a widget provided by a privileged extension.
+             */
+            readonly builtin_widget?: BuiltinWidget;
             readonly chrome_settings_overrides?: {
 homepage?: string;
 search_provider?: {
@@ -4703,6 +4726,8 @@ matches?: MatchPattern[];
 resources: string[];
 })[];
         }
+
+        export type WidgetSize = "small" | "medium" | "large";
 
     }
 
@@ -4963,97 +4988,6 @@ visible?: boolean;
          * @platform desktop
          */
         export function getLinkInfo(): globalThis.Promise<void>;
-
-    }
-
-    export namespace normandyAddonStudy {
-        export interface Study {
-            /**
-             * The state of the study.
-             */
-            active: boolean;
-            /**
-             * The ID of the extension installed by the study.
-             */
-            addonId: string;
-            /**
-             * The URL of the XPI that was downloaded and installed by the study.
-             */
-            addonUrl: string;
-            /**
-             * The version of the extension installed by the study.
-             */
-            addonVersion: string;
-            /**
-             * The study branch in which the user is enrolled.
-             */
-            branch: string;
-            /**
-             * The record ID for the extension in Normandy server's database.
-             */
-            extensionApiId: number;
-            /**
-             * A hash of the extension XPI file.
-             */
-            extensionHash: string;
-            /**
-             * The algorithm used to hash the extension XPI file.
-             */
-            extensionHashAlgorithm: string;
-            /**
-             * The ID of the recipe for the study.
-             */
-            recipeId: number;
-            /**
-             * A slug to identify the study.
-             */
-            slug: string;
-            /**
-             * The end date for the study.
-             */
-            studyEndDate: browser.extensionTypes.Date;
-            /**
-             * The start date for the study.
-             */
-            studyStartDate: browser.extensionTypes.Date;
-            /**
-             * The description presented on about:studies.
-             */
-            userFacingDescription: string;
-            /**
-             * The name presented on about:studies.
-             */
-            userFacingName: string;
-        }
-
-        /**
-         * Fired when a user unenrolls from a study but before the addon is uninstalled.
-         */
-        export const onUnenroll: WebExtensionEvent<(reason: string) => void>;
-
-        /**
-         * Marks the study as ended and then uninstalls the addon.
-         *
-         * @see https://searchfox.org/mozilla-central/source/browser/components/extensions/schemas/normandyAddonStudy.json
-         * @platform desktop
-         */
-        export function endStudy(reason: string): globalThis.Promise<void>;
-
-        /**
-         * Returns an object with metadata about the client which may be required for constructing survey URLs.
-         *
-         * @see https://searchfox.org/mozilla-central/source/browser/components/extensions/schemas/normandyAddonStudy.json
-         * @platform desktop
-         */
-        export function getClientMetadata(): globalThis.Promise<void>;
-
-        /**
-         * Returns a study object for the current study.
-         *
-         * @see https://searchfox.org/mozilla-central/source/browser/components/extensions/schemas/normandyAddonStudy.json
-         * @platform desktop
-         */
-        export function getStudy(): globalThis.Promise<void>;
 
     }
 
@@ -5924,6 +5858,10 @@ encoding?: DomainEncoding;
              * The worldId of the USER_SCRIPT world that sent the message. Only present on onUserScriptMessage and onUserScriptConnect (in port.sender) events.
              */
             userScriptWorldId?: string;
+            /**
+             * The window ID of the document that opened the connection.
+             */
+            windowId?: number;
         }
 
         /**
@@ -5954,7 +5892,7 @@ encoding?: DomainEncoding;
          * The machine's processor architecture.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/runtime.json
          */
-        export type PlatformArch = "aarch64" | "arm" | "ppc64" | "riscv64" | "s390x" | "sparc64" | "x86-32" | "x86-64" | "noarch";
+        export type PlatformArch = "arm" | "arm64" | "ppc64" | "riscv64" | "s390x" | "sparc64" | "x86-32" | "x86-64" | "noarch";
 
         /**
          * An object containing information about the current platform.
@@ -6191,6 +6129,14 @@ name?: string;
          * @platform desktop
          */
         export function getURL(path: string): string;
+
+        /**
+         * Returns the extension version as declared in the manifest.
+         *
+         * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/runtime.json
+         * @platform desktop
+         */
+        export function getVersion(): string;
 
         /**
          * Open your Extension's options page, if possible.The precise behavior may depend on your manifest's browser.optionsV2[options_ui] or browser.options[options_page] key, or what the browser happens to support at the time.If your Extension does not declare an options page, or the browser failed to create one for some other reason, the callback will set browser.lastError.
@@ -9740,7 +9686,6 @@ export namespace chrome {
     export import manifest = browser.manifest;
     export import menus = browser.menus;
     export import networkStatus = browser.networkStatus;
-    export import normandyAddonStudy = browser.normandyAddonStudy;
     export import notifications = browser.notifications;
     export import omnibox = browser.omnibox;
     export import pageAction = browser.pageAction;

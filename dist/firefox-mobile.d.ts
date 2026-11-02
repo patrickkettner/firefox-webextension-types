@@ -3925,6 +3925,10 @@ encoding?: DomainEncoding;
              * The worldId of the USER_SCRIPT world that sent the message. Only present on onUserScriptMessage and onUserScriptConnect (in port.sender) events.
              */
             userScriptWorldId?: string;
+            /**
+             * The window ID of the document that opened the connection.
+             */
+            windowId?: number;
         }
 
         /**
@@ -3955,7 +3959,7 @@ encoding?: DomainEncoding;
          * The machine's processor architecture.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/runtime.json
          */
-        export type PlatformArch = "aarch64" | "arm" | "ppc64" | "riscv64" | "s390x" | "sparc64" | "x86-32" | "x86-64" | "noarch";
+        export type PlatformArch = "arm" | "arm64" | "ppc64" | "riscv64" | "s390x" | "sparc64" | "x86-32" | "x86-64" | "noarch";
 
         /**
          * An object containing information about the current platform.
@@ -4192,6 +4196,14 @@ name?: string;
          * @platform mobile
          */
         export function getURL(path: string): string;
+
+        /**
+         * Returns the extension version as declared in the manifest.
+         *
+         * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/runtime.json
+         * @platform mobile
+         */
+        export function getVersion(): string;
 
         /**
          * Open your Extension's options page, if possible.The precise behavior may depend on your manifest's browser.optionsV2[options_ui] or browser.options[options_page] key, or what the browser happens to support at the time.If your Extension does not declare an options page, or the browser failed to create one for some other reason, the callback will set browser.lastError.
