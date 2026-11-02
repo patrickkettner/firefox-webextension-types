@@ -37,6 +37,8 @@ async function getActiveTab() {
 
 `import` and `require` both work. Under `node16` and `nodenext`, a `.cts` file or a CommonJS project gets the `.d.cts` declarations, so it type-checks the same as an ES module.
 
+At runtime the imported `browser` and `chrome` are stand-in objects that forward every property read to `globalThis.browser` and `globalThis.chrome` at the moment of the read. A global assigned after the import, such as a mock installed inside a test, is seen. The stand-in is always an object, so `if (browser)` says nothing; feature-detect with `browser.runtime` or `"runtime" in browser`, both of which are `undefined` and `false` when no global exists.
+
 The root entrypoint and `/desktop` are the desktop surface. `/mobile` is the Firefox for Android surface and has no `windows`, `bookmarks` and the other namespaces Android does not ship.
 
 ### 2. Ambient Globals
@@ -76,7 +78,17 @@ For extensions referencing `chrome.*` without an ambient global:
 import { chrome } from "firefox-webextension-types/chrome";
 ```
 
-### 4. Which Firefox it matches
+### 4. What the editor shows
+
+Every namespace, function, event, property, type, type member and member of an inline object carries a JSDoc block built from the Firefox schema. Hovering shows the description, `@param` and `@returns`, the permission it needs (`@permission`, listing alternatives with `or`), the contexts it is injected into (content scripts and devtools pages are opt-in in Firefox, so most namespaces say "Not available in content scripts or devtools pages"), manifest version bounds, functions that must run from a user input handler, and `@platform` naming the surfaces that carry it (`desktop`, `mobile` or both). `$(ref:...)` links in the schema become `{@link browser....}` links.
+
+`@deprecated` marks the schema's deprecated nodes and the ones Firefox drops at load time (`unsupported` in the schema). Those members are still declared, with a message saying Firefox does not support them, so editors strike them through.
+
+### 5. Named parameter and result types
+
+The object a function, event or type member takes inline has a name of its own, in a namespace merged with the owner: `browser.tabs.create.CreateProperties`, `browser.tabs.query.QueryInfo`, `browser.tabs.onUpdated.ChangeInfo`, `browser.types.Setting.get.Details`. The Promise payload is `Result` (`browser.tabs.create.Result`). The name is the parameter's name from the schema, capitalized, so it stays stable across Firefox versions. `devtools.inspectedWindow.eval` uses `_eval` as the holder, as `eval` cannot name a namespace.
+
+### 6. Which Firefox it matches
 
 `firefox-webextension-types/provenance.json` records the Firefox version (`firefoxVersion`, read from `browser/config/version.txt`), the source commit, and a hash of every declaration file. Each `.d.ts` header also names the version. The package version is its own semver and does not follow Firefox.
 
@@ -124,6 +136,8 @@ npm test           # Run test suite
 npm run verify     # Run schema parity and type integrity audits
 npm run typecheck  # Validate declarations with tsc
 ```
+
+`npm test` measures hover text and deprecation strike-through through the TypeScript language service. The installed TypeScript 7 has no JavaScript API, so the first run installs TypeScript 5.9.3 into `node_modules/.cache/` and later runs reuse it.
 
 ## License
 
