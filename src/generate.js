@@ -180,23 +180,55 @@ export function buildDeclarations(firefoxRootPath, outDirPath, options = {}) {
     console.log(`   Emitted: ${base}.d.ts and ${base}-chrome.d.ts (Ambient Global, ${target})`);
   }
 
-  // 5. Runtime stubs
+  // 5. Runtime stubs. Each export forwards to the live global at access
+  // time, so a `browser` assigned after import (a test mock) is still seen.
+  const liveGlobal = `function liveGlobal(name) {
+  const current = () => globalThis[name];
+  return new Proxy(Object.create(null), {
+    get: (_, key) => {
+      const target = current();
+      return target == null ? undefined : Reflect.get(target, key, target);
+    },
+    has: (_, key) => {
+      const target = current();
+      return target != null && key in target;
+    },
+    ownKeys: () => {
+      const target = current();
+      return target == null ? [] : Reflect.ownKeys(target);
+    },
+    getOwnPropertyDescriptor: (_, key) => {
+      const target = current();
+      const descriptor = target == null ? undefined : Reflect.getOwnPropertyDescriptor(target, key);
+      return descriptor && { ...descriptor, configurable: true };
+    },
+    set: (_, key, value) => {
+      const target = current();
+      return target != null && Reflect.set(target, key, value, target);
+    },
+    deleteProperty: (_, key) => {
+      const target = current();
+      return target != null && Reflect.deleteProperty(target, key);
+    },
+  });
+}
+`;
   const runtimeStubEsm =
-    '// Runtime placeholder for types-only package\n' +
-    'export const browser = typeof globalThis !== "undefined" ? globalThis.browser : undefined;\n' +
-    'export const chrome = typeof globalThis !== "undefined" ? globalThis.chrome : undefined;\n' +
-    'export default browser;\n';
+    "// Runtime stand-ins for the types-only package: every property read goes\n" +
+    "// to globalThis.browser or globalThis.chrome at access time.\n" +
+    liveGlobal +
+    'export const browser = liveGlobal("browser");\n' +
+    'export const chrome = liveGlobal("chrome");\n' +
+    "export default browser;\n";
   fs.writeFileSync(path.join(outDir, "index.js"), runtimeStubEsm, "utf8");
 
   const runtimeStubCjs =
-    '// Runtime placeholder for types-only package (CommonJS)\n' +
-    'const browser = typeof globalThis !== "undefined" ? globalThis.browser : undefined;\n' +
-    'const chrome = typeof globalThis !== "undefined" ? globalThis.chrome : undefined;\n' +
-    'module.exports = {\n' +
-    '  browser,\n' +
-    '  chrome,\n' +
-    '  default: browser,\n' +
-    '};\n';
+    "// Runtime stand-ins for the types-only package (CommonJS): every property\n" +
+    "// read goes to globalThis.browser or globalThis.chrome at access time.\n" +
+    liveGlobal +
+    'const browser = liveGlobal("browser");\n' +
+    'const chrome = liveGlobal("chrome");\n' +
+    "module.exports = { browser, chrome, default: browser };\n";
   fs.writeFileSync(path.join(outDir, "index.cjs"), runtimeStubCjs, "utf8");
   console.log("   Emitted: index.js and index.cjs (Runtime Stubs)");
 
