@@ -32,6 +32,7 @@ browser.tabs./*@*/TAB_ID_NONE;
 browser.tabs.duplicate(/*@*/1);
 browser.tabs./*@*/query({});
 browser.tabs.create({ url: "x" });
+browser.menus.create({ title: "x", command: "/*@*/" });
 `;
 
 let ts;
@@ -130,5 +131,36 @@ describe("editor documentation", { skip: !built && "dist not built" }, () => {
     const param = help.items[help.selectedItemIndex].parameters[0];
     assert.equal(param.name, "tabId");
     assert.equal(ts.displayPartsToString(param.documentation), "The ID of the tab which is to be duplicated.");
+  });
+});
+
+// TypeScript: string | "a" is reduced to string, which drops the literals from completion, and (string & {}) | "a" is not reduced
+// Firefox: menus.json (command accepts any string and names the internal commands), Schemas.sys.mjs (ChoiceType accepts a value matching any choice)
+describe("completion of open string unions", { skip: !built && "dist not built" }, () => {
+  it("offers the literal values of a string that also accepts any other string", () => {
+    const completions = service.getCompletionsAtPosition(consumerPath, probe('command: "/*@*/"'), {});
+    const names = (completions?.entries || []).map((e) => e.name);
+    assert.ok(names.includes("_execute_browser_action"), names.join(" "));
+  });
+
+  it("writes every union that mixes string with literals as (string & {})", () => {
+    const offenders = [];
+    for (const name of ["index.d.ts", "firefox-mobile.d.ts"]) {
+      const file = path.join(repoRoot, "dist", name);
+      const source = ts.createSourceFile(file, fs.readFileSync(file, "utf8"), ts.ScriptTarget.ES2022, true);
+      const visit = (node) => {
+        if (ts.isUnionTypeNode(node)) {
+          const hasString = node.types.some((t) => t.kind === ts.SyntaxKind.StringKeyword);
+          const hasLiteral = node.types.some((t) => ts.isLiteralTypeNode(t) && ts.isStringLiteral(t.literal));
+          if (hasString && hasLiteral) {
+            const { line } = source.getLineAndCharacterOfPosition(node.getStart());
+            offenders.push(`${name}:${line + 1} ${node.getText().slice(0, 80)}`);
+          }
+        }
+        ts.forEachChild(node, visit);
+      };
+      visit(source);
+    }
+    assert.deepEqual(offenders, []);
   });
 });
