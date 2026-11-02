@@ -491,6 +491,73 @@ describe("TypeScriptEmitter", () => {
     assert.ok(!fullText.includes("<TResponse"));
   });
 
+  // TypeScript: a call is struck through when its first matching overload carries @deprecated, so the deprecated overload goes before the normal one
+  // Firefox: Schemas.sys.mjs (checkDeprecated warns when a value matches a deprecated choice)
+  it("puts a deprecated overload for a deprecated choice literal before each normal overload", () => {
+    const fn = {
+      name: "open",
+      async: "callback",
+      parameters: [
+        { name: "tabId", type: "integer", optional: true },
+        {
+          name: "details",
+          type: "object",
+          properties: {
+            mode: {
+              optional: true,
+              choices: [
+                { type: "string", enum: ["new"] },
+                { type: "string", enum: ["old", "legacy"], deprecated: "Use new." },
+              ],
+            },
+          },
+        },
+        { name: "callback", type: "function", optional: true, parameters: [] },
+      ],
+    };
+    const lines = emitter.emitFunctionOverloads(fn, "tabs", "").filter((l) => l.startsWith("export function") || l.includes("@deprecated"));
+    const tag = (literal) => `/** @deprecated \`mode: ${literal}\` is deprecated: Use new. */`;
+    const twins = (params, ret) => [
+      tag('"old"'),
+      `export function open(${params.replace("DETAILS", 'open.Details & { mode: "old" }')}): ${ret};`,
+      tag('"legacy"'),
+      `export function open(${params.replace("DETAILS", 'open.Details & { mode: "legacy" }')}): ${ret};`,
+    ];
+    const normal = (params, ret) => `export function open(${params.replace("DETAILS", "open.Details")}): ${ret};`;
+    const promise = "globalThis.Promise<void>";
+    assert.deepEqual(lines, [
+      ...twins("tabId: number | null | undefined, details: DETAILS", promise),
+      normal("tabId: number | null | undefined, details: DETAILS", promise),
+      ...twins("details: DETAILS", promise),
+      normal("details: DETAILS", promise),
+      ...twins("tabId: number | null | undefined, details: DETAILS, callback: (() => void)", "void"),
+      normal("tabId: number | null | undefined, details: DETAILS, callback: (() => void)", "void"),
+      ...twins("details: DETAILS, callback: (() => void)", "void"),
+      normal("details: DETAILS, callback: (() => void)", "void"),
+    ]);
+  });
+
+  // Firefox: Schemas.sys.mjs (checkDeprecated warns when a value matching a deprecated choice is normalized)
+  // TypeScript: a @deprecated tag inside a union is ignored, so the property's own doc is where the hover can say it
+  it("documents a deprecated choice literal on the property and adds no overload outside a function parameter", () => {
+    const property = {
+      optional: true,
+      description: "How to open it.",
+      choices: [
+        { type: "boolean", enum: [true] },
+        { type: "boolean", enum: [false], deprecated: "Not supported." },
+      ],
+    };
+    const doc = emitter.memberDoc(property, "tabs", "").join("\n");
+    assert.match(doc, / \* `false` is deprecated: Not supported\.$/m);
+    const type = { id: "Opts", type: "object", properties: { focused: property } };
+    const ns = new LoadedNamespace("tabs");
+    ns.types.Opts = type;
+    const text = emitter.generate({ tabs: ns }, "module", { firefoxVersion: "1" });
+    assert.ok(text.includes("`false` is deprecated: Not supported."));
+    assert.ok(!text.includes("& { focused: false }"));
+  });
+
   // Firefox: ext-contextualIdentities.js (query returns the identities array), ext-sidebarAction.js (isOpen returns a boolean)
   it("resolves the Promise from the implementation when the schema has no payload", () => {
     const fn = {

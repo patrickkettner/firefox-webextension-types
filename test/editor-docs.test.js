@@ -33,6 +33,16 @@ browser.tabs.duplicate(/*@*/1);
 browser.tabs./*@*/query({});
 browser.tabs.create({ url: "x" });
 browser.menus.create({ title: "x", command: "/*@*/" });
+declare const focusFlag: boolean;
+declare const createData: browser.windows.create.CreateData;
+browser.windows.create({ /*@*/focused: false });
+browser.windows.create({ /*@*/focused: true });
+browser.windows.create({ /*@*/focused: focusFlag });
+browser.windows.create({ /*@*/url: "x" });
+browser.windows.create(/*@*/);
+browser.windows.create(createData);
+browser.windows.create({ /*@*/focused: false }, (window) => {});
+browser.windows.create({ /*@*/focused: true }, (window) => {});
 `;
 
 let ts;
@@ -98,7 +108,35 @@ describe("editor documentation", { skip: !built && "dist not built" }, () => {
       .map((d) => consumer.slice(d.start, d.start + d.length));
     assert.deepEqual(
       [...new Set(deprecated)].sort(),
-      ["ftpProtocolEnabled", "getURL", "isUntrusted", "lastError", "providers", "removeAppcache", "windowTypes"]
+      ["create", "ftpProtocolEnabled", "getURL", "isUntrusted", "lastError", "providers", "removeAppcache", "windowTypes"]
+    );
+  });
+
+  // TypeScript: a call that resolves to an overload tagged @deprecated is reported as 6387, a tag inside a union is ignored
+  // Firefox: windows.json (windows.create focused: the choice false is deprecated), Schemas.sys.mjs (checkDeprecated)
+  it("strikes through a call that passes the deprecated literal, and no other call", () => {
+    const calls = [...consumer.matchAll(/^browser\.windows\.create\(.*$/gm)];
+    const struck = new Set(
+      service
+        .getSuggestionDiagnostics(consumerPath)
+        .filter((d) => d.code === 6387)
+        .map((d) => consumer.slice(0, d.start).split("\n").length)
+    );
+    const lineOf = (m) => consumer.slice(0, m.index).split("\n").length;
+    assert.deepEqual(
+      calls.filter((m) => struck.has(lineOf(m))).map((m) => m[0]),
+      ["browser.windows.create({ /*@*/focused: false });", "browser.windows.create({ /*@*/focused: false }, (window) => {});"]
+    );
+    assert.equal(calls.length, 8);
+  });
+
+  // TypeScript: hover shows the JSDoc of the property
+  // Firefox: windows.json (windows.create focused: the choice false is deprecated)
+  it("says in the hover of the property which literal is deprecated", () => {
+    const { doc } = hover("browser.windows.create({ /*@*/focused: false });");
+    assert.ok(
+      doc.includes("`false` is deprecated: Opening inactive windows is not supported."),
+      doc
     );
   });
 

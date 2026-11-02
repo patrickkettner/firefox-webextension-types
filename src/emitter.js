@@ -535,6 +535,19 @@ export class TypeScriptEmitter {
     };
   }
 
+  // The literal values of the choices of `node` that are deprecated, each
+  // with the deprecation text. Schemas.sys.mjs checkDeprecated warns when
+  // a value matching a deprecated choice is normalized.
+  deprecatedLiterals(node, nsName) {
+    const found = [];
+    for (const choice of node.choices || []) {
+      const text = this.deprecationText(choice, nsName, "member");
+      if (text === null || !Array.isArray(choice.enum)) continue;
+      for (const value of choice.enum) found.push({ literal: formatEnumVal(value), text });
+    }
+    return found;
+  }
+
   // Two choices that emit the same type appear once. When their notes differ
   // the type holds for both, so neither note applies and both are dropped.
   joinUnion(members) {
@@ -629,6 +642,9 @@ export class TypeScriptEmitter {
       notes.push("Only privileged extensions can use this key.");
     }
     notes.push(this.defaultNote(pVal));
+    for (const { literal, text } of this.deprecatedLiterals(pVal, nsName)) {
+      notes.push(`\`${literal}\` is deprecated${text ? `: ${text}` : "."}`);
+    }
     const params =
       pVal.type === "function"
         ? (pVal.parameters || [])
@@ -770,7 +786,7 @@ export class TypeScriptEmitter {
           }
         }
       }
-      return { name: pName, text: `${pName}${isOpt ? "?" : ""}: ${pType}` };
+      return { name: pName, type: pType, optional: isOpt, text: `${pName}${isOpt ? "?" : ""}: ${pType}` };
     };
 
     const docParams = [];
@@ -813,13 +829,15 @@ export class TypeScriptEmitter {
       indent
     );
 
+    const signature = (paramsStr, actualRet) => {
+      const typeParams = override.typeParameters || "";
+      if (isMethod) return `${indent}${name}${typeParams}(${paramsStr}): ${actualRet};`;
+      if (name === "eval") return `${indent}function _eval${typeParams}(${paramsStr}): ${actualRet};`;
+      return `${indent}export function ${name}${typeParams}(${paramsStr}): ${actualRet};`;
+    };
+
     for (let i = 0; i < overloads.length; i++) {
       const ov = overloads[i];
-      if (i === 0) {
-        lines.push(...jsdoc);
-      }
-
-      const paramsStr = ov.parameters.map((p) => emitParam(p, ov).text).join(", ");
       let actualRet;
       if (ov.is_promise) {
         actualRet = `globalThis.Promise<${this.promiseResult(ov.callback_payload, fnKey, currentNs)}>`;
@@ -827,14 +845,36 @@ export class TypeScriptEmitter {
         actualRet = override.returns || this.emitType(ov.returns, currentNs, indent);
       }
 
-      const typeParams = override.typeParameters || "";
-      if (isMethod) {
-        lines.push(`${indent}${name}${typeParams}(${paramsStr}): ${actualRet};`);
-      } else if (name === "eval") {
-        lines.push(`${indent}function _eval${typeParams}(${paramsStr}): ${actualRet};`);
-      } else {
-        lines.push(`${indent}export function ${name}${typeParams}(${paramsStr}): ${actualRet};`);
+      // TypeScript's language service ignores a @deprecated tag on a choice
+      // inside a union. A call that picks the deprecated literal resolves to
+      // the overload placed before the normal one and is struck through.
+      ov.parameters.forEach((p, at) => {
+        if (!isInlineObject(p) || (override.parameters && override.parameters[p.name])) return;
+        for (const [key, value] of Object.entries(p.properties || {}).sort(entryCodePointCompare)) {
+          for (const { literal, text } of this.deprecatedLiterals(value, currentNs)) {
+            const members = ov.parameters.map((q, k) => {
+              const emitted = emitParam(q, ov);
+              if (k === at) {
+                const narrowed = `${this.emitType(q, currentNs, indent)} & { ${sanitizePropertyName(key)}: ${literal} }`;
+                return `${emitted.name}: ${narrowed}`;
+              }
+              // A required parameter cannot follow an optional one.
+              return k < at && emitted.optional ? `${emitted.name}: ${emitted.type} | undefined` : emitted.text;
+            });
+            lines.push(
+              `${indent}/** @deprecated \`${key}: ${literal}\` is deprecated${text ? `: ${text}` : "."} */`,
+              signature(members.join(", "), actualRet)
+            );
+          }
+        }
+      });
+
+      if (i === 0) {
+        lines.push(...jsdoc);
       }
+
+      const paramsStr = ov.parameters.map((p) => emitParam(p, ov).text).join(", ");
+      lines.push(signature(paramsStr, actualRet));
     }
 
     if (!isMethod && name === "eval") {
