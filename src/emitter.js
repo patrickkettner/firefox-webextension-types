@@ -902,6 +902,76 @@ export class TypeScriptEmitter {
     );
   }
 
+  // The constants Schemas.sys.mjs injects for a string enum type. Every
+  // supported type of a namespace is a key of that namespace
+  // (Namespace.init skips `unsupported` ones, and $extend entries land on the
+  // type they extend). Entry.getDescriptor is empty for every kind of type
+  // except two. StringType.getDescriptor builds { [value.toUpperCase()]: value }
+  // from `enum`, and ChoiceType.getDescriptor merges that object over its
+  // choices, in order, but only when every choice is a string enum. A choice
+  // outside the manifest version is left out. A $ref, an object or a
+  // non-string enum gets nothing. Whether the key is injected at all follows
+  // the same rules as any member (InjectionEntry: manifest version,
+  // allowedContexts, and the namespace's own permissions, where an empty list
+  // such as the manifest namespace's is never granted, see neverInjected).
+  enumConstants(tInfo) {
+    if (tInfo.unsupported || tInfo._webidl) return null;
+    const stringEnum = (t) => t.type === "string" && Array.isArray(t.enum);
+    let sources;
+    if (stringEnum(tInfo)) {
+      sources = [tInfo];
+    } else if (Array.isArray(tInfo.choices) && tInfo.choices.length && tInfo.choices.every(stringEnum)) {
+      sources = tInfo.choices;
+    } else {
+      return null;
+    }
+    const constants = new Map();
+    for (const source of sources) {
+      for (const entry of source.enum) {
+        const value = typeof entry === "object" ? entry.name : entry;
+        constants.set(value.toUpperCase(), {
+          value,
+          description: typeof entry === "object" ? entry.description : undefined,
+          source,
+        });
+      }
+    }
+    return constants;
+  }
+
+  emitEnumConstants(typeId, tInfo, ns, nsName, indent) {
+    if (ns.neverInjected) return [];
+    const constants = this.enumConstants(tInfo);
+    if (!constants || !constants.size) return [];
+    const inner = indent + "    ";
+    const lines = [
+      ...this.jsdoc(
+        {
+          description: this.docText(tInfo.description, nsName),
+          notes: [...this.manifestVersionNotes(tInfo), this.memberContextNote(tInfo, nsName)],
+          deprecated: this.deprecationText(tInfo, nsName, "type"),
+          platforms: this.platformsFor(nsName, "type", typeId),
+        },
+        indent
+      ),
+      `${indent}export const ${typeId}: {`,
+    ];
+    for (const [key, { value, description, source }] of constants) {
+      lines.push(
+        ...this.jsdoc(
+          {
+            description: description ? this.docText(description, nsName) : "",
+            notes: source === tInfo ? [] : this.manifestVersionNotes(source),
+          },
+          inner
+        )
+      );
+      lines.push(`${inner}${sanitizePropertyName(key)}: ${formatEnumVal(value)};`);
+    }
+    lines.push(`${indent}};`);
+    return lines;
+  }
+
   emitHelperNamespace(holder, helpers, nsName, indent) {
     if (!helpers.length) return [];
     return [
@@ -1018,6 +1088,7 @@ export class TypeScriptEmitter {
         const baseT = this.emitType(tInfo, nsName, indent);
         out.push(`${indent}export type ${typeId} = ${baseT};`);
       }
+      out.push(...this.emitEnumConstants(typeId, tInfo, ns, nsName, indent));
       out.push("");
     }
 

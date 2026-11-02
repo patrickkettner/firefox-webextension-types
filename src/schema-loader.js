@@ -63,6 +63,7 @@ export class LoadedNamespace {
     this.name = name;
     this.description = description;
     this.permissions = Array.from(permissions);
+    this.neverInjected = false;
     this.allowedContexts = [];
     this.defaultContexts = [];
     this.min_manifest_version = undefined;
@@ -184,6 +185,12 @@ export class SchemaRegistry {
           if (entry[key]) {
             ns[key] = Array.isArray(entry[key]) ? Array.from(entry[key]) : entry[key];
           }
+        }
+        // An explicit empty list is not "no permission needed". InjectionEntry
+        // never grants it (hasPermission is `[].some(...)`), which is how
+        // Schemas.sys.mjs keeps the manifest namespace out of `browser`.
+        if (Array.isArray(entry.permissions)) {
+          ns.neverInjected = entry.permissions.length === 0;
         }
 
         if (entry.$import) {

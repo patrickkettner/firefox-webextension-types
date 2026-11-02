@@ -26,4 +26,12 @@ browser.tabs.create.CreateProperties;
 // @ts-expect-error a type name is not a property of the event value
 browser.tabs.onUpdated.ChangeInfo;
 
-export { namedTypes, unknownProperty };
+// Schemas.sys.mjs StringType.getDescriptor injects each string enum as an
+// object of constants, so one name is both a type and a value.
+const platformOs: browser.runtime.PlatformOs = browser.runtime.PlatformOs.MAC;
+const resourceType: browser.declarativeNetRequest.ResourceType = browser.declarativeNetRequest.ResourceType.MAIN_FRAME;
+const windowType: browser.tabs.WindowType = browser.tabs.WindowType.NORMAL;
+// @ts-expect-error the constants object has no member the enum lacks
+browser.runtime.PlatformOs.BOGUS;
+
+export { namedTypes, unknownProperty, platformOs, resourceType, windowType };

@@ -682,6 +682,51 @@ describe("TypeScriptEmitter", () => {
     assert.ok(lines.join("\n").includes('export type Focus = "a" | /** @deprecated */ number;'));
   });
 
+  it("declares the constants object Schemas.sys.mjs injects for a string enum", () => {
+    const ns = new LoadedNamespace("tabs");
+    ns.types.WindowType = {
+      id: "WindowType",
+      type: "string",
+      description: "The type of window.",
+      enum: [{ name: "normal", description: "A normal window." }, "popup", "tab-group"],
+    };
+    ns.types.Version = {
+      id: "Version",
+      choices: [
+        { type: "string", enum: ["one"] },
+        { type: "string", enum: ["two"], max_manifest_version: 2 },
+      ],
+    };
+    ns.types.Mixed = { id: "Mixed", choices: [{ type: "string", enum: ["a"] }, { type: "integer" }] };
+    ns.types.Alias = { id: "Alias", $ref: "WindowType" };
+    ns.types.Flag = { id: "Flag", type: "boolean", enum: [true] };
+    ns.types.Gone = { id: "Gone", type: "string", enum: ["x"], unsupported: true };
+    const lines = [];
+    emitter._emitNamespaceBody(ns, lines, "        ", "tabs");
+    const fullText = lines.join("\n");
+    assert.ok(fullText.includes('export type WindowType = "normal" | "popup" | "tab-group";'));
+    assert.ok(
+      fullText.includes(
+        'export const WindowType: {\n            /**\n             * A normal window.\n             */\n            NORMAL: "normal";\n            POPUP: "popup";\n            "TAB-GROUP": "tab-group";\n        };'
+      )
+    );
+    assert.ok(fullText.includes('export const Version: {\n            ONE: "one";\n            /**\n             * Only available in manifest_version 2 or earlier.\n             */\n            TWO: "two";\n        };'));
+    assert.ok(!fullText.includes("const Mixed"));
+    assert.ok(!fullText.includes("const Alias"));
+    assert.ok(!fullText.includes("const Flag"));
+    assert.ok(!fullText.includes("const Gone"));
+  });
+
+  it("declares no constants for a namespace Firefox never injects", () => {
+    const ns = new LoadedNamespace("manifest");
+    ns.neverInjected = true;
+    ns.types.Kind = { id: "Kind", type: "string", enum: ["a"] };
+    const lines = [];
+    emitter._emitNamespaceBody(ns, lines, "        ", "manifest");
+    assert.ok(lines.join("\n").includes('export type Kind = "a";'));
+    assert.ok(!lines.join("\n").includes("const Kind"));
+  });
+
   it("cleans parameter shadowing without trailing underscore", () => {
     const fn = {
       name: "createEngine",
