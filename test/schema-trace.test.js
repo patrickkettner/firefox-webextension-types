@@ -79,6 +79,15 @@ describe("schema read tracing", () => {
     assert.equal(readOf(r, "functions[] > parameters[]", "minimum"), 0);
   });
 
+  it("counts a read of the last key straight after Object.keys", () => {
+    const r = trace((entry, fn) => {
+      Object.keys(fn);
+      void fn.parameters;
+    });
+    assert.equal(readOf(r, FN, "parameters"), 1);
+    assert.equal(readOf(r, FN, "unusedKey"), 0);
+  });
+
   it("counts a read made through a copy of the node", () => {
     const r = trace((entry, fn) => {
       const copy = copyNode(fn, { parameters: [] });

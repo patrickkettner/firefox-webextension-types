@@ -99,6 +99,8 @@ const handler = {
   get(target, key) {
     const bulk = justEnumerated && justEnumerated.target === target && justEnumerated.key === key;
     justEnumerated = null;
+    const state = enumerating.get(target);
+    if (state) state.pending = false;
     if (!bulk) recordRead(target, key);
     const v = Reflect.get(target, key, target);
     return isObj(v) ? wrap(v) : v;
@@ -110,16 +112,20 @@ const handler = {
   },
   ownKeys(target) {
     const keys = Reflect.ownKeys(target);
-    enumerating.set(target, { keys, next: 0 });
+    enumerating.set(target, { keys, next: 0, pending: false, keysOnly: false });
     justEnumerated = null;
     return keys;
   },
   getOwnPropertyDescriptor(target, key) {
     const state = enumerating.get(target);
     if (state && state.keys[state.next] === key) {
+      // Object.keys asks for every descriptor and never reads a value. A
+      // descriptor that follows one with no get() in between shows that.
+      if (state.pending) state.keysOnly = true;
+      state.pending = true;
       state.next++;
       if (state.next >= state.keys.length) enumerating.delete(target);
-      justEnumerated = { target, key };
+      justEnumerated = state.keysOnly ? null : { target, key };
     } else {
       justEnumerated = null;
       recordRead(target, key);
