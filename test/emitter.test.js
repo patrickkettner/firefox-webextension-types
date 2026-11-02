@@ -623,6 +623,28 @@ describe("TypeScriptEmitter", () => {
     );
   });
 
+  it("types webRequest.UploadData.bytes as ArrayBuffer and no other bytes property", () => {
+    const ns = new LoadedNamespace("webRequest");
+    ns.types.UploadData = {
+      id: "UploadData",
+      type: "object",
+      properties: {
+        bytes: { type: "any", optional: true },
+        file: { type: "string", optional: true },
+      },
+    };
+    ns.types.Chunk = {
+      id: "Chunk",
+      type: "object",
+      properties: { bytes: { type: "string" } },
+    };
+    const lines = [];
+    emitter._emitNamespaceBody(ns, lines, "        ", "webRequest");
+    const fullText = lines.join("\n");
+    assert.ok(fullText.includes("bytes?: ArrayBuffer | undefined;"));
+    assert.ok(fullText.includes("bytes: string;"));
+  });
+
   it("cleans parameter shadowing without trailing underscore", () => {
     const fn = {
       name: "createEngine",

@@ -376,12 +376,7 @@ export class TypeScriptEmitter {
     const sortedEntries = Object.entries(typeInfo.properties).sort(entryCodePointCompare);
     for (const [pName, pVal] of sortedEntries) {
       lines.push(...this.memberDoc(pVal, currentNs, inner));
-      let pType;
-      if (pName === "bytes" && currentNs.includes("webRequest")) {
-        pType = "ArrayBuffer";
-      } else {
-        pType = this.emitType(pVal, currentNs, inner);
-      }
+      const pType = this.emitType(pVal, currentNs, inner);
       lines.push(`${inner}${sanitizePropertyName(pName)}${this.optionalProperty(pVal, pType)};`);
     }
     lines.push(`${indent}}`);
@@ -951,12 +946,7 @@ export class TypeScriptEmitter {
           const sortedProps = Object.entries(propsDict).sort(entryCodePointCompare);
           for (const [pName, pVal] of sortedProps) {
             out.push(...this.memberDoc(pVal, nsName, inner));
-            let pType;
-            if (pName === "bytes" && nsName.includes("webRequest")) {
-              pType = "ArrayBuffer";
-            } else {
-              pType = this.emitType(pVal, nsName, inner);
-            }
+            const pType = this.emitType(pVal, nsName, inner);
 
             const isReadonly = Boolean(pVal.readOnly || pVal.readonly || pVal.unsupported);
             const ro = isReadonly ? "readonly " : "";

@@ -171,6 +171,12 @@ export const REQUIRED_RESULTS = new Set([
 // Property types on schema types. A name the schema does not declare is
 // added as a required property.
 export const TYPE_OVERRIDES = {
+  // toolkit/components/extensions/webrequest/WebRequestUpload.sys.mjs yields
+  // { bytes: buffer } with a fresh ArrayBuffer per chunk. The schema types
+  // the property as any.
+  "webRequest.UploadData": {
+    properties: { bytes: "ArrayBuffer" },
+  },
   // toolkit/components/extensions/ExtensionChild.sys.mjs (Port.getAPI,
   // recvPortMessage, recvPortDisconnect): the message is whatever was
   // posted, listeners also receive the port, and error is null until a
