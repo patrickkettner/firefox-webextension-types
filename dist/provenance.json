@@ -6,22 +6,22 @@
   "generatorVersion": "0.2.0",
   "artifacts": {
     "index.d.ts": {
-      "sha256": "7a8fca2449afcd1c778b717da504bb213e08f7f3d7fce6b9c625151c34f90f4d"
+      "sha256": "8ecec3f47f1bc13de76a8d35d104977d817d04caff0f1a5e172c182be1effebb"
     },
     "index.d.cts": {
-      "sha256": "7a8fca2449afcd1c778b717da504bb213e08f7f3d7fce6b9c625151c34f90f4d"
+      "sha256": "8ecec3f47f1bc13de76a8d35d104977d817d04caff0f1a5e172c182be1effebb"
     },
     "firefox-desktop.d.ts": {
-      "sha256": "7a8fca2449afcd1c778b717da504bb213e08f7f3d7fce6b9c625151c34f90f4d"
+      "sha256": "8ecec3f47f1bc13de76a8d35d104977d817d04caff0f1a5e172c182be1effebb"
     },
     "firefox-desktop.d.cts": {
-      "sha256": "7a8fca2449afcd1c778b717da504bb213e08f7f3d7fce6b9c625151c34f90f4d"
+      "sha256": "8ecec3f47f1bc13de76a8d35d104977d817d04caff0f1a5e172c182be1effebb"
     },
     "firefox-mobile.d.ts": {
-      "sha256": "d2026cb83857900aff7a2940b30d524a1e0dd7527279d724040888be80981f01"
+      "sha256": "9bd1d9f4c43bca1b0ef6b0d9b9ec0ac47043ad03262b4be0fdb9e16b86b33be7"
     },
     "firefox-mobile.d.cts": {
-      "sha256": "d2026cb83857900aff7a2940b30d524a1e0dd7527279d724040888be80981f01"
+      "sha256": "9bd1d9f4c43bca1b0ef6b0d9b9ec0ac47043ad03262b4be0fdb9e16b86b33be7"
     },
     "chrome.d.ts": {
       "sha256": "07a2b84fb76a94c6398acf1dd7f2ba677880a098788afad5eaeb72366775d06d"
@@ -30,13 +30,13 @@
       "sha256": "3b8449b4befd6ae5bd6a8ade94f27885d450aaa924465f3d9fcbbb6d449ad8e2"
     },
     "global.d.ts": {
-      "sha256": "6e6086221c715576a786128f8c5606e6530d54ddcc60fec7e4c54deac37a7591"
+      "sha256": "b32665086f74042aa761a8eb66c3ee0a04abb6fb1ae79ced7da76a751fbc9711"
     },
     "global-chrome.d.ts": {
       "sha256": "eb23a2285dadc34ff390e530cc4e029547a889648c3dc9e30018b6205c53a943"
     },
     "global-mobile.d.ts": {
-      "sha256": "1be35b90b571f2aac15f66adb71c4c132a888e25be822338bdfd5c6adfd749d1"
+      "sha256": "ff4d536abf09d47e741ec12fbf775883ac1002adcec7ffa453647dc6ae5ec33c"
     },
     "global-mobile-chrome.d.ts": {
       "sha256": "0def882684ac0c247a98164c9a5ae214605fed69fbbf2562dc697d0ca1255804"

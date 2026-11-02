@@ -204,7 +204,7 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/browser_action.json
          * @platform desktop, mobile
          */
-        export function isEnabled(details?: Details | number | null): globalThis.Promise<boolean>;
+        export function isEnabled(details?: Details | /** The id of the tab for which you want to query its enabled state. */ number | null): globalThis.Promise<boolean>;
 
         /**
          * Opens the extension popup window in the specified window.
@@ -608,6 +608,16 @@ export namespace browser {
          * @platform desktop
          */
         export type BookmarkTreeNodeType = "bookmark" | "folder" | "separator";
+        /**
+         * Indicates the type of a BookmarkTreeNode, which can be one of bookmark, folder or separator.
+         *
+         * @platform desktop
+         */
+        export const BookmarkTreeNodeType: {
+            BOOKMARK: "bookmark";
+            FOLDER: "folder";
+            SEPARATOR: "separator";
+        };
 
         /**
          * Indicates the reason why this node is unmodifiable. The `managed` value indicates that this node was configured by the system administrator or by the custodian of a supervised user. Omitted if the node can be modified by the user and the extension (default).
@@ -616,6 +626,14 @@ export namespace browser {
          * @platform desktop
          */
         export type BookmarkTreeNodeUnmodifiable = "managed";
+        /**
+         * Indicates the reason why this node is unmodifiable. The `managed` value indicates that this node was configured by the system administrator or by the custodian of a supervised user. Omitted if the node can be modified by the user and the extension (default).
+         *
+         * @platform desktop
+         */
+        export const BookmarkTreeNodeUnmodifiable: {
+            MANAGED: "managed";
+        };
 
         /**
          * Object passed to the create() function.
@@ -816,7 +834,7 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/browser/components/extensions/schemas/bookmarks.json
          * @platform desktop
          */
-        export function search(query: string | {
+        export function search(query: /** A string of words that are matched against bookmark URLs and titles. */ string | /** An object specifying properties and values to match when searching. Produces bookmarks matching all properties. */ {
             /**
              * A string of words that are matched against bookmark URLs and titles.
              */
@@ -830,7 +848,7 @@ export namespace browser {
              */
             url?: string | undefined;
         }): globalThis.Promise<BookmarkTreeNode[]>;
-        export function search(query: string | {
+        export function search(query: /** A string of words that are matched against bookmark URLs and titles. */ string | /** An object specifying properties and values to match when searching. Produces bookmarks matching all properties. */ {
             /**
              * A string of words that are matched against bookmark URLs and titles.
              */
@@ -1045,7 +1063,7 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/browser_action.json
          * @platform desktop, mobile
          */
-        export function isEnabled(details?: Details | number | null): globalThis.Promise<boolean>;
+        export function isEnabled(details?: Details | /** The id of the tab for which you want to query its enabled state. */ number | null): globalThis.Promise<boolean>;
 
         /**
          * Opens the extension popup window in the specified window.
@@ -1232,6 +1250,16 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type ColorManagementMode = "off" | "full" | "tagged_only";
+        /**
+         * Color management mode.
+         *
+         * @platform desktop, mobile
+         */
+        export const ColorManagementMode: {
+            OFF: "off";
+            FULL: "full";
+            TAGGED_ONLY: "tagged_only";
+        };
 
         /**
          * After which mouse event context menus should popup.
@@ -1240,6 +1268,15 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type ContextMenuMouseEvent = "mouseup" | "mousedown";
+        /**
+         * After which mouse event context menus should popup.
+         *
+         * @platform desktop, mobile
+         */
+        export const ContextMenuMouseEvent: {
+            MOUSEUP: "mouseup";
+            MOUSEDOWN: "mousedown";
+        };
 
         /**
          * How images should be animated in the browser.
@@ -1248,6 +1285,16 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type ImageAnimationBehavior = "normal" | "none" | "once";
+        /**
+         * How images should be animated in the browser.
+         *
+         * @platform desktop, mobile
+         */
+        export const ImageAnimationBehavior: {
+            NORMAL: "normal";
+            NONE: "none";
+            ONCE: "once";
+        };
 
         /**
          * Allows or disallows pop-up windows from opening in response to user events.
@@ -1964,7 +2011,37 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/browser/components/extensions/schemas/menus.json
          * @platform desktop
          */
-        export type ContextType = "all" | "page" | "frame" | "selection" | "link" | "editable" | "password" | "image" | "video" | "audio" | "launcher" | "bookmark" | "page_action" | "tab" | "tools_menu" | "browser_action" | "action";
+        export type ContextType = "all" | "page" | "frame" | "selection" | "link" | "editable" | "password" | "image" | "video" | "audio" | "launcher" | "bookmark" | "page_action" | "tab" | "tools_menu" | /** Only available in manifest_version 2 or earlier. */ "browser_action" | /** Requires manifest_version 3 or later. */ "action";
+        /**
+         * The different contexts a menu can appear in. Specifying 'all' is equivalent to the combination of all other contexts except for 'tab' and 'tools_menu'.
+         *
+         * @platform desktop
+         */
+        export const ContextType: {
+            ALL: "all";
+            PAGE: "page";
+            FRAME: "frame";
+            SELECTION: "selection";
+            LINK: "link";
+            EDITABLE: "editable";
+            PASSWORD: "password";
+            IMAGE: "image";
+            VIDEO: "video";
+            AUDIO: "audio";
+            LAUNCHER: "launcher";
+            BOOKMARK: "bookmark";
+            PAGE_ACTION: "page_action";
+            TAB: "tab";
+            TOOLS_MENU: "tools_menu";
+            /**
+             * Only available in manifest_version 2 or earlier.
+             */
+            BROWSER_ACTION: "browser_action";
+            /**
+             * Requires manifest_version 3 or later.
+             */
+            ACTION: "action";
+        };
 
         /**
          * The type of menu item.
@@ -1973,6 +2050,17 @@ export namespace browser {
          * @platform desktop
          */
         export type ItemType = "normal" | "checkbox" | "radio" | "separator";
+        /**
+         * The type of menu item.
+         *
+         * @platform desktop
+         */
+        export const ItemType: {
+            NORMAL: "normal";
+            CHECKBOX: "checkbox";
+            RADIO: "radio";
+            SEPARATOR: "separator";
+        };
 
         /**
          * Information sent when a context menu item is clicked.
@@ -2134,7 +2222,7 @@ export namespace browser {
                 /**
                  * Specifies a command to issue for the context click.
                  */
-                command?: (string & {}) | "_execute_browser_action" | "_execute_page_action" | "_execute_sidebar_action" | "_execute_action" | "_execute_page_action" | "_execute_sidebar_action" | undefined;
+                command?: (string & {}) | /** Manifest V2 supports internal commands _execute_page_action, _execute_browser_action and _execute_sidebar_action. Only available in manifest_version 2 or earlier. */ "_execute_browser_action" | "_execute_page_action" | "_execute_sidebar_action" | /** Manifest V3 supports internal commands _execute_page_action, _execute_action and _execute_sidebar_action. Requires manifest_version 3 or later. */ "_execute_action" | "_execute_page_action" | "_execute_sidebar_action" | undefined;
                 /**
                  * List of contexts this menu item will appear in. Defaults to ['page'] if not specified.
                  */
@@ -2156,6 +2244,9 @@ export namespace browser {
                  * A function that will be called back when the menu item is clicked. Event pages cannot use this; instead, they should register a listener for {@link browser.contextMenus.onClicked}.
                  *
                  * Only available in manifest_version 2 or earlier.
+                 *
+                 * @param info Information about the item clicked and the context where the click happened.
+                 * @param tab The details of the tab where the click took place. Note: this parameter only present for extensions.
                  */
                 onclick?: ((info: OnClickData, tab: browser.tabs.Tab) => void) | undefined;
                 /**
@@ -2214,6 +2305,8 @@ export namespace browser {
                 context?: "bookmark" | "tab" | undefined;
                 /**
                  * Whether to also include default menu items in the menu.
+                 *
+                 * Defaults to `false`.
                  */
                 showDefaults?: boolean | undefined;
                 /**
@@ -2275,6 +2368,8 @@ export namespace browser {
                 icons?: { [key: number]: string } | undefined;
                 /**
                  * Only available in manifest_version 2 or earlier.
+                 *
+                 * @param tab The details of the tab where the click took place. Note: this parameter only present for extensions.
                  */
                 onclick?: ((info: OnClickData, tab: browser.tabs.Tab) => void) | undefined;
                 /**
@@ -2768,6 +2863,18 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type OnChangedCause = "evicted" | "expired" | "explicit" | "expired_overwrite" | "overwrite";
+        /**
+         * The underlying reason behind the cookie's change. If a cookie was inserted, or removed via an explicit call to {@link browser.cookies.remove}, "cause" will be "explicit". If a cookie was automatically removed due to expiry, "cause" will be "expired". If a cookie was removed due to being overwritten with an already-expired expiration date, "cause" will be set to "expired_overwrite".  If a cookie was automatically removed due to garbage collection, "cause" will be "evicted".  If a cookie was automatically removed due to a "set" call that overwrote it, "cause" will be "overwrite". Plan your response accordingly.
+         *
+         * @platform desktop, mobile
+         */
+        export const OnChangedCause: {
+            EVICTED: "evicted";
+            EXPIRED: "expired";
+            EXPLICIT: "explicit";
+            EXPIRED_OVERWRITE: "expired_overwrite";
+            OVERWRITE: "overwrite";
+        };
 
         /**
          * The description of the storage partition of a cookie. This object may be omitted (null) if a cookie is not partitioned.
@@ -2793,6 +2900,17 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type SameSiteStatus = "unspecified" | "no_restriction" | "lax" | "strict";
+        /**
+         * A cookie's 'SameSite' state (https://tools.ietf.org/html/draft-west-first-party-cookies). 'no_restriction' corresponds to a cookie set without a 'SameSite' attribute, 'lax' to 'SameSite=Lax', and 'strict' to 'SameSite=Strict'.
+         *
+         * @platform desktop, mobile
+         */
+        export const SameSiteStatus: {
+            UNSPECIFIED: "unspecified";
+            NO_RESTRICTION: "no_restriction";
+            LAX: "lax";
+            STRICT: "strict";
+        };
 
         /**
          * Fired when a cookie is set or removed. As a special case, note that updating a cookie's properties is implemented as a two step process: the cookie to be updated is first removed entirely, generating a notification with "cause" of "overwrite" .  Afterwards, a new cookie is written with the updated values, generating a second notification with "cause" "explicit".
@@ -3028,6 +3146,8 @@ export namespace browser {
                 path?: string | undefined;
                 /**
                  * The cookie's same-site status.
+                 *
+                 * Defaults to `"unspecified"`.
                  */
                 sameSite?: SameSiteStatus | undefined;
                 /**
@@ -3097,6 +3217,34 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type ResourceType = "main_frame" | "sub_frame" | "stylesheet" | "script" | "image" | "object" | "object_subrequest" | "xmlhttprequest" | "xslt" | "ping" | "beacon" | "xml_dtd" | "font" | "media" | "websocket" | "csp_report" | "imageset" | "web_manifest" | "speculative" | "json" | "other";
+        /**
+         * How the requested resource will be used. Comparable to the webRequest.ResourceType type. object_subrequest is unsupported.
+         *
+         * @platform desktop, mobile
+         */
+        export const ResourceType: {
+            MAIN_FRAME: "main_frame";
+            SUB_FRAME: "sub_frame";
+            STYLESHEET: "stylesheet";
+            SCRIPT: "script";
+            IMAGE: "image";
+            OBJECT: "object";
+            OBJECT_SUBREQUEST: "object_subrequest";
+            XMLHTTPREQUEST: "xmlhttprequest";
+            XSLT: "xslt";
+            PING: "ping";
+            BEACON: "beacon";
+            XML_DTD: "xml_dtd";
+            FONT: "font";
+            MEDIA: "media";
+            WEBSOCKET: "websocket";
+            CSP_REPORT: "csp_report";
+            IMAGESET: "imageset";
+            WEB_MANIFEST: "web_manifest";
+            SPECULATIVE: "speculative";
+            JSON: "json";
+            OTHER: "other";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/declarative_net_request.json
@@ -3277,6 +3425,8 @@ export namespace browser {
                     key: string;
                     /**
                      * If true, the query key is replaced only if it's already present. Otherwise, the key is also added if it's missing.
+                     *
+                     * Defaults to `false`.
                      */
                     replaceOnly?: boolean | undefined;
                     value: string;
@@ -3303,6 +3453,15 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type UnsupportedRegexReason = "syntaxError" | "memoryLimitExceeded";
+        /**
+         * Describes the reason why a given regular expression isn't supported.
+         *
+         * @platform desktop, mobile
+         */
+        export const UnsupportedRegexReason: {
+            SYNTAXERROR: "syntaxError";
+            MEMORYLIMITEXCEEDED: "memoryLimitExceeded";
+        };
 
         /**
          * Ruleset ID for the dynamic rules added by the extension.
@@ -3441,6 +3600,8 @@ export namespace browser {
             export type RegexOptions = {
                 /**
                  * Whether the 'regex' specified is case sensitive.
+                 *
+                 * Defaults to `false`.
                  */
                 isCaseSensitive?: boolean | undefined;
                 /**
@@ -3449,6 +3610,8 @@ export namespace browser {
                 regex: string;
                 /**
                  * Whether the 'regex' specified requires capturing. Capturing is only required for redirect rules which specify a 'regexSubstition' action.
+                 *
+                 * Defaults to `false`.
                  */
                 requireCapturing?: boolean | undefined;
             };
@@ -3487,6 +3650,8 @@ export namespace browser {
                 initiator?: string | undefined;
                 /**
                  * Standard HTTP method of the hypothetical request.
+                 *
+                 * Defaults to `"get"`.
                  */
                 method?: string | undefined;
                 /**
@@ -3548,7 +3713,13 @@ export namespace browser {
         export function updateEnabledRulesets(updateRulesetOptions: updateEnabledRulesets.UpdateRulesetOptions, callback: (() => void)): void;
         export namespace updateEnabledRulesets {
             export type UpdateRulesetOptions = {
+                /**
+                 * Defaults to `[]`.
+                 */
                 disableRulesetIds?: string[] | undefined;
+                /**
+                 * Defaults to `[]`.
+                 */
                 enableRulesetIds?: string[] | undefined;
             };
         }
@@ -3585,7 +3756,13 @@ export namespace browser {
         export function updateStaticRules(options: updateStaticRules.Options, callback: (() => void)): void;
         export namespace updateStaticRules {
             export type Options = {
+                /**
+                 * Defaults to `[]`.
+                 */
                 disableRuleIds?: number[] | undefined;
+                /**
+                 * Defaults to `[]`.
+                 */
                 enableRuleIds?: number[] | undefined;
                 rulesetId: string;
             };
@@ -4117,6 +4294,7 @@ export namespace browser {
         /**
          * Resolves a hostname to a DNS record.
          *
+         * @param flags Defaults to `[]`.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/dns.json
          * @platform desktop, mobile
          */
@@ -4153,6 +4331,27 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type DangerType = "file" | "url" | "content" | "uncommon" | "host" | "unwanted" | "safe" | "accepted";
+        /**
+         * - `file`: The download's filename is suspicious.
+         * - `url`: The download's URL is known to be malicious.
+         * - `content`: The downloaded file is known to be malicious.
+         * - `uncommon`: The download's URL is not commonly downloaded and could be dangerous.
+         * - `safe`: The download presents no known danger to the user's computer.
+         *
+         * These string constants will never change, however the set of DangerTypes may change.
+         *
+         * @platform desktop, mobile
+         */
+        export const DangerType: {
+            FILE: "file";
+            URL: "url";
+            CONTENT: "content";
+            UNCOMMON: "uncommon";
+            HOST: "host";
+            UNWANTED: "unwanted";
+            SAFE: "safe";
+            ACCEPTED: "accepted";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/downloads.json
@@ -4350,12 +4549,49 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type FilenameConflictAction = "uniquify" | "overwrite" | "prompt";
+        /**
+         * @platform desktop, mobile
+         */
+        export const FilenameConflictAction: {
+            UNIQUIFY: "uniquify";
+            OVERWRITE: "overwrite";
+            PROMPT: "prompt";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/downloads.json
          * @platform desktop, mobile
          */
         export type InterruptReason = "FILE_FAILED" | "FILE_ACCESS_DENIED" | "FILE_NO_SPACE" | "FILE_NAME_TOO_LONG" | "FILE_TOO_LARGE" | "FILE_VIRUS_INFECTED" | "FILE_TRANSIENT_ERROR" | "FILE_BLOCKED" | "FILE_SECURITY_CHECK_FAILED" | "FILE_TOO_SHORT" | "NETWORK_FAILED" | "NETWORK_TIMEOUT" | "NETWORK_DISCONNECTED" | "NETWORK_SERVER_DOWN" | "NETWORK_INVALID_REQUEST" | "SERVER_FAILED" | "SERVER_NO_RANGE" | "SERVER_BAD_CONTENT" | "SERVER_UNAUTHORIZED" | "SERVER_CERT_PROBLEM" | "SERVER_FORBIDDEN" | "USER_CANCELED" | "USER_SHUTDOWN" | "CRASH";
+        /**
+         * @platform desktop, mobile
+         */
+        export const InterruptReason: {
+            FILE_FAILED: "FILE_FAILED";
+            FILE_ACCESS_DENIED: "FILE_ACCESS_DENIED";
+            FILE_NO_SPACE: "FILE_NO_SPACE";
+            FILE_NAME_TOO_LONG: "FILE_NAME_TOO_LONG";
+            FILE_TOO_LARGE: "FILE_TOO_LARGE";
+            FILE_VIRUS_INFECTED: "FILE_VIRUS_INFECTED";
+            FILE_TRANSIENT_ERROR: "FILE_TRANSIENT_ERROR";
+            FILE_BLOCKED: "FILE_BLOCKED";
+            FILE_SECURITY_CHECK_FAILED: "FILE_SECURITY_CHECK_FAILED";
+            FILE_TOO_SHORT: "FILE_TOO_SHORT";
+            NETWORK_FAILED: "NETWORK_FAILED";
+            NETWORK_TIMEOUT: "NETWORK_TIMEOUT";
+            NETWORK_DISCONNECTED: "NETWORK_DISCONNECTED";
+            NETWORK_SERVER_DOWN: "NETWORK_SERVER_DOWN";
+            NETWORK_INVALID_REQUEST: "NETWORK_INVALID_REQUEST";
+            SERVER_FAILED: "SERVER_FAILED";
+            SERVER_NO_RANGE: "SERVER_NO_RANGE";
+            SERVER_BAD_CONTENT: "SERVER_BAD_CONTENT";
+            SERVER_UNAUTHORIZED: "SERVER_UNAUTHORIZED";
+            SERVER_CERT_PROBLEM: "SERVER_CERT_PROBLEM";
+            SERVER_FORBIDDEN: "SERVER_FORBIDDEN";
+            USER_CANCELED: "USER_CANCELED";
+            USER_SHUTDOWN: "USER_SHUTDOWN";
+            CRASH: "CRASH";
+        };
 
         /**
          * - `in_progress`: The download is currently receiving data from the server.
@@ -4368,6 +4604,20 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type State = "in_progress" | "interrupted" | "complete";
+        /**
+         * - `in_progress`: The download is currently receiving data from the server.
+         * - `interrupted`: An error broke the connection with the file host.
+         * - `complete`: The download completed successfully.
+         *
+         * These string constants will never change, however the set of States may change.
+         *
+         * @platform desktop, mobile
+         */
+        export const State: {
+            IN_PROGRESS: "in_progress";
+            INTERRUPTED: "interrupted";
+            COMPLETE: "complete";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/downloads.json
@@ -4491,6 +4741,8 @@ export namespace browser {
             export type Options = {
                 /**
                  * When this flag is set to `true`, then the browser will allow downloads to proceed after encountering HTTP errors such as `404 Not Found`.
+                 *
+                 * Defaults to `false`.
                  */
                 allowHttpErrors?: boolean | undefined;
                 /**
@@ -4521,6 +4773,8 @@ export namespace browser {
                 }[] | undefined;
                 /**
                  * Whether to associate the download with a private browsing session.
+                 *
+                 * Defaults to `false`.
                  */
                 incognito?: boolean | undefined;
                 /**
@@ -4795,7 +5049,7 @@ export namespace browser {
             /**
              * Matches if the port of the URL is contained in any of the specified port lists. For example `[80, 443, [1000, 1200]]` matches all requests on port 80, 443 and in the range 1000-1200.
              */
-            ports?: (number | [number, number])[] | undefined;
+            ports?: (/** A specific port. */ number | /** A pair of integers identiying the start and end (both inclusive) of a port range. */ [number, number])[] | undefined;
             /**
              * Matches if the query segment of the URL contains a specified string.
              */
@@ -4851,12 +5105,26 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type APIChildScope = "addon_child" | "content_child" | "devtools_child";
+        /**
+         * @platform desktop, mobile
+         */
+        export const APIChildScope: {
+            ADDON_CHILD: "addon_child";
+            CONTENT_CHILD: "content_child";
+            DEVTOOLS_CHILD: "devtools_child";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/experiments.json
          * @platform desktop, mobile
          */
         export type APIEvent = "startup";
+        /**
+         * @platform desktop, mobile
+         */
+        export const APIEvent: {
+            STARTUP: "startup";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/experiments.json
@@ -4869,6 +5137,14 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type APIParentScope = "addon_parent" | "content_parent" | "devtools_parent";
+        /**
+         * @platform desktop, mobile
+         */
+        export const APIParentScope: {
+            ADDON_PARENT: "addon_parent";
+            CONTENT_PARENT: "content_parent";
+            DEVTOOLS_PARENT: "devtools_parent";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/experiments.json
@@ -4893,8 +5169,17 @@ export namespace browser {
                 script: ExperimentURL;
             } | undefined;
             parent?: {
+                /**
+                 * Defaults to `[]`.
+                 */
                 events?: APIEvents | undefined;
+                /**
+                 * Defaults to `[]`.
+                 */
                 paths?: APIPaths | undefined;
+                /**
+                 * Defaults to `[]`.
+                 */
                 scopes?: APIParentScope[] | undefined;
                 script: ExperimentURL;
             } | undefined;
@@ -4924,6 +5209,18 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type ViewType = "tab" | "popup" | "sidebar";
+        /**
+         * The type of extension view.
+         *
+         * Not available in content scripts or devtools pages.
+         *
+         * @platform desktop, mobile
+         */
+        export const ViewType: {
+            TAB: "tab";
+            POPUP: "popup";
+            SIDEBAR: "sidebar";
+        };
 
         /**
          * True for content scripts running inside incognito tabs, and for extension pages running inside an incognito process. The latter only applies to extensions with 'split' incognito_behavior.
@@ -4936,6 +5233,7 @@ export namespace browser {
          * Set for the lifetime of a callback if an ansychronous extension api has resulted in an error. If no error has occured lastError will be `undefined`.
          *
          * Only available in manifest_version 2 or earlier.
+         * Firefox returns `null` when no value is pending.
          *
          * @deprecated Please use {@link browser.runtime.lastError}.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/extension.json
@@ -4946,7 +5244,7 @@ export namespace browser {
              * Description of the error that has taken place.
              */
             message: string;
-        };
+        } | null;
 
         /**
          * Fired when a request is sent from either an extension process or a content script.
@@ -5073,6 +5371,15 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type CSSOrigin = "user" | "author";
+        /**
+         * The origin of the CSS to inject, this affects the cascading order (priority) of the stylesheet.
+         *
+         * @platform desktop, mobile
+         */
+        export const CSSOrigin: {
+            USER: "user";
+            AUTHOR: "author";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/extension_types.json
@@ -5087,6 +5394,15 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type ExecutionWorld = "ISOLATED" | "MAIN";
+        /**
+         * The JavaScript world for a script to execute within. `ISOLATED` is the default execution environment of content scripts, `MAIN` is the web page's execution environment.
+         *
+         * @platform desktop, mobile
+         */
+        export const ExecutionWorld: {
+            ISOLATED: "ISOLATED";
+            MAIN: "MAIN";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/extension_types.json
@@ -5139,6 +5455,15 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type ImageFormat = "jpeg" | "png";
+        /**
+         * The format of an image.
+         *
+         * @platform desktop, mobile
+         */
+        export const ImageFormat: {
+            JPEG: "jpeg";
+            PNG: "png";
+        };
 
         /**
          * Details of the script or CSS to inject. Either the code or the file property must be set, but both may not be set at the same time.
@@ -5195,6 +5520,16 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type RunAt = "document_start" | "document_end" | "document_idle";
+        /**
+         * The soonest that the JavaScript or CSS will be injected into the tab.
+         *
+         * @platform desktop, mobile
+         */
+        export const RunAt: {
+            DOCUMENT_START: "document_start";
+            DOCUMENT_END: "document_end";
+            DOCUMENT_IDLE: "document_idle";
+        };
 
     }
 
@@ -5301,12 +5636,52 @@ export namespace browser {
          * @platform desktop
          */
         export type ProfilerFeature = "java" | "js" | "mainthreadio" | "fileio" | "fileioall" | "nomarkerstacks" | "screenshots" | "seqstyle" | "stackwalk" | "jsallocations" | "nostacksampling" | "nativeallocations" | "ipcmessages" | "audiocallbacktracing" | "notimerresolutionchange" | "cpuallthreads" | "samplingallthreads" | "markersallthreads" | "unregisteredthreads" | "processcpu" | "power" | "responsiveness" | "cpufreq" | "bandwidth" | "memory" | "tracing" | "sandbox" | "flows" | "jssources";
+        /**
+         * @platform desktop
+         */
+        export const ProfilerFeature: {
+            JAVA: "java";
+            JS: "js";
+            MAINTHREADIO: "mainthreadio";
+            FILEIO: "fileio";
+            FILEIOALL: "fileioall";
+            NOMARKERSTACKS: "nomarkerstacks";
+            SCREENSHOTS: "screenshots";
+            SEQSTYLE: "seqstyle";
+            STACKWALK: "stackwalk";
+            JSALLOCATIONS: "jsallocations";
+            NOSTACKSAMPLING: "nostacksampling";
+            NATIVEALLOCATIONS: "nativeallocations";
+            IPCMESSAGES: "ipcmessages";
+            AUDIOCALLBACKTRACING: "audiocallbacktracing";
+            NOTIMERRESOLUTIONCHANGE: "notimerresolutionchange";
+            CPUALLTHREADS: "cpuallthreads";
+            SAMPLINGALLTHREADS: "samplingallthreads";
+            MARKERSALLTHREADS: "markersallthreads";
+            UNREGISTEREDTHREADS: "unregisteredthreads";
+            PROCESSCPU: "processcpu";
+            POWER: "power";
+            RESPONSIVENESS: "responsiveness";
+            CPUFREQ: "cpufreq";
+            BANDWIDTH: "bandwidth";
+            MEMORY: "memory";
+            TRACING: "tracing";
+            SANDBOX: "sandbox";
+            FLOWS: "flows";
+            JSSOURCES: "jssources";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/geckoProfiler.json
          * @platform desktop
          */
         export type supports = "windowLength";
+        /**
+         * @platform desktop
+         */
+        export const supports: {
+            WINDOWLENGTH: "windowLength";
+        };
 
         /**
          * Fires when the profiler starts/stops running.
@@ -5467,6 +5842,24 @@ export namespace browser {
          * @platform desktop
          */
         export type TransitionType = "link" | "typed" | "auto_bookmark" | "auto_subframe" | "manual_subframe" | "generated" | "auto_toplevel" | "form_submit" | "reload" | "keyword" | "keyword_generated";
+        /**
+         * The transition type for this visit from its referrer.
+         *
+         * @platform desktop
+         */
+        export const TransitionType: {
+            LINK: "link";
+            TYPED: "typed";
+            AUTO_BOOKMARK: "auto_bookmark";
+            AUTO_SUBFRAME: "auto_subframe";
+            MANUAL_SUBFRAME: "manual_subframe";
+            GENERATED: "generated";
+            AUTO_TOPLEVEL: "auto_toplevel";
+            FORM_SUBMIT: "form_submit";
+            RELOAD: "reload";
+            KEYWORD: "keyword";
+            KEYWORD_GENERATED: "keyword_generated";
+        };
 
         /**
          * An object encapsulating one visit to a URL.
@@ -5704,7 +6097,7 @@ export namespace browser {
                 /**
                  * array of detectedLanguage
                  */
-                languages: {
+                languages: /** DetectedLanguage object that holds detected ISO language code and its percentage in the input string */ {
                     language: LanguageCode;
                     /**
                      * The percentage of the detected language
@@ -5830,7 +6223,7 @@ export namespace browser {
         /**
          * Generates a redirect URL to be used in |launchWebAuthFlow|.
          *
-         * @param path The path appended to the end of the generated URL.
+         * @param path The path appended to the end of the generated URL. Defaults to `""`.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/identity.json
          * @platform desktop
          */
@@ -5885,6 +6278,13 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type IdleState = "active" | "idle";
+        /**
+         * @platform desktop, mobile
+         */
+        export const IdleState: {
+            ACTIVE: "active";
+            IDLE: "idle";
+        };
 
         /**
          * Fired when the system changes to an active or idle state. The event fires with "idle" if the the user has not generated any input for a specified number of seconds, and "active" when the user generates input on an idle system.
@@ -5930,6 +6330,15 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type ExtensionDisabledReason = "unknown" | "permissions_increase";
+        /**
+         * A reason the item is disabled.
+         *
+         * @platform desktop, mobile
+         */
+        export const ExtensionDisabledReason: {
+            UNKNOWN: "unknown";
+            PERMISSIONS_INCREASE: "permissions_increase";
+        };
 
         /**
          * Information about an installed extension.
@@ -6021,6 +6430,24 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type ExtensionInstallType = "development" | "normal" | "sideload" | "admin" | "other";
+        /**
+         * How the extension was installed.
+         *
+         * - `development`: The extension was loaded unpacked in developer mode,
+         * - `normal`: The extension was installed normally via an .xpi file
+         * - `sideload`: The extension was installed by other software on the machine
+         * - `admin`: The extension was installed by policy
+         * - `other`: The extension was installed by other means.
+         *
+         * @platform desktop, mobile
+         */
+        export const ExtensionInstallType: {
+            DEVELOPMENT: "development";
+            NORMAL: "normal";
+            SIDELOAD: "sideload";
+            ADMIN: "admin";
+            OTHER: "other";
+        };
 
         /**
          * The type of this extension, 'extension' or 'theme'.
@@ -6029,6 +6456,15 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type ExtensionType = "extension" | "theme";
+        /**
+         * The type of this extension, 'extension' or 'theme'.
+         *
+         * @platform desktop, mobile
+         */
+        export const ExtensionType: {
+            EXTENSION: "extension";
+            THEME: "theme";
+        };
 
         /**
          * Information about an icon belonging to an extension.
@@ -6211,6 +6647,7 @@ export namespace browser {
         export interface BrowserSpecificSettings {
             gecko?: FirefoxSpecificProperties | undefined;
             gecko_android?: GeckoAndroidSpecificProperties | undefined;
+            [key: string]: unknown;
         }
 
         /**
@@ -6257,6 +6694,9 @@ export namespace browser {
              * The list of CSS files to inject
              */
             css?: ExtensionURL[] | undefined;
+            /**
+             * Defaults to `"author"`.
+             */
             css_origin?: browser.extensionTypes.CSSOrigin | undefined;
             exclude_globs?: string[] | undefined;
             exclude_matches?: MatchPattern[] | undefined;
@@ -6299,7 +6739,8 @@ export namespace browser {
             /**
              * @deprecated Firefox does not support this property and rejects an object that includes it.
              */
-            readonly gecko_android?: GeckoAndroidSpecificProperties | undefined;
+            gecko_android?: GeckoAndroidSpecificProperties | undefined;
+            [key: string]: unknown;
         }
 
         /**
@@ -6327,8 +6768,17 @@ export namespace browser {
         export interface FirefoxSpecificProperties {
             admin_install_only?: boolean | undefined;
             data_collection_permissions?: {
+                /**
+                 * Defaults to `false`.
+                 */
                 has_previous_consent?: boolean | undefined;
+                /**
+                 * Defaults to `[]`.
+                 */
                 optional?: OptionalDataCollectionPermission[] | undefined;
+                /**
+                 * Defaults to `[]`.
+                 */
                 required?: DataCollectionPermission[] | undefined;
             } | undefined;
             id?: ExtensionID | undefined;
@@ -6807,6 +7257,7 @@ export namespace browser {
                 page?: ExtensionURL | undefined;
                 /**
                  * Only available in manifest_version 2 or earlier.
+                 * Defaults to `true`.
                  */
                 persistent?: boolean | undefined;
                 preferred_environment?: ("service_worker" | "document")[] | undefined;
@@ -6839,7 +7290,7 @@ export namespace browser {
                      * Encoding of the search term.
                      */
                     encoding?: string | undefined;
-                    favicon_url?: (string & {}) | undefined;
+                    favicon_url?: string | undefined;
                     /**
                      * @deprecated Unsupported on Firefox at this time.
                      */
@@ -6860,7 +7311,7 @@ export namespace browser {
                      * Sets the default engine to a built-in engine only.
                      */
                     is_default?: boolean | undefined;
-                    keyword?: (string & {}) | string[] | undefined;
+                    keyword?: string | string[] | undefined;
                     name: string;
                     /**
                      * @deprecated Unsupported on Firefox.
@@ -6918,7 +7369,7 @@ export namespace browser {
     } | undefined;
 } } | undefined;
             content_scripts?: ContentScript[] | undefined;
-            content_security_policy?: (string & {}) | {
+            content_security_policy?: /** Only available in manifest_version 2 or earlier. */ string | /** Requires manifest_version 3 or later. */ {
                 /**
                  * The Content Security Policy used for extension pages.
                  */
@@ -6955,16 +7406,25 @@ export namespace browser {
              * Only privileged extensions can use this key.
              */
             experiment_apis?: { [key: string]: browser.experiments.ExperimentAPI } | undefined;
+            /**
+             * Defaults to `false`.
+             */
             granted_host_permissions?: boolean | undefined;
+            /**
+             * Defaults to `false`.
+             */
             hidden?: boolean | undefined;
             homepage_url?: string | undefined;
             /**
              * Requires manifest_version 3 or later.
+             * Defaults to `[]`.
              */
             host_permissions?: MatchPattern[] | undefined;
             icons?: { [key: number]: ExtensionFileUrl } | undefined;
             /**
              * The 'split' value is not supported.
+             *
+             * Defaults to `"spanning"`.
              */
             incognito?: "not_allowed" | "spanning" | "split" | undefined;
             install_origins?: string[] | undefined;
@@ -6984,8 +7444,12 @@ export namespace browser {
             } | undefined;
             /**
              * Requires manifest_version 3 or later.
+             * Defaults to `[]`.
              */
             optional_host_permissions?: MatchPattern[] | undefined;
+            /**
+             * Defaults to `[]`.
+             */
             optional_permissions?: OptionalPermissionOrOrigin[] | undefined;
             /**
              * Alias property for options_ui.page, ignored when options_ui.page is set. When using this property the options page is always opened in a new tab.
@@ -7014,10 +7478,16 @@ export namespace browser {
                 default_popup?: string | undefined;
                 default_title?: string | undefined;
                 hide_matches?: MatchPatternRestricted[] | undefined;
+                /**
+                 * Defaults to `true`.
+                 */
                 pinned?: boolean | undefined;
                 show_matches?: MatchPattern[] | undefined;
             } | undefined;
-            permissions?: PermissionOrOrigin[] | Permission[] | undefined;
+            /**
+             * Defaults to `[]`.
+             */
+            permissions?: /** Only available in manifest_version 2 or earlier. */ PermissionOrOrigin[] | /** Requires manifest_version 3 or later. */ Permission[] | undefined;
             /**
              * A list of protocol handler definitions.
              */
@@ -7056,7 +7526,7 @@ export namespace browser {
                 api_script?: browser.manifest.ExtensionURL | undefined;
             } | undefined;
             version: string;
-            web_accessible_resources?: string[] | ({
+            web_accessible_resources?: /** Only available in manifest_version 2 or earlier. */ string[] | /** Requires manifest_version 3 or later. */ ({
                 extension_ids?: (ExtensionID | "*")[] | undefined;
                 matches?: MatchPattern[] | undefined;
                 resources: string[];
@@ -7086,7 +7556,39 @@ export namespace browser {
          * @see https://searchfox.org/mozilla-central/source/browser/components/extensions/schemas/menus.json
          * @platform desktop
          */
-        export type ContextType = "all" | "page" | "frame" | "selection" | "link" | "editable" | "password" | "image" | "video" | "audio" | "launcher" | "bookmark" | "page_action" | "tab" | "tools_menu" | "browser_action" | "action";
+        export type ContextType = "all" | "page" | "frame" | "selection" | "link" | "editable" | "password" | "image" | "video" | "audio" | "launcher" | "bookmark" | "page_action" | "tab" | "tools_menu" | /** Only available in manifest_version 2 or earlier. */ "browser_action" | /** Requires manifest_version 3 or later. */ "action";
+        /**
+         * The different contexts a menu can appear in. Specifying 'all' is equivalent to the combination of all other contexts except for 'tab' and 'tools_menu'.
+         *
+         * Not available in content scripts or devtools pages.
+         *
+         * @platform desktop
+         */
+        export const ContextType: {
+            ALL: "all";
+            PAGE: "page";
+            FRAME: "frame";
+            SELECTION: "selection";
+            LINK: "link";
+            EDITABLE: "editable";
+            PASSWORD: "password";
+            IMAGE: "image";
+            VIDEO: "video";
+            AUDIO: "audio";
+            LAUNCHER: "launcher";
+            BOOKMARK: "bookmark";
+            PAGE_ACTION: "page_action";
+            TAB: "tab";
+            TOOLS_MENU: "tools_menu";
+            /**
+             * Only available in manifest_version 2 or earlier.
+             */
+            BROWSER_ACTION: "browser_action";
+            /**
+             * Requires manifest_version 3 or later.
+             */
+            ACTION: "action";
+        };
 
         /**
          * The type of menu item.
@@ -7095,6 +7597,19 @@ export namespace browser {
          * @platform desktop
          */
         export type ItemType = "normal" | "checkbox" | "radio" | "separator";
+        /**
+         * The type of menu item.
+         *
+         * Not available in content scripts or devtools pages.
+         *
+         * @platform desktop
+         */
+        export const ItemType: {
+            NORMAL: "normal";
+            CHECKBOX: "checkbox";
+            RADIO: "radio";
+            SEPARATOR: "separator";
+        };
 
         /**
          * Information sent when a context menu item is clicked.
@@ -7266,7 +7781,7 @@ export namespace browser {
                 /**
                  * Specifies a command to issue for the context click.
                  */
-                command?: (string & {}) | "_execute_browser_action" | "_execute_page_action" | "_execute_sidebar_action" | "_execute_action" | "_execute_page_action" | "_execute_sidebar_action" | undefined;
+                command?: (string & {}) | /** Manifest V2 supports internal commands _execute_page_action, _execute_browser_action and _execute_sidebar_action. Only available in manifest_version 2 or earlier. */ "_execute_browser_action" | "_execute_page_action" | "_execute_sidebar_action" | /** Manifest V3 supports internal commands _execute_page_action, _execute_action and _execute_sidebar_action. Requires manifest_version 3 or later. */ "_execute_action" | "_execute_page_action" | "_execute_sidebar_action" | undefined;
                 /**
                  * List of contexts this menu item will appear in. Defaults to ['page'] if not specified.
                  */
@@ -7288,6 +7803,9 @@ export namespace browser {
                  * A function that will be called back when the menu item is clicked. Event pages cannot use this; instead, they should register a listener for {@link browser.contextMenus.onClicked}.
                  *
                  * Only available in manifest_version 2 or earlier.
+                 *
+                 * @param info Information about the item clicked and the context where the click happened.
+                 * @param tab The details of the tab where the click took place. Note: this parameter only present for extensions.
                  */
                 onclick?: ((info: OnClickData, tab: browser.tabs.Tab) => void) | undefined;
                 /**
@@ -7348,6 +7866,8 @@ export namespace browser {
                 context?: "bookmark" | "tab" | undefined;
                 /**
                  * Whether to also include default menu items in the menu.
+                 *
+                 * Defaults to `false`.
                  */
                 showDefaults?: boolean | undefined;
                 /**
@@ -7417,6 +7937,8 @@ export namespace browser {
                 icons?: { [key: number]: string } | undefined;
                 /**
                  * Only available in manifest_version 2 or earlier.
+                 *
+                 * @param tab The details of the tab where the click took place. Note: this parameter only present for extensions.
                  */
                 onclick?: ((info: OnClickData, tab: browser.tabs.Tab) => void) | undefined;
                 /**
@@ -7504,7 +8026,7 @@ export namespace browser {
              *
              * @deprecated Firefox does not support this property and rejects an object that includes it.
              */
-            readonly buttons?: ({
+            buttons?: ({
                 iconUrl?: string | undefined;
                 title: string;
             })[] | undefined;
@@ -7574,12 +8096,28 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type PermissionLevel = "granted" | "denied";
+        /**
+         * @platform desktop, mobile
+         */
+        export const PermissionLevel: {
+            GRANTED: "granted";
+            DENIED: "denied";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/notifications.json
          * @platform desktop, mobile
          */
         export type TemplateType = "basic" | "image" | "list" | "progress";
+        /**
+         * @platform desktop, mobile
+         */
+        export const TemplateType: {
+            BASIC: "basic";
+            IMAGE: "image";
+            LIST: "list";
+            PROGRESS: "progress";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/notifications.json
@@ -7595,7 +8133,7 @@ export namespace browser {
              *
              * @deprecated Firefox does not support this property and rejects an object that includes it.
              */
-            readonly buttons?: ({
+            buttons?: ({
                 iconUrl?: string | undefined;
                 title: string;
             })[] | undefined;
@@ -7784,7 +8322,7 @@ export namespace browser {
              *
              * @deprecated Firefox does not support this property and rejects an object that includes it.
              */
-            readonly descriptionStyles?: ({
+            descriptionStyles?: (/** The style ranges for the description, as provided by the extension. */ {
                 length?: number | undefined;
                 offset: number;
                 /**
@@ -7797,7 +8335,7 @@ export namespace browser {
              *
              * @deprecated Firefox does not support this property and rejects an object that includes it.
              */
-            readonly descriptionStylesRaw?: {
+            descriptionStylesRaw?: /** The style ranges for the description, as provided by ToValue(). */ {
                 offset: number;
                 type: number;
             }[] | undefined;
@@ -7810,6 +8348,16 @@ export namespace browser {
          * @platform desktop
          */
         export type DescriptionStyleType = "url" | "match" | "dim";
+        /**
+         * The style type.
+         *
+         * @platform desktop
+         */
+        export const DescriptionStyleType: {
+            URL: "url";
+            MATCH: "match";
+            DIM: "dim";
+        };
 
         /**
          * The window disposition for the omnibox query. This is the recommended context to display results. For example, if the omnibox command is to navigate to a certain URL, a disposition of 'newForegroundTab' means the navigation should take place in a new selected tab.
@@ -7818,6 +8366,16 @@ export namespace browser {
          * @platform desktop
          */
         export type OnInputEnteredDisposition = "currentTab" | "newForegroundTab" | "newBackgroundTab";
+        /**
+         * The window disposition for the omnibox query. This is the recommended context to display results. For example, if the omnibox command is to navigate to a certain URL, a disposition of 'newForegroundTab' means the navigation should take place in a new selected tab.
+         *
+         * @platform desktop
+         */
+        export const OnInputEnteredDisposition: {
+            CURRENTTAB: "currentTab";
+            NEWFOREGROUNDTAB: "newForegroundTab";
+            NEWBACKGROUNDTAB: "newBackgroundTab";
+        };
 
         /**
          * A suggest result.
@@ -7843,7 +8401,7 @@ export namespace browser {
              *
              * @deprecated Firefox does not support this property and rejects an object that includes it.
              */
-            readonly descriptionStyles?: ({
+            descriptionStyles?: (/** The style ranges for the description, as provided by the extension. */ {
                 length?: number | undefined;
                 offset: number;
                 /**
@@ -7856,7 +8414,7 @@ export namespace browser {
              *
              * @deprecated Firefox does not support this property and rejects an object that includes it.
              */
-            readonly descriptionStylesRaw?: {
+            descriptionStylesRaw?: /** The style ranges for the description, as provided by ToValue(). */ {
                 offset: number;
                 type: number;
             }[] | undefined;
@@ -8114,8 +8672,17 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export interface AnyPermissions {
+            /**
+             * Defaults to `[]`.
+             */
             data_collection?: browser.manifest.OptionalDataCollectionPermission[] | undefined;
+            /**
+             * Defaults to `[]`.
+             */
             origins?: browser.manifest.MatchPattern[] | undefined;
+            /**
+             * Defaults to `[]`.
+             */
             permissions?: (browser.manifest.Permission | browser.manifest.OptionalOnlyPermission)[] | undefined;
         }
 
@@ -8124,8 +8691,17 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export interface Permissions {
+            /**
+             * Defaults to `[]`.
+             */
             data_collection?: browser.manifest.OptionalDataCollectionPermission[] | undefined;
+            /**
+             * Defaults to `[]`.
+             */
             origins?: browser.manifest.MatchPattern[] | undefined;
+            /**
+             * Defaults to `[]`.
+             */
             permissions?: (browser.manifest.OptionalPermission | browser.manifest.OptionalOnlyPermission)[] | undefined;
         }
 
@@ -8251,6 +8827,16 @@ export namespace browser {
              * @platform desktop, mobile
              */
             export type HTTPSOnlyModeOption = "always" | "private_browsing" | "never";
+            /**
+             * The mode for https-only mode.
+             *
+             * @platform desktop, mobile
+             */
+            export const HTTPSOnlyModeOption: {
+                ALWAYS: "always";
+                PRIVATE_BROWSING: "private_browsing";
+                NEVER: "never";
+            };
 
             /**
              * The IP handling policy of WebRTC.
@@ -8259,6 +8845,18 @@ export namespace browser {
              * @platform desktop, mobile
              */
             export type IPHandlingPolicy = "default" | "default_public_and_private_interfaces" | "default_public_interface_only" | "disable_non_proxied_udp" | "proxy_only";
+            /**
+             * The IP handling policy of WebRTC.
+             *
+             * @platform desktop, mobile
+             */
+            export const IPHandlingPolicy: {
+                DEFAULT: "default";
+                DEFAULT_PUBLIC_AND_PRIVATE_INTERFACES: "default_public_and_private_interfaces";
+                DEFAULT_PUBLIC_INTERFACE_ONLY: "default_public_interface_only";
+                DISABLE_NON_PROXIED_UDP: "disable_non_proxied_udp";
+                PROXY_ONLY: "proxy_only";
+            };
 
             /**
              * An object which describes TLS minimum and maximum versions.
@@ -8362,6 +8960,8 @@ export namespace browser {
                 /**
                  * Whether to create all cookies as nonPersistent (i.e., session) cookies.
                  *
+                 * Defaults to `false`.
+                 *
                  * @deprecated This property has no effect anymore and its value is always `<code>`false`<code>`.
                  */
                 nonPersistentCookies?: boolean | undefined;
@@ -8374,6 +8974,16 @@ export namespace browser {
              * @platform desktop, mobile
              */
             export type TrackingProtectionModeOption = "always" | "never" | "private_browsing";
+            /**
+             * The mode for tracking protection.
+             *
+             * @platform desktop, mobile
+             */
+            export const TrackingProtectionModeOption: {
+                ALWAYS: "always";
+                NEVER: "never";
+                PRIVATE_BROWSING: "private_browsing";
+            };
 
             /**
              * Allow users to specify the default settings for allowing cookies, as well as whether all cookies should be created as non-persistent cookies. This setting's value is of type CookieConfig.
@@ -8522,6 +9132,8 @@ export namespace browser {
         /**
          * Fired when proxy data is needed for a request.
          *
+         * @param filter A set of filters that restricts the events that will be sent to this listener.
+         * @param extraInfoSpec Array of extra information that should be passed to the listener function.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/proxy.json
          * @platform desktop, mobile
          */
@@ -8618,10 +9230,20 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type DomainEncoding = "punycode" | "display";
+        /**
+         * The available encoding types for the returned domain.
+         *
+         * @platform desktop, mobile
+         */
+        export const DomainEncoding: {
+            PUNYCODE: "punycode";
+            DISPLAY: "display";
+        };
 
         /**
          * Gets the eTLD+1 of a given hostname, or a variant such as IP address if the options allow.
          *
+         * @param options Defaults to `{}`.
          * @returns The eTLD+1 (or a variant such as IP address if allowed) of the given hostname, or null if no such eTLD+1 (variant) exists.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/public_suffix.json
          * @platform desktop, mobile
@@ -8631,18 +9253,26 @@ export namespace browser {
             export type Options = {
                 /**
                  * If true, and the input hostname is an IP address, then this is returned as-is.
+                 *
+                 * Defaults to `false`.
                  */
                 allowIPAddress?: boolean | undefined;
                 /**
                  * If true, and the input hostname is itself a known eTLD (without a preceding label) then this is returned as-is.
+                 *
+                 * Defaults to `false`.
                  */
                 allowPlainSuffix?: boolean | undefined;
                 /**
                  * If true, and the input hostname lacks a known eTLD, and is neither itself a known eTLD nor an IP address, then the returned domain consists of the penultimate two domain labels of the input.
+                 *
+                 * Defaults to `false`.
                  */
                 allowUnknownSuffix?: boolean | undefined;
                 /**
                  * Determines how the returned domain should be encoded.
+                 *
+                 * Defaults to `"punycode"`.
                  */
                 encoding?: DomainEncoding | undefined;
             };
@@ -8728,6 +9358,19 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type ContextType = "BACKGROUND" | "POPUP" | "SIDE_PANEL" | "TAB";
+        /**
+         * The type of extension view.
+         *
+         * Not available in content scripts or devtools pages.
+         *
+         * @platform desktop, mobile
+         */
+        export const ContextType: {
+            BACKGROUND: "BACKGROUND";
+            POPUP: "POPUP";
+            SIDE_PANEL: "SIDE_PANEL";
+            TAB: "TAB";
+        };
 
         /**
          * A context hosting extension content
@@ -8802,7 +9445,7 @@ export namespace browser {
              *
              * @deprecated Firefox does not support this property and rejects an object that includes it.
              */
-            readonly tlsChannelId?: string | undefined;
+            tlsChannelId?: string | undefined;
             /**
              * The URL of the page or frame that opened the connection. If the sender is in an iframe, it will be iframe's URL not the URL of the page which hosts it.
              */
@@ -8824,6 +9467,16 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type OnInstalledReason = "install" | "update" | "browser_update";
+        /**
+         * The reason that this event is being dispatched.
+         *
+         * @platform desktop, mobile
+         */
+        export const OnInstalledReason: {
+            INSTALL: "install";
+            UPDATE: "update";
+            BROWSER_UPDATE: "browser_update";
+        };
 
         /**
          * The performance warning event category, e.g. 'content_script'.
@@ -8832,6 +9485,16 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type OnPerformanceWarningCategory = "content_script";
+        /**
+         * The performance warning event category, e.g. 'content_script'.
+         *
+         * Not available in content scripts or devtools pages.
+         *
+         * @platform desktop, mobile
+         */
+        export const OnPerformanceWarningCategory: {
+            CONTENT_SCRIPT: "content_script";
+        };
 
         /**
          * The performance warning event severity. Will be 'high' for serious and user-visible issues.
@@ -8840,6 +9503,18 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type OnPerformanceWarningSeverity = "low" | "medium" | "high";
+        /**
+         * The performance warning event severity. Will be 'high' for serious and user-visible issues.
+         *
+         * Not available in content scripts or devtools pages.
+         *
+         * @platform desktop, mobile
+         */
+        export const OnPerformanceWarningSeverity: {
+            LOW: "low";
+            MEDIUM: "medium";
+            HIGH: "high";
+        };
 
         /**
          * The reason that the event is being dispatched. 'app_update' is used when the restart is needed because the application is updated to a newer version. 'os_update' is used when the restart is needed because the browser/OS is updated to a newer version. 'periodic' is used when the system runs for more than the permitted uptime set in the enterprise policy.
@@ -8848,6 +9523,16 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type OnRestartRequiredReason = "app_update" | "os_update" | "periodic";
+        /**
+         * The reason that the event is being dispatched. 'app_update' is used when the restart is needed because the application is updated to a newer version. 'os_update' is used when the restart is needed because the browser/OS is updated to a newer version. 'periodic' is used when the system runs for more than the permitted uptime set in the enterprise policy.
+         *
+         * @platform desktop, mobile
+         */
+        export const OnRestartRequiredReason: {
+            APP_UPDATE: "app_update";
+            OS_UPDATE: "os_update";
+            PERIODIC: "periodic";
+        };
 
         /**
          * The machine's processor architecture.
@@ -8856,6 +9541,22 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type PlatformArch = "arm" | "arm64" | "ppc64" | "riscv64" | "s390x" | "sparc64" | "x86-32" | "x86-64" | "noarch";
+        /**
+         * The machine's processor architecture.
+         *
+         * @platform desktop, mobile
+         */
+        export const PlatformArch: {
+            ARM: "arm";
+            ARM64: "arm64";
+            PPC64: "ppc64";
+            RISCV64: "riscv64";
+            S390X: "s390x";
+            SPARC64: "sparc64";
+            "X86-32": "x86-32";
+            "X86-64": "x86-64";
+            NOARCH: "noarch";
+        };
 
         /**
          * An object containing information about the current platform.
@@ -8873,7 +9574,7 @@ export namespace browser {
              *
              * @deprecated Firefox does not support this property and rejects an object that includes it.
              */
-            readonly nacl_arch: (string & {});
+            nacl_arch: (string & {});
             /**
              * The operating system the browser is running on.
              */
@@ -8887,6 +9588,19 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type PlatformOs = "mac" | "win" | "android" | "cros" | "linux" | "openbsd";
+        /**
+         * The operating system the browser is running on.
+         *
+         * @platform desktop, mobile
+         */
+        export const PlatformOs: {
+            MAC: "mac";
+            WIN: "win";
+            ANDROID: "android";
+            CROS: "cros";
+            LINUX: "linux";
+            OPENBSD: "openbsd";
+        };
 
         /**
          * An object which allows two way communication with other pages.
@@ -8914,6 +9628,16 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type RequestUpdateCheckStatus = "throttled" | "no_update" | "update_available";
+        /**
+         * Result of the update check.
+         *
+         * @platform desktop, mobile
+         */
+        export const RequestUpdateCheckStatus: {
+            THROTTLED: "throttled";
+            NO_UPDATE: "no_update";
+            UPDATE_AVAILABLE: "update_available";
+        };
 
         /**
          * The ID of the extension/app.
@@ -8925,6 +9649,8 @@ export namespace browser {
         /**
          * This will be defined during an API method callback if there was an error
          *
+         * Firefox returns `null` when no value is pending.
+         *
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/runtime.json
          * @platform desktop, mobile
          */
@@ -8933,7 +9659,7 @@ export namespace browser {
              * Details about the error which occurred.
              */
             message?: string | undefined;
-        };
+        } | null;
 
         /**
          * Fired when an update for the browser is available, but isn't installed immediately because a browser restart is required.
@@ -9000,6 +9726,7 @@ export namespace browser {
          *
          * @param message The message sent by the calling script.
          * @param sendResponse Function to call (at most once) when you have a response. The argument should be any JSON-ifiable object. If you have more than one `onMessage` listener in the same document, then only one may send a response. This function becomes invalid when the event listener returns, unless you return true from the event listener to indicate you wish to send a response asynchronously (this will keep the message channel open to the other end until `sendResponse` is called).
+         * @returns Return true from the event listener if you wish to call `sendResponse` after the event listener returns.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/runtime.json
          * @platform desktop, mobile
          */
@@ -9012,6 +9739,7 @@ export namespace browser {
          *
          * @param message The message sent by the calling script.
          * @param sendResponse Function to call (at most once) when you have a response. The argument should be any JSON-ifiable object. If you have more than one `onMessage` listener in the same document, then only one may send a response. This function becomes invalid when the event listener returns, unless you return true from the event listener to indicate you wish to send a response asynchronously (this will keep the message channel open to the other end until `sendResponse` is called).
+         * @returns Return true from the event listener if you wish to call `sendResponse` after the event listener returns.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/runtime.json
          * @platform desktop, mobile
          */
@@ -9128,6 +9856,7 @@ export namespace browser {
          *
          * @param message The message sent by the calling script.
          * @param sendResponse Function to call (at most once) when you have a response. The argument should be any JSON-ifiable object. If you have more than one `onMessage` listener in the same document, then only one may send a response. This function becomes invalid when the event listener returns, unless you return true from the event listener to indicate you wish to send a response asynchronously (this will keep the message channel open to the other end until `sendResponse` is called).
+         * @returns Return true from the event listener if you wish to call `sendResponse` after the event listener returns.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/runtime.json
          * @permission userScripts
          * @platform desktop, mobile
@@ -9441,6 +10170,15 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type ExecutionWorld = "ISOLATED" | "MAIN";
+        /**
+         * The JavaScript world for a script to execute within. `ISOLATED` is the default execution environment of content scripts, `MAIN` is the web page's execution environment.
+         *
+         * @platform desktop, mobile
+         */
+        export const ExecutionWorld: {
+            ISOLATED: "ISOLATED";
+            MAIN: "MAIN";
+        };
 
         /**
          * Result of a script injection.
@@ -9749,6 +10487,16 @@ export namespace browser {
          * @platform desktop
          */
         export type Disposition = "CURRENT_TAB" | "NEW_TAB" | "NEW_WINDOW";
+        /**
+         * Location where search results should be displayed.
+         *
+         * @platform desktop
+         */
+        export const Disposition: {
+            CURRENT_TAB: "CURRENT_TAB";
+            NEW_TAB: "NEW_TAB";
+            NEW_WINDOW: "NEW_WINDOW";
+        };
 
         /**
          * An object encapsulating a search engine
@@ -9930,6 +10678,7 @@ export namespace browser {
         /**
          * Gets the list of recently closed tabs and/or windows.
          *
+         * @param filter Defaults to `{}`.
          * @returns The list of closed entries in reverse order that they were closed (the most recently closed tab or window will be at index `0`). The entries may contain either tabs or windows.
          * @see https://searchfox.org/mozilla-central/source/browser/components/extensions/schemas/sessions.json
          * @platform desktop
@@ -10225,8 +10974,8 @@ export namespace browser {
              * @returns Object with items in their key-value mappings.
              * @platform desktop, mobile
              */
-            get(keys?: string | string[] | Record<string, unknown> | null): globalThis.Promise<Record<string, any>>;
-            get(keys: string | string[] | Record<string, any> | null | undefined, callback: ((items: Record<string, any>) => void)): void;
+            get(keys?: string | string[] | /** Storage items to return in the callback, where the values are replaced with those from storage if they exist. */ Record<string, unknown> | null): globalThis.Promise<Record<string, any>>;
+            get(keys: string | string[] | /** Storage items to return in the callback, where the values are replaced with those from storage if they exist. */ Record<string, any> | null | undefined, callback: ((items: Record<string, any>) => void)): void;
             get(callback: ((items: Record<string, any>) => void)): void;
             /**
              * Gets the amount of space (in bytes) being used by one or more items.
@@ -10351,6 +11100,22 @@ export namespace browser {
          * @platform desktop
          */
         export type Color = "blue" | "cyan" | "grey" | "green" | "orange" | "pink" | "purple" | "red" | "yellow";
+        /**
+         * The group's color, using 'grey' spelling for compatibility with Chromium.
+         *
+         * @platform desktop
+         */
+        export const Color: {
+            BLUE: "blue";
+            CYAN: "cyan";
+            GREY: "grey";
+            GREEN: "green";
+            ORANGE: "orange";
+            PINK: "pink";
+            PURPLE: "purple";
+            RED: "red";
+            YELLOW: "yellow";
+        };
 
         /**
          * State of a tab group inside of an open window.
@@ -10524,6 +11289,25 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type MutedInfoReason = "user" | "capture" | "extension";
+        /**
+         * An event that caused a muted state change.
+         *
+         * @platform desktop, mobile
+         */
+        export const MutedInfoReason: {
+            /**
+             * A user input action has set/overridden the muted state.
+             */
+            USER: "user";
+            /**
+             * Tab capture started, forcing a muted state change.
+             */
+            CAPTURE: "capture";
+            /**
+             * An extension, identified by the extensionId field, set the muted state.
+             */
+            EXTENSION: "extension";
+        };
 
         /**
          * Defines the page settings to be used when saving a page as a pdf file.
@@ -10783,6 +11567,15 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type TabStatus = "loading" | "complete";
+        /**
+         * Whether the tabs have completed loading.
+         *
+         * @platform desktop, mobile
+         */
+        export const TabStatus: {
+            LOADING: "loading";
+            COMPLETE: "complete";
+        };
 
         /**
          * An object describing filters to apply to tabs.onUpdated events.
@@ -10811,6 +11604,28 @@ export namespace browser {
          * @platform desktop
          */
         export type UpdatePropertyName = "attention" | "audible" | "autoDiscardable" | "discarded" | "favIconUrl" | "groupId" | "hidden" | "isArticle" | "mutedInfo" | "pinned" | "sharingState" | "splitViewId" | "status" | "title" | "url";
+        /**
+         * Event names supported in onUpdated.
+         *
+         * @platform desktop
+         */
+        export const UpdatePropertyName: {
+            ATTENTION: "attention";
+            AUDIBLE: "audible";
+            AUTODISCARDABLE: "autoDiscardable";
+            DISCARDED: "discarded";
+            FAVICONURL: "favIconUrl";
+            GROUPID: "groupId";
+            HIDDEN: "hidden";
+            ISARTICLE: "isArticle";
+            MUTEDINFO: "mutedInfo";
+            PINNED: "pinned";
+            SHARINGSTATE: "sharingState";
+            SPLITVIEWID: "splitViewId";
+            STATUS: "status";
+            TITLE: "title";
+            URL: "url";
+        };
 
         /**
          * The type of window.
@@ -10819,6 +11634,18 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type WindowType = "normal" | "popup" | "panel" | "app" | "devtools";
+        /**
+         * The type of window.
+         *
+         * @platform desktop, mobile
+         */
+        export const WindowType: {
+            NORMAL: "normal";
+            POPUP: "popup";
+            PANEL: "panel";
+            APP: "app";
+            DEVTOOLS: "devtools";
+        };
 
         /**
          * Defines how zoom changes in a tab are handled and at what scope.
@@ -10848,6 +11675,25 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type ZoomSettingsMode = "automatic" | "manual" | "disabled";
+        /**
+         * Defines how zoom changes are handled, i.e. which entity is responsible for the actual scaling of the page; defaults to `automatic`.
+         *
+         * @platform desktop, mobile
+         */
+        export const ZoomSettingsMode: {
+            /**
+             * Zoom changes are handled automatically by the browser.
+             */
+            AUTOMATIC: "automatic";
+            /**
+             * Overrides the automatic handling of zoom changes. The `onZoomChange` event will still be dispatched, and it is the responsibility of the extension to listen for this event and manually scale the page. This mode does not support `per-origin` zooming, and will thus ignore the `scope` zoom setting and assume `per-tab`.
+             */
+            MANUAL: "manual";
+            /**
+             * Disables all zooming in the tab. The tab will revert to the default zoom level, and all attempted zoom changes will be ignored.
+             */
+            DISABLED: "disabled";
+        };
 
         /**
          * Defines whether zoom changes will persist for the page's origin, or only take effect in this tab; defaults to `per-origin` when in `automatic` mode, and `per-tab` otherwise.
@@ -10856,6 +11702,21 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type ZoomSettingsScope = "per-origin" | "per-tab";
+        /**
+         * Defines whether zoom changes will persist for the page's origin, or only take effect in this tab; defaults to `per-origin` when in `automatic` mode, and `per-tab` otherwise.
+         *
+         * @platform desktop, mobile
+         */
+        export const ZoomSettingsScope: {
+            /**
+             * Zoom changes will persist in the zoomed page's origin, i.e. all other tabs navigated to that same origin will be zoomed as well. Moreover, `per-origin` zoom changes are saved with the origin, meaning that when navigating to other pages in the same origin, they will all be zoomed to the same zoom factor. The `per-origin` scope is only available in the `automatic` mode.
+             */
+            "PER-ORIGIN": "per-origin";
+            /**
+             * Zoom changes only take effect in this tab, and zoom changes in other tabs will not affect the zooming of this tab. Also, `per-tab` zoom changes are reset on navigation; navigating a tab will always load pages with their `per-origin` zoom factors.
+             */
+            "PER-TAB": "per-tab";
+        };
 
         /**
          * A value for use with splitViewId to represent that the tab is not a member of a Split View.
@@ -11001,6 +11862,7 @@ export namespace browser {
          *
          * @param changeInfo Lists the changes to the state of the tab that was updated.
          * @param tab Gives the state of the tab that was updated.
+         * @param filter A set of filters that restricts the events that will be sent to this listener.
          * @see https://searchfox.org/mozilla-central/source/browser/components/extensions/schemas/tabs.json
          * @platform desktop, mobile
          */
@@ -11387,6 +12249,8 @@ export namespace browser {
             export type HighlightInfo = {
                 /**
                  * If true, the {@link browser.windows.Window} returned will have a `tabs` property that contains a list of the {@link browser.tabs.Tab} objects. The `Tab` objects only contain the `url`, `title` and `favIconUrl` properties if the extension's manifest file includes the `"tabs"` permission. If false, the {@link browser.windows.Window} won't have the `tabs` property.
+                 *
+                 * Defaults to `true`.
                  */
                 populate?: boolean | undefined;
                 /**
@@ -11443,7 +12307,7 @@ export namespace browser {
          * Removes an array of tabs from their lines of succession and prepends or appends them in a chain to another tab.
          *
          * @param tabIds An array of tab IDs to move in the line of succession. For each tab in the array, the tab's current predecessors will have their successor set to the tab's current successor, and each tab will then be set to be the successor of the previous tab in the array. Any tabs not in the same window as the tab indicated by the second argument (or the first tab in the array, if no second argument) will be skipped.
-         * @param tabId The ID of a tab to set as the successor of the last tab in the array, or {@link browser.tabs.TAB_ID_NONE} to leave the last tab without a successor. If options.append is true, then this tab is made the predecessor of the first tab in the array instead.
+         * @param tabId The ID of a tab to set as the successor of the last tab in the array, or {@link browser.tabs.TAB_ID_NONE} to leave the last tab without a successor. If options.append is true, then this tab is made the predecessor of the first tab in the array instead. Defaults to `-1`.
          * @see https://searchfox.org/mozilla-central/source/browser/components/extensions/schemas/tabs.json
          * @platform desktop
          */
@@ -11810,6 +12674,8 @@ export namespace browser {
         export interface EventData {
             /**
              * True if this event entry is expired. This allows recording it without error, but it will be discarded.
+             *
+             * Defaults to `false`.
              */
             expired?: boolean | undefined;
             /**
@@ -11826,6 +12692,8 @@ export namespace browser {
             objects: string[];
             /**
              * True if this data should be recorded on release.
+             *
+             * Defaults to `false`.
              */
             record_on_release?: boolean | undefined;
         }
@@ -11839,15 +12707,21 @@ export namespace browser {
         export interface ScalarData {
             /**
              * True if this scalar entry is expired. This allows recording it without error, but it will be discarded.
+             *
+             * Defaults to `false`.
              */
             expired?: boolean | undefined;
             /**
              * True if this is a keyed scalar.
+             *
+             * Defaults to `false`.
              */
             keyed?: boolean | undefined;
             kind: ScalarType;
             /**
              * True if this data should be recorded on release.
+             *
+             * Defaults to `false`.
              */
             record_on_release?: boolean | undefined;
         }
@@ -11859,6 +12733,16 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type ScalarType = "count" | "string" | "boolean";
+        /**
+         * Type of scalar: 'count' for numeric values, 'string' for string values, 'boolean' for boolean values. Maps to `nsITelemetry.SCALAR_TYPE_*`.
+         *
+         * @platform desktop, mobile
+         */
+        export const ScalarType: {
+            COUNT: "count";
+            STRING: "string";
+            BOOLEAN: "boolean";
+        };
 
         /**
          * Checks if Telemetry upload is enabled.
@@ -12001,18 +12885,26 @@ export namespace browser {
             export type Options = {
                 /**
                  * True if the ping should contain the client id.
+                 *
+                 * Defaults to `false`.
                  */
                 addClientId?: boolean | undefined;
                 /**
                  * True if the ping should contain the environment data.
+                 *
+                 * Defaults to `false`.
                  */
                 addEnvironment?: boolean | undefined;
                 /**
                  * Set to override the environment data.
+                 *
+                 * Defaults to `false`.
                  */
                 overrideEnvironment?: Record<string, any> | undefined;
                 /**
                  * If true, send the ping using the PingSender.
+                 *
+                 * Defaults to `false`.
                  */
                 usePingSender?: boolean | undefined;
             };
@@ -12113,6 +13005,8 @@ export namespace browser {
             title?: string | undefined;
             /**
              * The entry type, either `url` for a normal page link, or `search` for a search shortcut.
+             *
+             * Defaults to `"url"`.
              */
             type?: "url" | "search" | undefined;
             /**
@@ -12124,6 +13018,7 @@ export namespace browser {
         /**
          * Gets a list of top sites.
          *
+         * @param options Defaults to `{}`.
          * @see https://searchfox.org/mozilla-central/source/browser/components/extensions/schemas/top_sites.json
          * @platform desktop
          */
@@ -12134,18 +13029,26 @@ export namespace browser {
             export type Options = {
                 /**
                  * Include sites that the user has blocked from appearing on the Firefox new tab.
+                 *
+                 * Defaults to `false`.
                  */
                 includeBlocked?: boolean | undefined;
                 /**
                  * Include sites favicon if available.
+                 *
+                 * Defaults to `false`.
                  */
                 includeFavicon?: boolean | undefined;
                 /**
                  * Include sites that the user has pinned on the Firefox new tab.
+                 *
+                 * Defaults to `false`.
                  */
                 includePinned?: boolean | undefined;
                 /**
                  * Include search shortcuts appearing on the Firefox new tab.
+                 *
+                 * Defaults to `false`.
                  */
                 includeSearchShortcuts?: boolean | undefined;
                 /**
@@ -12154,13 +13057,19 @@ export namespace browser {
                 limit?: number | undefined;
                 /**
                  * Return the sites that exactly appear on the user's new-tab page. When true, all other options are ignored except limit and includeFavicon. If the user disabled newtab Top Sites, the newtab parameter will be ignored.
+                 *
+                 * Defaults to `false`.
                  */
                 newtab?: boolean | undefined;
                 /**
                  * Limit the result to a single top site link per domain
+                 *
+                 * Defaults to `true`.
                  */
                 onePerDomain?: boolean | undefined;
                 /**
+                 * Defaults to `[]`.
+                 *
                  * @deprecated Please use the other options to tune the results received from topSites.
                  */
                 providers?: string[] | undefined;
@@ -12259,6 +13168,22 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type LevelOfControl = "not_controllable" | "controlled_by_other_extensions" | "controllable_by_this_extension" | "controlled_by_this_extension";
+        /**
+         * One of
+         *
+         * - `not_controllable`: cannot be controlled by any extension
+         * - `controlled_by_other_extensions`: controlled by extensions with higher precedence
+         * - `controllable_by_this_extension`: can be controlled by this extension
+         * - `controlled_by_this_extension`: controlled by this extension
+         *
+         * @platform desktop, mobile
+         */
+        export const LevelOfControl: {
+            NOT_CONTROLLABLE: "not_controllable";
+            CONTROLLED_BY_OTHER_EXTENSIONS: "controlled_by_other_extensions";
+            CONTROLLABLE_BY_THIS_EXTENSION: "controllable_by_this_extension";
+            CONTROLLED_BY_THIS_EXTENSION: "controlled_by_this_extension";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/types.json
@@ -12389,6 +13314,24 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type SettingScope = "regular" | "regular_only" | "incognito_persistent" | "incognito_session_only";
+        /**
+         * The scope of the Setting. One of
+         *
+         * - `regular`: setting for the regular profile (which is inherited by the incognito profile if not overridden elsewhere),
+         * - `regular_only`: setting for the regular profile only (not inherited by the incognito profile),
+         * - `incognito_persistent`: setting for the incognito profile that survives browser restarts (overrides regular preferences),
+         * - `incognito_session_only`: setting for the incognito profile that can only be set during an incognito session and is deleted when the incognito session ends (overrides regular and incognito_persistent preferences).
+         *
+         * Only `regular` is supported by Firefox at this time.
+         *
+         * @platform desktop, mobile
+         */
+        export const SettingScope: {
+            REGULAR: "regular";
+            REGULAR_ONLY: "regular_only";
+            INCOGNITO_PERSISTENT: "incognito_persistent";
+            INCOGNITO_SESSION_ONLY: "incognito_session_only";
+        };
 
     }
 
@@ -12408,6 +13351,18 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type ExecutionWorld = "MAIN" | "USER_SCRIPT";
+        /**
+         * The JavaScript world for a script to execute within. `USER_SCRIPT` is the default execution environment of user scripts, `MAIN` is the web page's execution environment.
+         *
+         * Requires manifest_version 3 or later.
+         * Not available in content scripts or devtools pages.
+         *
+         * @platform desktop, mobile
+         */
+        export const ExecutionWorld: {
+            MAIN: "MAIN";
+            USER_SCRIPT: "USER_SCRIPT";
+        };
 
         /**
          * Result of a user script injection.
@@ -12645,10 +13600,14 @@ export namespace browser {
             export type UserScript = {
                 /**
                  * Exports all the properties of a given plain object as userScript globals
+                 *
+                 * @param sourceObject A plain object whose properties are exported as userScript globals
                  */
                 defineGlobals: ((sourceObject: Record<string, unknown>) => void);
                 /**
                  * Convert a given value to make it accessible to the userScript code
+                 *
+                 * @param value A value to convert into an object accessible to the userScript
                  */
                 export: ((value: any) => any);
                 /**
@@ -12757,7 +13716,7 @@ export namespace browser {
          * Requires manifest_version 3 or later.
          * Not available in content scripts or devtools pages.
          *
-         * @param worldId The ID of the USER_SCRIPT world to reset. If omitted or empty, resets the default world's configuration.
+         * @param worldId The ID of the USER_SCRIPT world to reset. If omitted or empty, resets the default world's configuration. Defaults to `""`.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/user_scripts.json
          * @platform desktop, mobile
          */
@@ -12843,6 +13802,15 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type TransitionQualifier = "client_redirect" | "server_redirect" | "forward_back" | "from_address_bar";
+        /**
+         * @platform desktop, mobile
+         */
+        export const TransitionQualifier: {
+            CLIENT_REDIRECT: "client_redirect";
+            SERVER_REDIRECT: "server_redirect";
+            FORWARD_BACK: "forward_back";
+            FROM_ADDRESS_BAR: "from_address_bar";
+        };
 
         /**
          * Cause of the navigation. The same transition types as defined in the history API are used. These are the same transition types as defined in the history API except with `"start_page"` in place of `"auto_toplevel"` (for backwards compatibility).
@@ -12851,10 +13819,29 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type TransitionType = "link" | "typed" | "auto_bookmark" | "auto_subframe" | "manual_subframe" | "generated" | "start_page" | "form_submit" | "reload" | "keyword" | "keyword_generated";
+        /**
+         * Cause of the navigation. The same transition types as defined in the history API are used. These are the same transition types as defined in the history API except with `"start_page"` in place of `"auto_toplevel"` (for backwards compatibility).
+         *
+         * @platform desktop, mobile
+         */
+        export const TransitionType: {
+            LINK: "link";
+            TYPED: "typed";
+            AUTO_BOOKMARK: "auto_bookmark";
+            AUTO_SUBFRAME: "auto_subframe";
+            MANUAL_SUBFRAME: "manual_subframe";
+            GENERATED: "generated";
+            START_PAGE: "start_page";
+            FORM_SUBMIT: "form_submit";
+            RELOAD: "reload";
+            KEYWORD: "keyword";
+            KEYWORD_GENERATED: "keyword_generated";
+        };
 
         /**
          * Fired when a navigation is about to occur.
          *
+         * @param filters Conditions that the URL being navigated to must satisfy. The 'schemes' and 'ports' fields of UrlFilter are ignored for this event.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_navigation.json
          * @platform desktop, mobile
          */
@@ -12894,6 +13881,7 @@ export namespace browser {
         /**
          * Fired when a navigation is committed. The document (and the resources it refers to, such as images and subframes) might still be downloading, but at least part of the document has been received from the server and the browser has decided to switch to the new document.
          *
+         * @param filters Conditions that the URL being navigated to must satisfy. The 'schemes' and 'ports' fields of UrlFilter are ignored for this event.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_navigation.json
          * @platform desktop, mobile
          */
@@ -12941,6 +13929,7 @@ export namespace browser {
         /**
          * Fired when a document, including the resources it refers to, is completely loaded and initialized.
          *
+         * @param filters Conditions that the URL being navigated to must satisfy. The 'schemes' and 'ports' fields of UrlFilter are ignored for this event.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_navigation.json
          * @platform desktop, mobile
          */
@@ -12980,6 +13969,7 @@ export namespace browser {
         /**
          * Fired when a new window, or a new tab in an existing window, is created to host a navigation.
          *
+         * @param filters Conditions that the URL being navigated to must satisfy. The 'schemes' and 'ports' fields of UrlFilter are ignored for this event.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_navigation.json
          * @platform desktop, mobile
          */
@@ -13016,6 +14006,7 @@ export namespace browser {
         /**
          * Fired when the page's DOM is fully constructed, but the referenced resources may not finish loading.
          *
+         * @param filters Conditions that the URL being navigated to must satisfy. The 'schemes' and 'ports' fields of UrlFilter are ignored for this event.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_navigation.json
          * @platform desktop, mobile
          */
@@ -13055,6 +14046,7 @@ export namespace browser {
         /**
          * Fired when an error occurs and the navigation is aborted. This can happen if either a network error occurred, or the user aborted the navigation.
          *
+         * @param filters Conditions that the URL being navigated to must satisfy. The 'schemes' and 'ports' fields of UrlFilter are ignored for this event.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_navigation.json
          * @platform desktop, mobile
          */
@@ -13100,6 +14092,7 @@ export namespace browser {
         /**
          * Fired when the frame's history was updated to a new URL. All future events for that frame will use the updated URL.
          *
+         * @param filters Conditions that the URL being navigated to must satisfy. The 'schemes' and 'ports' fields of UrlFilter are ignored for this event.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_navigation.json
          * @platform desktop, mobile
          */
@@ -13147,6 +14140,7 @@ export namespace browser {
         /**
          * Fired when the reference fragment of a frame was updated. All future events for that frame will use the updated URL.
          *
+         * @param filters Conditions that the URL being navigated to must satisfy. The 'schemes' and 'ports' fields of UrlFilter are ignored for this event.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_navigation.json
          * @platform desktop, mobile
          */
@@ -13454,6 +14448,15 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type CertificateTransparencyStatus = "not_applicable" | "policy_compliant" | "policy_not_enough_scts" | "policy_not_diverse_scts";
+        /**
+         * @platform desktop, mobile
+         */
+        export const CertificateTransparencyStatus: {
+            NOT_APPLICABLE: "not_applicable";
+            POLICY_COMPLIANT: "policy_compliant";
+            POLICY_NOT_ENOUGH_SCTS: "policy_not_enough_scts";
+            POLICY_NOT_DIVERSE_SCTS: "policy_not_diverse_scts";
+        };
 
         /**
          * An array of HTTP headers. Each header is represented as a dictionary containing the keys `name` and either `value` or `binaryValue`.
@@ -13481,48 +14484,101 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type OnAuthRequiredOptions = "responseHeaders" | "blocking" | "asyncBlocking";
+        /**
+         * @platform desktop, mobile
+         */
+        export const OnAuthRequiredOptions: {
+            RESPONSEHEADERS: "responseHeaders";
+            BLOCKING: "blocking";
+            ASYNCBLOCKING: "asyncBlocking";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_request.json
          * @platform desktop, mobile
          */
         export type OnBeforeRedirectOptions = "responseHeaders";
+        /**
+         * @platform desktop, mobile
+         */
+        export const OnBeforeRedirectOptions: {
+            RESPONSEHEADERS: "responseHeaders";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_request.json
          * @platform desktop, mobile
          */
         export type OnBeforeRequestOptions = "blocking" | "requestBody";
+        /**
+         * @platform desktop, mobile
+         */
+        export const OnBeforeRequestOptions: {
+            BLOCKING: "blocking";
+            REQUESTBODY: "requestBody";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_request.json
          * @platform desktop, mobile
          */
         export type OnBeforeSendHeadersOptions = "requestHeaders" | "blocking";
+        /**
+         * @platform desktop, mobile
+         */
+        export const OnBeforeSendHeadersOptions: {
+            REQUESTHEADERS: "requestHeaders";
+            BLOCKING: "blocking";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_request.json
          * @platform desktop, mobile
          */
         export type OnCompletedOptions = "responseHeaders";
+        /**
+         * @platform desktop, mobile
+         */
+        export const OnCompletedOptions: {
+            RESPONSEHEADERS: "responseHeaders";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_request.json
          * @platform desktop, mobile
          */
         export type OnHeadersReceivedOptions = "blocking" | "responseHeaders";
+        /**
+         * @platform desktop, mobile
+         */
+        export const OnHeadersReceivedOptions: {
+            BLOCKING: "blocking";
+            RESPONSEHEADERS: "responseHeaders";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_request.json
          * @platform desktop, mobile
          */
         export type OnResponseStartedOptions = "responseHeaders";
+        /**
+         * @platform desktop, mobile
+         */
+        export const OnResponseStartedOptions: {
+            RESPONSEHEADERS: "responseHeaders";
+        };
 
         /**
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_request.json
          * @platform desktop, mobile
          */
         export type OnSendHeadersOptions = "requestHeaders";
+        /**
+         * @platform desktop, mobile
+         */
+        export const OnSendHeadersOptions: {
+            REQUESTHEADERS: "requestHeaders";
+        };
 
         /**
          * An object describing filters to apply to webRequest events.
@@ -13552,6 +14608,31 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type ResourceType = "main_frame" | "sub_frame" | "stylesheet" | "script" | "image" | "object" | "xmlhttprequest" | "xslt" | "ping" | "beacon" | "xml_dtd" | "font" | "media" | "websocket" | "csp_report" | "imageset" | "web_manifest" | "speculative" | "json" | "other";
+        /**
+         * @platform desktop, mobile
+         */
+        export const ResourceType: {
+            MAIN_FRAME: "main_frame";
+            SUB_FRAME: "sub_frame";
+            STYLESHEET: "stylesheet";
+            SCRIPT: "script";
+            IMAGE: "image";
+            OBJECT: "object";
+            XMLHTTPREQUEST: "xmlhttprequest";
+            XSLT: "xslt";
+            PING: "ping";
+            BEACON: "beacon";
+            XML_DTD: "xml_dtd";
+            FONT: "font";
+            MEDIA: "media";
+            WEBSOCKET: "websocket";
+            CSP_REPORT: "csp_report";
+            IMAGESET: "imageset";
+            WEB_MANIFEST: "web_manifest";
+            SPECULATIVE: "speculative";
+            JSON: "json";
+            OTHER: "other";
+        };
 
         /**
          * Contains the security properties of the request (ie. SSL/TLS information).
@@ -13681,6 +14762,12 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type TransportWeaknessReasons = "cipher";
+        /**
+         * @platform desktop, mobile
+         */
+        export const TransportWeaknessReasons: {
+            CIPHER: "cipher";
+        };
 
         /**
          * Contains data uploaded in a URL request.
@@ -13721,6 +14808,29 @@ export namespace browser {
          * @platform desktop, mobile
          */
         export type UrlClassificationFlags = "fingerprinting" | "fingerprinting_content" | "cryptomining" | "cryptomining_content" | "emailtracking" | "emailtracking_content" | "tracking" | "tracking_ad" | "tracking_analytics" | "tracking_social" | "tracking_content" | "any_basic_tracking" | "any_strict_tracking" | "any_social_tracking" | "consentmanager" | "antifraud";
+        /**
+         * Tracking flags that match our internal tracking classification
+         *
+         * @platform desktop, mobile
+         */
+        export const UrlClassificationFlags: {
+            FINGERPRINTING: "fingerprinting";
+            FINGERPRINTING_CONTENT: "fingerprinting_content";
+            CRYPTOMINING: "cryptomining";
+            CRYPTOMINING_CONTENT: "cryptomining_content";
+            EMAILTRACKING: "emailtracking";
+            EMAILTRACKING_CONTENT: "emailtracking_content";
+            TRACKING: "tracking";
+            TRACKING_AD: "tracking_ad";
+            TRACKING_ANALYTICS: "tracking_analytics";
+            TRACKING_SOCIAL: "tracking_social";
+            TRACKING_CONTENT: "tracking_content";
+            ANY_BASIC_TRACKING: "any_basic_tracking";
+            ANY_STRICT_TRACKING: "any_strict_tracking";
+            ANY_SOCIAL_TRACKING: "any_social_tracking";
+            CONSENTMANAGER: "consentmanager";
+            ANTIFRAUD: "antifraud";
+        };
 
         /**
          * If the request has been classified this is an array of {@link browser.webRequest.UrlClassificationFlags}.
@@ -13741,10 +14851,13 @@ export namespace browser {
         /**
          * Fired when an authentication failure is received. The listener has three options: it can provide authentication credentials, it can cancel the request and display the error page, or it can take no action on the challenge. If bad user credentials are provided, this may be called multiple times for the same request.
          *
+         * @param filter A set of filters that restricts the events that will be sent to this listener.
+         * @param extraInfoSpec Array of extra information that should be passed to the listener function.
+         * @returns If "blocking" is specified in the "extraInfoSpec" parameter, the event listener should return an object of this type.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_request.json
          * @platform desktop, mobile
          */
-        export const onAuthRequired: Omit<WebExtensionEvent<(details: onAuthRequired.Details, asyncCallback?: ((response: BlockingResponse) => void)) => browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void>, "addListener"> & { addListener(callback: (details: onAuthRequired.Details, asyncCallback?: ((response: BlockingResponse) => void)) => browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void, filter: RequestFilter, extraInfoSpec?: OnAuthRequiredOptions[] | null): void };
+        export const onAuthRequired: Omit<WebExtensionEvent<(details: onAuthRequired.Details, asyncCallback?: ((response: BlockingResponse) => void)) => BlockingResponse | Promise<BlockingResponse | void> | void>, "addListener"> & { addListener(callback: (details: onAuthRequired.Details, asyncCallback?: ((response: BlockingResponse) => void)) => BlockingResponse | Promise<BlockingResponse | void> | void, filter: RequestFilter, extraInfoSpec?: OnAuthRequiredOptions[] | null): void };
         export namespace onAuthRequired {
             export type Details = {
                 /**
@@ -13845,6 +14958,8 @@ export namespace browser {
         /**
          * Fired when a server-initiated redirect is about to occur.
          *
+         * @param filter A set of filters that restricts the events that will be sent to this listener.
+         * @param extraInfoSpec Array of extra information that should be passed to the listener function.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_request.json
          * @platform desktop, mobile
          */
@@ -13942,10 +15057,13 @@ export namespace browser {
         /**
          * Fired when a request is about to occur.
          *
+         * @param filter A set of filters that restricts the events that will be sent to this listener.
+         * @param extraInfoSpec Array of extra information that should be passed to the listener function.
+         * @returns If "blocking" is specified in the "extraInfoSpec" parameter, the event listener should return an object of this type.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_request.json
          * @platform desktop, mobile
          */
-        export const onBeforeRequest: Omit<WebExtensionEvent<(details: onBeforeRequest.Details) => browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void>, "addListener"> & { addListener(callback: (details: onBeforeRequest.Details) => browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void, filter: RequestFilter, extraInfoSpec?: OnBeforeRequestOptions[] | null): void };
+        export const onBeforeRequest: Omit<WebExtensionEvent<(details: onBeforeRequest.Details) => BlockingResponse | Promise<BlockingResponse | void> | void>, "addListener"> & { addListener(callback: (details: onBeforeRequest.Details) => BlockingResponse | Promise<BlockingResponse | void> | void, filter: RequestFilter, extraInfoSpec?: OnBeforeRequestOptions[] | null): void };
         export namespace onBeforeRequest {
             export type Details = {
                 /**
@@ -14032,10 +15150,13 @@ export namespace browser {
         /**
          * Fired before sending an HTTP request, once the request headers are available. This may occur after a TCP connection is made to the server, but before any HTTP data is sent.
          *
+         * @param filter A set of filters that restricts the events that will be sent to this listener.
+         * @param extraInfoSpec Array of extra information that should be passed to the listener function.
+         * @returns If "blocking" is specified in the "extraInfoSpec" parameter, the event listener should return an object of this type.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_request.json
          * @platform desktop, mobile
          */
-        export const onBeforeSendHeaders: Omit<WebExtensionEvent<(details: onBeforeSendHeaders.Details) => browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void>, "addListener"> & { addListener(callback: (details: onBeforeSendHeaders.Details) => browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void, filter: RequestFilter, extraInfoSpec?: OnBeforeSendHeadersOptions[] | null): void };
+        export const onBeforeSendHeaders: Omit<WebExtensionEvent<(details: onBeforeSendHeaders.Details) => BlockingResponse | Promise<BlockingResponse | void> | void>, "addListener"> & { addListener(callback: (details: onBeforeSendHeaders.Details) => BlockingResponse | Promise<BlockingResponse | void> | void, filter: RequestFilter, extraInfoSpec?: OnBeforeSendHeadersOptions[] | null): void };
         export namespace onBeforeSendHeaders {
             export type Details = {
                 /**
@@ -14109,6 +15230,8 @@ export namespace browser {
         /**
          * Fired when a request is completed.
          *
+         * @param filter A set of filters that restricts the events that will be sent to this listener.
+         * @param extraInfoSpec Array of extra information that should be passed to the listener function.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_request.json
          * @platform desktop, mobile
          */
@@ -14210,6 +15333,7 @@ export namespace browser {
         /**
          * Fired when an error occurs.
          *
+         * @param filter A set of filters that restricts the events that will be sent to this listener.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_request.json
          * @platform desktop, mobile
          */
@@ -14295,10 +15419,13 @@ export namespace browser {
         /**
          * Fired when HTTP response headers of a request have been received.
          *
+         * @param filter A set of filters that restricts the events that will be sent to this listener.
+         * @param extraInfoSpec Array of extra information that should be passed to the listener function.
+         * @returns If "blocking" is specified in the "extraInfoSpec" parameter, the event listener should return an object of this type.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_request.json
          * @platform desktop, mobile
          */
-        export const onHeadersReceived: Omit<WebExtensionEvent<(details: onHeadersReceived.Details) => browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void>, "addListener"> & { addListener(callback: (details: onHeadersReceived.Details) => browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void, filter: RequestFilter, extraInfoSpec?: OnHeadersReceivedOptions[] | null): void };
+        export const onHeadersReceived: Omit<WebExtensionEvent<(details: onHeadersReceived.Details) => BlockingResponse | Promise<BlockingResponse | void> | void>, "addListener"> & { addListener(callback: (details: onHeadersReceived.Details) => BlockingResponse | Promise<BlockingResponse | void> | void, filter: RequestFilter, extraInfoSpec?: OnHeadersReceivedOptions[] | null): void };
         export namespace onHeadersReceived {
             export type Details = {
                 /**
@@ -14380,6 +15507,8 @@ export namespace browser {
         /**
          * Fired when the first byte of the response body is received. For HTTP requests, this means that the status line and response headers are available.
          *
+         * @param filter A set of filters that restricts the events that will be sent to this listener.
+         * @param extraInfoSpec Array of extra information that should be passed to the listener function.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_request.json
          * @platform desktop, mobile
          */
@@ -14473,6 +15602,8 @@ export namespace browser {
         /**
          * Fired just before a request is going to be sent to the server (modifications of previous onBeforeSendHeaders callbacks are visible by the time onSendHeaders is fired).
          *
+         * @param filter A set of filters that restricts the events that will be sent to this listener.
+         * @param extraInfoSpec Array of extra information that should be passed to the listener function.
          * @see https://searchfox.org/mozilla-central/source/toolkit/components/extensions/schemas/web_request.json
          * @platform desktop, mobile
          */
@@ -14602,6 +15733,17 @@ export namespace browser {
          * @platform desktop
          */
         export type CreateType = "normal" | "popup" | "panel" | "detached_panel";
+        /**
+         * Specifies what type of browser window to create. The 'panel' and 'detached_panel' types create a popup unless the '--enable-panels' flag is set.
+         *
+         * @platform desktop
+         */
+        export const CreateType: {
+            NORMAL: "normal";
+            POPUP: "popup";
+            PANEL: "panel";
+            DETACHED_PANEL: "detached_panel";
+        };
 
         /**
          * Specifies whether the {@link browser.windows.Window} returned should contain a list of the {@link browser.tabs.Tab} objects.
@@ -14688,6 +15830,18 @@ export namespace browser {
          * @platform desktop
          */
         export type WindowState = "normal" | "minimized" | "maximized" | "fullscreen" | "docked";
+        /**
+         * The state of this browser window. Under some circumstances a Window may not be assigned state property, for example when querying closed windows from the {@link browser.sessions} API.
+         *
+         * @platform desktop
+         */
+        export const WindowState: {
+            NORMAL: "normal";
+            MINIMIZED: "minimized";
+            MAXIMIZED: "maximized";
+            FULLSCREEN: "fullscreen";
+            DOCKED: "docked";
+        };
 
         /**
          * The type of browser window this is. Under some circumstances a Window may not be assigned type property, for example when querying closed windows from the {@link browser.sessions} API.
@@ -14696,6 +15850,18 @@ export namespace browser {
          * @platform desktop
          */
         export type WindowType = "normal" | "popup" | "panel" | "app" | "devtools";
+        /**
+         * The type of browser window this is. Under some circumstances a Window may not be assigned type property, for example when querying closed windows from the {@link browser.sessions} API.
+         *
+         * @platform desktop
+         */
+        export const WindowType: {
+            NORMAL: "normal";
+            POPUP: "popup";
+            PANEL: "panel";
+            APP: "app";
+            DEVTOOLS: "devtools";
+        };
 
         /**
          * The windowId value that represents the current window.
@@ -14739,14 +15905,19 @@ export namespace browser {
          */
         export const onRemoved: WebExtensionEvent<(windowId: number) => void>;
 
+        /** @deprecated `focused: false` is deprecated: Opening inactive windows is not supported. */
+        export function create(createData: create.CreateData & { focused: false }): globalThis.Promise<Window>;
         /**
          * Creates (opens) a new browser with any optional sizing, position or default URL provided.
          *
+         * @param createData Defaults to `{}`.
          * @returns Contains details about the created window.
          * @see https://searchfox.org/mozilla-central/source/browser/components/extensions/schemas/windows.json
          * @platform desktop
          */
         export function create(createData?: create.CreateData | null): globalThis.Promise<Window>;
+        /** @deprecated `focused: false` is deprecated: Opening inactive windows is not supported. */
+        export function create(createData: create.CreateData & { focused: false }, callback: ((window: Window) => void)): void;
         export function create(createData: create.CreateData | null | undefined, callback: ((window: Window) => void)): void;
         export function create(callback: ((window: Window) => void)): void;
         export namespace create {
@@ -14761,8 +15932,10 @@ export namespace browser {
                 cookieStoreId?: string | undefined;
                 /**
                  * If true, opens an active window. If false, opens an inactive window.
+                 *
+                 * `false` is deprecated: Opening inactive windows is not supported.
                  */
-                focused?: true | false | undefined;
+                focused?: true | /** @deprecated Opening inactive windows is not supported. */ false | undefined;
                 /**
                  * The height in pixels of the new window, including the frame. If not specified defaults to a natural height.
                  */
