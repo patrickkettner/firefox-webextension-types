@@ -75,7 +75,7 @@ function compile(tsc, { files, options = {}, types }) {
   }
 }
 
-function expectClean(tsc, spec, what) {
+function expectCleanOn(tsc, spec, what) {
   const res = compile(tsc, spec);
   assert.equal(res.status, 0, `${what} failed:\n${res.output}`);
 }
@@ -95,6 +95,8 @@ export async function positive() {
     await desktopBrowser.windows.getAll();
     await mobileBrowser.tabs.query({});
     await browserDefault.storage.local.get("theme");
+    // Schemas.sys.mjs treats an explicit undefined on an optional property as absent.
+    await browser.tabs.create({ url: undefined, active: undefined });
     chrome.tabs.query({ active: true }, () => {});
     // @ts-expect-error test is {} outside automation (ext-test.js) and is not emitted
     desktopBrowser.test.log("test namespace is not on the canonical entrypoints");
@@ -160,10 +162,19 @@ import * as unknown from "firefox-webextension-types/nonexistent";
 export { direct, unknown };
 `;
 
-for (const { label, tsc } of compilers) {
+// Every consumer case compiles once with the default strict options and once
+// with exactOptionalPropertyTypes, which many strictest presets turn on.
+const modes = [
+  { name: "", options: {} },
+  { name: ", exactOptionalPropertyTypes", options: { exactOptionalPropertyTypes: true } },
+];
+
+for (const { label, tsc } of compilers) for (const mode of modes) {
   // moduleResolution "bundler" arrived in TypeScript 5.0.
   const noBundler = Number(label.split(".")[0]) < 5 && "bundler resolution needs TypeScript 5";
-  describe(`ConsumerMatrix (tarball, TypeScript ${label})`, () => {
+  const expectClean = (compiler, spec, what) =>
+    expectCleanOn(compiler, { ...spec, options: { ...spec.options, ...mode.options } }, what + mode.name);
+  describe(`ConsumerMatrix (tarball, TypeScript ${label}${mode.name})`, () => {
     for (const res of ["node16", "nodenext"]) {
       it(`${res}: ESM (.mts) consumer resolves every module entrypoint`, () => {
         expectClean(
@@ -312,7 +323,7 @@ describe("ConsumerMatrix @types/chrome", { skip: !fs.existsSync(typesChromeDir) 
 
   it("the module entrypoints coexist with the real @types/chrome", () => {
     withTypesChrome();
-    expectClean(
+    expectCleanOn(
       repoTsc,
       {
         files: {

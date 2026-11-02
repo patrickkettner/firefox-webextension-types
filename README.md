@@ -141,7 +141,7 @@ npm run typecheck  # Validate declarations with tsc
 
 `npm test` measures hover text and deprecation strike-through through the TypeScript language service. The installed TypeScript 7 has no JavaScript API, so the first run installs TypeScript 5.9.3 into `node_modules/.cache/` and later runs reuse it.
 
-`npm test` also packs the package and compiles consumer code against the tarball on TypeScript 4.9.5 and 7.0.2, the ends of the supported range. Set `CONSUMER_TS_VERSIONS="4.9.5,5.9.3"` to run other versions as well as 7.0.2, or `CONSUMER_TS_VERSIONS=""` to run 7.0.2 only.
+`npm test` also packs the package and compiles consumer code against the tarball on TypeScript 4.9.5 and 7.0.2, the ends of the supported range, once with the default strict options and once with `exactOptionalPropertyTypes`. Set `CONSUMER_TS_VERSIONS="4.9.5,5.9.3"` to run other versions as well as 7.0.2, or `CONSUMER_TS_VERSIONS=""` to run 7.0.2 only.
 
 ## License
 
