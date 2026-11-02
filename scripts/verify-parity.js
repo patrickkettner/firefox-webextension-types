@@ -194,7 +194,7 @@ export function verifySoundnessAndFixedTypes() {
 
   if (
     !indexDts.includes(
-      "browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void"
+      "BlockingResponse | Promise<BlockingResponse | void> | void"
     )
   ) {
     errors.push("webRequest blocking listener return type incorrect");

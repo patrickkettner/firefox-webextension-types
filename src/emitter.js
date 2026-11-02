@@ -9,7 +9,7 @@ import { isAsyncFunction, resolveOverloads } from "./overload-resolver.js";
 import { codePointCompare, entryCodePointCompare } from "./comparator.js";
 import {
   ASYNC_RESULTS,
-  EVENT_LISTENER_RETURNS,
+  EVENT_LISTENER_PROMISES,
   EVENT_PARAMETERS,
   FUNCTION_OVERRIDES,
   NULL_RESULTS,
@@ -823,6 +823,27 @@ export class TypeScriptEmitter {
     return lines;
   }
 
+  // Schemas.sys.mjs Event.parseSchema skips an event's `returns` ("We ignore
+  // these properties for now"), so the schema is the only statement of what a
+  // listener hands back, and `optional` there means it may hand back nothing.
+  listenerReturns(ev, evKey, nsName, indent) {
+    if (!ev.returns) {
+      return "void";
+    }
+    const value = this.emitType(ev.returns, nsName, indent);
+    const optional = Boolean(ev.returns.optional);
+    const parts = [value];
+    if (evKey in EVENT_LISTENER_PROMISES) {
+      const resolved = EVENT_LISTENER_PROMISES[evKey] ?? value;
+      const open = resolved === "unknown" || resolved === "any";
+      parts.push(`Promise<${optional && !open ? `${resolved} | void` : resolved}>`);
+    }
+    if (optional) {
+      parts.push("void");
+    }
+    return parts.join(" | ");
+  }
+
   // Schemas.sys.mjs Event.getDescriptor: addListener(listener, ...extraParameters)
   // checks the extra arguments like function parameters, so an optional one
   // also takes null; removeListener and hasListener take the listener only.
@@ -842,10 +863,7 @@ export class TypeScriptEmitter {
       }
       return `${name}: ${this.emitValueType(p, nsName, indent)}`;
     });
-    let returns = EVENT_LISTENER_RETURNS[evKey];
-    if (!returns) {
-      returns = ev.returns ? `${this.emitType(ev.returns, nsName, indent)} | void` : "void";
-    }
+    const returns = this.listenerReturns(ev, evKey, nsName, indent);
     const listener = `(${signature.join(", ")}) => ${returns}`;
     const extras = ev.extraParameters || [];
     if (extras.length === 0) {

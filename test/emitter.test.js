@@ -156,11 +156,24 @@ describe("TypeScriptEmitter", () => {
     const lines = [];
     emitter._emitNamespaceBody(ns, lines, "        ", "webRequest");
     const fullText = lines.join("\n");
-    const blocking = "browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void";
+    const blocking = "BlockingResponse | Promise<BlockingResponse | void> | void";
     assert.ok(fullText.includes(`export const onBeforeRequest: Omit<WebExtensionEvent<(details: onBeforeRequest.Details) => ${blocking}>, "addListener"> & { addListener(callback: (details: onBeforeRequest.Details) => ${blocking}, filter: RequestFilter, extraInfoSpec?: OnBeforeRequestOptions[] | null): void };`));
     assert.ok(fullText.includes(`export const onErrorOccurred: Omit<WebExtensionEvent<(details: onErrorOccurred.Details) => void>, "addListener"> & { addListener(callback: (details: onErrorOccurred.Details) => void, filter: RequestFilter): void };`));
     assert.ok(fullText.includes("export namespace onBeforeRequest {\n            export type Details = {\n                url: string;\n            };\n        }"));
     assert.ok(!fullText.includes("WebExtensionWebRequestEvent"));
+  });
+
+  it("derives a listener return from the schema returns and optional", () => {
+    const ns = new LoadedNamespace("alarms");
+    ns.events.onOptional = { name: "onOptional", returns: { type: "boolean", optional: true } };
+    ns.events.onRequired = { name: "onRequired", returns: { type: "string" } };
+    ns.events.onNone = { name: "onNone" };
+    const lines = [];
+    emitter._emitNamespaceBody(ns, lines, "        ", "alarms");
+    const fullText = lines.join("\n");
+    assert.ok(fullText.includes("export const onOptional: WebExtensionEvent<() => boolean | void>;"));
+    assert.ok(fullText.includes("export const onRequired: WebExtensionEvent<() => string>;"));
+    assert.ok(fullText.includes("export const onNone: WebExtensionEvent<() => void>;"));
   });
 
   it("emits optional extraParameters and optional listener parameters", () => {

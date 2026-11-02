@@ -33,6 +33,8 @@ function extraParameters() {
 }
 
 function listenerReturns() {
+    browser.webRequest.onBeforeRequest.addListener(async () => {}, { urls: ["<all_urls>"] }, ["blocking"]);
+    browser.webRequest.onBeforeRequest.addListener(async () => ({ cancel: true }), { urls: ["<all_urls>"] }, ["blocking"]);
     browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse({ ok: true });
         return true;

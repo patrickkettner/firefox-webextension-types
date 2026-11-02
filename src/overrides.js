@@ -206,24 +206,24 @@ export const TYPE_OVERRIDES = {
   },
 };
 
-// Listener return types for events whose schema `returns` is only part of
-// the story.
-export const EVENT_LISTENER_RETURNS = {
+// Events whose listener may also return a Promise. The synchronous part of
+// the return type comes from the schema's `returns` and `optional`. The value
+// is what the Promise resolves with, or null when it resolves with the
+// schema's `returns` type.
+export const EVENT_LISTENER_PROMISES = {
   // toolkit/components/extensions/ExtensionChild.sys.mjs (MessageEvent.wrapResponse):
-  // only `true` or a Promise keeps the channel open; anything else is dropped.
-  "runtime.onMessage": "boolean | Promise<unknown> | void",
-  "runtime.onMessageExternal": "boolean | Promise<unknown> | void",
-  "runtime.onUserScriptMessage": "boolean | Promise<unknown> | void",
-  // toolkit/components/extensions/webrequest/WebRequest.sys.mjs awaits a
-  // thenable result from a blocking listener.
-  "webRequest.onAuthRequired":
-    "browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void",
-  "webRequest.onBeforeRequest":
-    "browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void",
-  "webRequest.onBeforeSendHeaders":
-    "browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void",
-  "webRequest.onHeadersReceived":
-    "browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void",
+  // only `true` or a Promise keeps the channel open, and a Promise resolves
+  // with the response, whatever it is.
+  "runtime.onMessage": "unknown",
+  "runtime.onMessageExternal": "unknown",
+  "runtime.onUserScriptMessage": "unknown",
+  // toolkit/components/extensions/webrequest/WebRequest.sys.mjs
+  // (applyChanges) awaits a thenable result from a blocking listener and
+  // skips a resolved value that is not an object.
+  "webRequest.onAuthRequired": null,
+  "webRequest.onBeforeRequest": null,
+  "webRequest.onBeforeSendHeaders": null,
+  "webRequest.onHeadersReceived": null,
 };
 
 // Event parameter types the schema leaves as a bare object or function.
