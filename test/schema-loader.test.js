@@ -6,6 +6,7 @@ import os from "node:os";
 import { parseJarMn } from "../src/jar-parser.js";
 import { loadRawSchemaJson, SchemaRegistry } from "../src/schema-loader.js";
 
+// Firefox: jar.mn in the toolkit, browser and mobile schema directories (#ifdef ANDROID decides the mobile list)
 describe("JarParser", () => {
   let tempDir;
   let jarPath;
@@ -69,6 +70,7 @@ content/extensions/schemas/mobile_only.json
   });
 });
 
+// Firefox: Schemas.sys.mjs (Namespace.addSchema, $extend, $import, unsupported), ext-test.js (the test namespace)
 describe("SchemaLoader", () => {
   let tempDir;
 

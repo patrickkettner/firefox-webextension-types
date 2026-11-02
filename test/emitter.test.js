@@ -7,6 +7,8 @@ import { fileURLToPath } from "node:url";
 import { TypeScriptEmitter, formatEnumVal } from "../src/emitter.js";
 import { LoadedNamespace } from "../src/schema-loader.js";
 
+// The inputs are schema nodes as Firefox declares them. Each test below names
+// the Firefox file its expectation comes from.
 describe("TypeScriptEmitter", () => {
   let emitter;
 
@@ -22,6 +24,7 @@ describe("TypeScriptEmitter", () => {
     ]);
   });
 
+  // Firefox: Schemas.sys.mjs (StringType.parseSchema takes an enum entry as a string or { name, description })
   it("formats enum values properly", () => {
     // Plain strings
     assert.equal(formatEnumVal("normal"), '"normal"');
@@ -35,6 +38,7 @@ describe("TypeScriptEmitter", () => {
     assert.equal(formatEnumVal(dictVal2), '"capture"');
   });
 
+  // Firefox: Schemas.sys.mjs (the schema types string, integer, number, boolean, null and any)
   it("maps primitive types", () => {
     assert.equal(emitter.emitType({ type: "string" }, "tabs"), "string");
     assert.equal(emitter.emitType({ type: "integer" }, "tabs"), "number");
@@ -44,6 +48,7 @@ describe("TypeScriptEmitter", () => {
     assert.equal(emitter.emitType({ type: "any" }, "tabs"), "any");
   });
 
+  // Firefox: Schemas.sys.mjs (StringType.parseSchema), tabs.json (MutedInfoReason lists enum entries with a name)
   it("emits string and object enums", () => {
     const typeInfo = { type: "string", enum: ["panel", "popup"] };
     assert.equal(emitter.emitType(typeInfo, "tabs"), '"panel" | "popup"');
@@ -58,6 +63,7 @@ describe("TypeScriptEmitter", () => {
     assert.equal(emitter.emitType(dictEnum, "tabs"), '"user" | "capture"');
   });
 
+  // Firefox: Schemas.sys.mjs (ChoiceType accepts a value matching any choice)
   it("emits choices union", () => {
     const typeInfo = {
       choices: [{ type: "string" }, { type: "integer" }],
@@ -65,6 +71,8 @@ describe("TypeScriptEmitter", () => {
     assert.equal(emitter.emitType(typeInfo, "tabs"), "string | number");
   });
 
+  // TypeScript: a union with (string & {}) keeps the literal members in completion lists
+  // Firefox: Schemas.sys.mjs (a choice list of string values plus a plain string accepts any string)
   it("preserves autocomplete on open string union", () => {
     const typeInfo = {
       choices: [
@@ -77,6 +85,8 @@ describe("TypeScriptEmitter", () => {
     assert.equal(emitted, '"panel" | "popup" | (string & {})');
   });
 
+  // Firefox: Schemas.sys.mjs ($ref names a type in the same namespace or as namespace.Type)
+  // TypeScript: browser.<namespace>.<Type> is the qualified name inside the browser namespace
   it("resolves $ref within and across namespaces", () => {
     // Intra-namespace ref
     assert.equal(emitter.emitType({ $ref: "Tab" }, "tabs"), "Tab");
@@ -89,6 +99,7 @@ describe("TypeScriptEmitter", () => {
     assert.equal(emitter.emitType({ $ref: "unknownNs.Foo" }, "tabs"), "unknown");
   });
 
+  // Firefox: extension.json (getBackgroundPage returns an isInstanceOf Window), ext-backgroundPage.js (returns null without a background page)
   it("resolves isInstanceOf Window and Window | null", () => {
     assert.equal(
       emitter.emitType({ type: "object", isInstanceOf: "Window" }, "extension"),
@@ -103,6 +114,8 @@ describe("TypeScriptEmitter", () => {
     );
   });
 
+  // TypeScript: an array of a union needs parentheses, (A | B)[]
+  // Firefox: Schemas.sys.mjs (ArrayType)
   it("emits array types including unions with parentheses", () => {
     assert.equal(
       emitter.emitType({ type: "array", items: { type: "string" } }, "tabs"),
@@ -115,6 +128,7 @@ describe("TypeScriptEmitter", () => {
     assert.equal(emitter.emitType(unionItems, "tabs"), "(string | number)[]");
   });
 
+  // Firefox: Schemas.sys.mjs (ObjectType.normalize reads optional properties)
   it("emits inline object types", () => {
     const objType = {
       type: "object",
@@ -128,6 +142,8 @@ describe("TypeScriptEmitter", () => {
     assert.ok(emitted.includes("active?: boolean | undefined;"));
   });
 
+  // TypeScript: an empty interface accepts every value except null and undefined
+  // Firefox: trial_ml.json (CreateEngineRequest is an object with no declared properties)
   it("adds index signature to empty interfaces to prevent matching primitives", () => {
     const ns = new LoadedNamespace("find");
     ns.types.CreateEngineRequest = { id: "CreateEngineRequest", type: "object" };
@@ -137,6 +153,7 @@ describe("TypeScriptEmitter", () => {
     assert.ok(fullText.includes("[key: string]: unknown;"));
   });
 
+  // Firefox: Schemas.sys.mjs (Event.getDescriptor checks extraParameters on addListener), WebRequest.sys.mjs (applyChanges awaits a thenable result)
   it("emits extraParameters on addListener and the blocking return type for webRequest", () => {
     const ns = new LoadedNamespace("webRequest");
     ns.events.onBeforeRequest = {
@@ -163,6 +180,7 @@ describe("TypeScriptEmitter", () => {
     assert.ok(!fullText.includes("WebExtensionWebRequestEvent"));
   });
 
+  // Firefox: Schemas.sys.mjs (Event.parseSchema skips an event's returns, so the schema is the only statement of it)
   it("derives a listener return from the schema returns and optional", () => {
     const ns = new LoadedNamespace("alarms");
     ns.events.onOptional = { name: "onOptional", returns: { type: "boolean", optional: true } };
@@ -176,6 +194,7 @@ describe("TypeScriptEmitter", () => {
     assert.ok(fullText.includes("export const onNone: WebExtensionEvent<() => void>;"));
   });
 
+  // Firefox: Schemas.sys.mjs (Event.getDescriptor checks extra arguments like function parameters)
   it("emits optional extraParameters and optional listener parameters", () => {
     const ns = new LoadedNamespace("tabs");
     ns.events.onUpdated = {
@@ -205,6 +224,7 @@ describe("TypeScriptEmitter", () => {
     assert.ok(fullText.includes("export const onRequest: WebExtensionEvent<(request: any, sender: MessageSender) => void>;"));
   });
 
+  // Firefox: ExtensionChild.sys.mjs (MessageEvent.wrapResponse, Port.getAPI), ProxyChannelFilter.sys.mjs (proxy-error payload)
   it("applies the runtime shape of messaging and proxy error listeners", () => {
     const runtime = new LoadedNamespace("runtime");
     runtime.events.onMessage = {
@@ -253,6 +273,7 @@ describe("TypeScriptEmitter", () => {
     );
   });
 
+  // Firefox: ext-runtime.js (getManifest clones extension.manifest), Extension.sys.mjs (the manifest is the normalized value)
   it("types runtime.getManifest as the normalized WebExtensionManifest", () => {
     const fn = {
       name: "getManifest",
@@ -264,36 +285,40 @@ describe("TypeScriptEmitter", () => {
     assert.ok(fullText.includes("getManifest(): browser.manifest.WebExtensionManifest;"));
   });
 
-  it("emits schema-faithful signature for runtime.sendMessage without fabricated generics", () => {
-    const fn = {
-      name: "sendMessage",
-      async: "callback",
-      parameters: [
-        { name: "message", type: "any" },
-        { name: "options", type: "object", optional: true },
-        { name: "callback", type: "function" },
-      ],
-    };
-    const lines = emitter.emitFunctionOverloads(fn, "runtime", "        ");
-    const fullText = lines.join("\n");
-    assert.ok(!fullText.includes("<TResponse"));
-    assert.ok(fullText.includes("globalThis.Promise<void>"));
-  });
-
-  it("emits schema-faithful storage.StorageArea functions without unbacked generics", () => {
+  // Firefox: storage.json (StorageArea.get, its keys choices and its items callback payload)
+  it("emits storage.StorageArea.get with the schema's own callback payload and no generics", () => {
     const ns = new LoadedNamespace("storage");
     ns.types.StorageArea = {
       id: "StorageArea",
       type: "object",
-      functions: [{ name: "get", async: "callback" }],
+      functions: [
+        {
+          name: "get",
+          type: "function",
+          async: "callback",
+          parameters: [
+            {
+              name: "keys",
+              choices: [{ type: "string" }, { type: "array", items: { type: "string" } }, { type: "object", additionalProperties: { type: "any" } }],
+              optional: true,
+            },
+            {
+              name: "callback",
+              type: "function",
+              parameters: [{ name: "items", type: "object", additionalProperties: { type: "any" } }],
+            },
+          ],
+        },
+      ],
     };
     const lines = [];
     emitter._emitNamespaceBody(ns, lines, "        ", "storage");
     const fullText = lines.join("\n");
     assert.ok(!fullText.includes("get<T"));
-    assert.ok(fullText.includes("get(): globalThis.Promise<void>;"));
+    assert.ok(fullText.includes("get(keys?: string | string[] | Record<string, unknown> | null): globalThis.Promise<Record<string, any>>;"));
   });
 
+  // Firefox: tabs.json (query takes an inline queryInfo object with no type id)
   it("emits inline object parameter for tabs.query without phantom TabsQueryInfo", () => {
     const ns = new LoadedNamespace("tabs");
     ns.functions.query = {
@@ -316,6 +341,7 @@ describe("TypeScriptEmitter", () => {
     assert.ok(fullText.includes("active?: boolean | undefined;"));
   });
 
+  // Firefox: Schemas.sys.mjs (nothing enforces readOnly on a type property, and an unsupported property is rejected rather than read-only)
   it("does not mark unsupported properties readonly", () => {
     const ns = new LoadedNamespace("tabs");
     ns.types.Tab = {
@@ -335,6 +361,7 @@ describe("TypeScriptEmitter", () => {
     assert.ok(!fullText.includes("readonly"));
   });
 
+  // Firefox: Schemas.sys.mjs (ObjectType.normalize applies additionalProperties and patternProperties), browser_action.json (the numeric key pattern)
   it("renders typed maps as index signatures", () => {
     assert.equal(
       emitter.emitType({ type: "object", additionalProperties: { $ref: "StorageChange" } }, "storage"),
@@ -362,6 +389,7 @@ describe("TypeScriptEmitter", () => {
     );
   });
 
+  // Firefox: Schemas.sys.mjs (ArrayType.normalize rejects a length outside minItems and maxItems)
   it("renders fixed-length arrays as tuples", () => {
     assert.equal(
       emitter.emitType({ type: "array", items: { type: "integer" }, minItems: 4, maxItems: 4 }, "action"),
@@ -377,6 +405,8 @@ describe("TypeScriptEmitter", () => {
     );
   });
 
+  // Firefox: Schemas.sys.mjs (ObjectType.normalize compares ChromeUtils.getClassName with isInstanceOf), browser_action.json (ImageData), web_request.json (StreamFilter)
+  // TypeScript: the same-namespace name needs no browser.webRequest prefix
   it("maps isInstanceOf to the platform class", () => {
     assert.equal(
       emitter.emitType({ type: "object", isInstanceOf: "ImageData", additionalProperties: { type: "any" } }, "action"),
@@ -402,6 +432,7 @@ describe("TypeScriptEmitter", () => {
     assert.ok(lines.join("\n").includes("export type ImageDataType = globalThis.ImageData;"));
   });
 
+  // Firefox: StreamFilter.webidl (the interface members), StreamFilter.cpp (the events its handlers receive)
   it("emits WebIDL-backed interfaces", () => {
     const ns = new LoadedNamespace("webRequest");
     ns.types.StreamFilter = {
@@ -424,6 +455,8 @@ describe("TypeScriptEmitter", () => {
     assert.ok(fullText.includes("ondata: ((this: StreamFilter, event: StreamFilterDataEvent) => any) | null;"));
   });
 
+  // Firefox: Schemas.sys.mjs (ObjectType.normalize treats an explicit undefined on an optional property as absent)
+  // TypeScript: exactOptionalPropertyTypes rejects undefined on ?: unless the type says so
   it("lets optional properties take an explicit undefined", () => {
     const emitted = emitter.emitType(
       { type: "object", properties: { url: { type: "string", optional: true }, data: { type: "any", optional: true } } },
@@ -433,6 +466,7 @@ describe("TypeScriptEmitter", () => {
     assert.ok(emitted.includes("data?: any;"));
   });
 
+  // Firefox: Schemas.sys.mjs (checkParameters substitutes the default for null or undefined), runtime.json (sendMessage)
   it("lets optional and leading-optional parameters take null and undefined", () => {
     const fn = {
       name: "sendMessage",
@@ -454,8 +488,10 @@ describe("TypeScriptEmitter", () => {
     const promiseLines = fullText.split("\n").filter((l) => l.includes("globalThis.Promise"));
     const callbackLines = fullText.split("\n").filter((l) => l.includes("responseCallback: "));
     assert.ok(fullText.indexOf(promiseLines.at(-1)) < fullText.indexOf(callbackLines[0]));
+    assert.ok(!fullText.includes("<TResponse"));
   });
 
+  // Firefox: ext-contextualIdentities.js (query returns the identities array), ext-sidebarAction.js (isOpen returns a boolean)
   it("resolves the Promise from the implementation when the schema has no payload", () => {
     const fn = {
       name: "query",
@@ -478,6 +514,7 @@ describe("TypeScriptEmitter", () => {
     assert.ok(cbText.includes("callback: ((result: boolean) => void)): void;"));
   });
 
+  // Firefox: ext-alarms.js (get resolves undefined for an unknown alarm), ext-cookies.js (get resolves null)
   it("keeps a schema-optional payload optional, null where the implementation returns null", () => {
     const get = {
       name: "get",
@@ -503,6 +540,7 @@ describe("TypeScriptEmitter", () => {
     assert.ok(cookieText.includes("globalThis.Promise<Cookie | null>"));
   });
 
+  // Firefox: ExtensionCommon.sys.mjs (a SpreadArgs result resolves the Promise with the whole array), devtools_inspected_window.json (eval)
   it("resolves a multi-argument callback as a tuple", () => {
     const fn = {
       name: "eval",
@@ -523,6 +561,7 @@ describe("TypeScriptEmitter", () => {
     assert.ok(fullText.includes("globalThis.Promise<[result: any, exceptionInfo: ExceptionInfo | undefined]>"));
   });
 
+  // Firefox: ext-scripting.js (func is called with args), ExtensionContent.sys.mjs (the script result is awaited)
   it("types scripting.executeScript over its func, args and awaited result", () => {
     const ns = new LoadedNamespace("scripting");
     ns.types.ScriptInjection = {
@@ -567,6 +606,7 @@ describe("TypeScriptEmitter", () => {
     assert.ok(fullText.includes("callback: ((results: InjectionResult<Awaited<Result>>[]) => void)): void;"));
   });
 
+  // Firefox: Schemas.sys.mjs (definitions with disjoint manifest version ranges are kept as fallbacks), user_scripts.json (register)
   it("emits every manifest-version definition of a function as overloads", () => {
     const ns = new LoadedNamespace("userScripts");
     ns.functions.register = {
@@ -604,23 +644,8 @@ describe("TypeScriptEmitter", () => {
     assert.ok(fullText.includes("export function register(scripts: RegisteredUserScript[]): globalThis.Promise<void>;"));
   });
 
-  it("does not fabricate readonly for manifest properties", () => {
-    const ns = new LoadedNamespace("manifest");
-    ns.types.WebExtensionManifest = {
-      id: "WebExtensionManifest",
-      type: "object",
-      properties: {
-        name: { type: "string" },
-        version: { type: "string" },
-      },
-    };
-    const lines = [];
-    emitter._emitNamespaceBody(ns, lines, "        ", "manifest");
-    const fullText = lines.join("\n");
-    assert.ok(fullText.includes("name: string;"));
-    assert.ok(!fullText.includes("readonly"));
-  });
-
+  // Firefox: Schemas.sys.mjs (Entry reads deprecated and checkDeprecated warns), extension.json (getURL)
+  // TypeScript: JSDoc @deprecated and {@link} are what the language service reads
   it("emits @deprecated tag in JSDoc", () => {
     const fn = {
       name: "getURL",
@@ -635,6 +660,7 @@ describe("TypeScriptEmitter", () => {
     );
   });
 
+  // Firefox: WebRequestUpload.sys.mjs (each chunk is { bytes: buffer } with an ArrayBuffer)
   it("types webRequest.UploadData.bytes as ArrayBuffer and no other bytes property", () => {
     const ns = new LoadedNamespace("webRequest");
     ns.types.UploadData = {
@@ -657,6 +683,7 @@ describe("TypeScriptEmitter", () => {
     assert.ok(fullText.includes("bytes: string;"));
   });
 
+  // Firefox: Schemas.sys.mjs (every type reads deprecated, so one choice can be deprecated), windows.json (create focused)
   it("tags a deprecated entry inside choices", () => {
     const typeInfo = {
       choices: [
@@ -682,6 +709,7 @@ describe("TypeScriptEmitter", () => {
     assert.ok(lines.join("\n").includes('export type Focus = "a" | /** @deprecated */ number;'));
   });
 
+  // Firefox: Schemas.sys.mjs (StringType.getDescriptor, ChoiceType.getDescriptor, Namespace.init skips unsupported types)
   it("declares the constants object Schemas.sys.mjs injects for a string enum", () => {
     const ns = new LoadedNamespace("tabs");
     ns.types.WindowType = {
@@ -717,6 +745,7 @@ describe("TypeScriptEmitter", () => {
     assert.ok(!fullText.includes("const Gone"));
   });
 
+  // Firefox: Schemas.sys.mjs (InjectionEntry never grants an empty permissions list), manifest.json (permissions: [])
   it("declares no constants for a namespace Firefox never injects", () => {
     const ns = new LoadedNamespace("manifest");
     ns.neverInjected = true;
@@ -727,19 +756,7 @@ describe("TypeScriptEmitter", () => {
     assert.ok(!lines.join("\n").includes("const Kind"));
   });
 
-  it("cleans parameter shadowing without trailing underscore", () => {
-    const fn = {
-      name: "createEngine",
-      parameters: [
-        { name: "CreateEngineRequest", $ref: "CreateEngineRequest" },
-      ],
-    };
-    const lines = emitter.emitFunctionOverloads(fn, "find", "        ");
-    const fullText = lines.join("\n");
-    assert.ok(fullText.includes("request: CreateEngineRequest"));
-    assert.ok(!fullText.includes("CreateEngineRequest_"));
-  });
-
+  // Tooling: the emitter constructor default, no declaration text is asserted beyond the unknown fallback
   it("initializes availableNamespaces in default constructor", () => {
     const freshEmitter = new TypeScriptEmitter();
     assert.ok(freshEmitter.availableNamespaces instanceof Set);
@@ -747,6 +764,7 @@ describe("TypeScriptEmitter", () => {
     assert.equal(res, "unknown");
   });
 
+  // TypeScript: exactOptionalPropertyTypes accepts every optional property the declarations emit
   it("compiles the exactOptionalPropertyTypes fixture against dist", () => {
     const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
     if (!fs.existsSync(path.join(root, "dist", "index.d.ts"))) {

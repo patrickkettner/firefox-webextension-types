@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { verifyDeclarations } from "../src/three-tier-verifier.js";
 
+// Tooling: planted defects the verifier must reject, over inputs shaped like Firefox schemas (Schemas.sys.mjs types, functions, events)
 describe("ThreeTierVerifier Planted Controls", () => {
   function makeBaseUniverses() {
     const schemaUniverse = {

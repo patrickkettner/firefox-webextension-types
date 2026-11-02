@@ -10,6 +10,7 @@ const firefoxRoot =
 
 // jar-parser.js evaluates only ANDROID. Any other conditional in a manifest it
 // reads would be silently mis-evaluated, so fail when one appears.
+// Firefox: jar.mn in the toolkit, browser and mobile schema directories
 describe("jar.mn conditionals", { skip: !firefoxRoot && "no Firefox checkout: set TOPSRCDIR" }, () => {
   const manifests = [
     "toolkit/components/extensions/schemas/jar.mn",
@@ -32,6 +33,7 @@ describe("jar.mn conditionals", { skip: !firefoxRoot && "no Firefox checkout: se
   }
 });
 
+// Firefox: jar.mn (only #ifdef ANDROID and #ifndef ANDROID appear, any other directive must fail loudly)
 describe("parseJarMn conditionals", () => {
   function parse(body, isAndroid = false) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "jar-mn-"));

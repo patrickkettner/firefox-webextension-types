@@ -20,6 +20,7 @@ dictionary ThingInit { required ArrayBuffer data; };
 `;
 
 describe("WebIDL reader", () => {
+  // Firefox: StreamFilter.webidl (interface, attribute, readonly attribute and EventHandler forms), StreamFilterDataEvent.webidl
   it("reads enums and interfaces, skipping ChromeOnly, static and constructor members", () => {
     const types = parseWebidl(IDL, "x.webidl");
     assert.deepEqual(types.map((t) => t.id), ["Status", "Thing"]);
@@ -31,6 +32,8 @@ describe("WebIDL reader", () => {
     assert.equal(members[0].params[0].type, "(ArrayBuffer or Uint8Array)");
   });
 
+  // TypeScript: lib.dom.d.ts maps DOMString to string, undefined to void and EventHandler to a function or null
+  // Firefox: StreamFilter.cpp (the event each handler receives)
   it("maps WebIDL types to TypeScript", () => {
     const handlers = { "Thing.ondata": "ThingDataEvent" };
     assert.equal(webidlTypeToTs("DOMString", "Thing", "x", handlers), "string");

@@ -12,6 +12,7 @@ import { describe, it } from "node:test";
 
 import { buildDeclarations } from "../src/generate.js";
 
+// Tooling: generator output must not depend on locale or timezone, no declaration text is asserted
 describe("Determinism Matrix", () => {
   const firefoxRoot =
     process.env.TOPSRCDIR ||

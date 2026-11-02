@@ -172,6 +172,8 @@ const modes = [
 for (const { label, tsc } of compilers) for (const mode of modes) {
   // moduleResolution "bundler" arrived in TypeScript 5.0.
   const noBundler = Number(label.split(".")[0]) < 5 && "bundler resolution needs TypeScript 5";
+  // Packaging: the packed tarball is what npm installs, and its exports map decides what each module resolution sees
+  // TypeScript: moduleResolution node16, nodenext and bundler pick different export conditions
   const expectClean = (compiler, spec, what) =>
     expectCleanOn(compiler, { ...spec, options: { ...spec.options, ...mode.options } }, what + mode.name);
   describe(`ConsumerMatrix (tarball, TypeScript ${label}${mode.name})`, () => {
@@ -342,6 +344,8 @@ for (const { label, tsc } of compilers) for (const mode of modes) {
   });
 }
 
+// Packaging: both packages can sit in one project, and the ambient entrypoint clashes with @types/chrome on purpose
+// TypeScript: two declarations of one ambient const are reported as a redeclaration
 describe("ConsumerMatrix @types/chrome", { skip: !fs.existsSync(typesChromeDir) && "@types/chrome not installed" }, () => {
   function withTypesChrome() {
     const dest = path.join(consumerDir, "node_modules/@types");
@@ -388,6 +392,7 @@ describe("ConsumerMatrix @types/chrome", { skip: !fs.existsSync(typesChromeDir) 
   });
 });
 
+// Packaging: package.json exports and provenance.json are what consumers resolve
 describe("Package metadata", () => {
   it("provenance.json carries the Firefox version and commit, and the d.ts headers carry the version", () => {
     const dist = path.join(repoRoot, "dist");

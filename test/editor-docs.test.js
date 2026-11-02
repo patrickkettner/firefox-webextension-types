@@ -82,6 +82,8 @@ function hover(lineText) {
   return { doc, tags };
 }
 
+// TypeScript: the language service reports @deprecated as suggestion diagnostics 6385 and 6387 and shows JSDoc in hover
+// Firefox: browsing_data.json (removeAppcache is unsupported), extension.json (lastError is deprecated)
 describe("editor documentation", { skip: !built && "dist not built" }, () => {
   it("compiles the probe file", () => {
     const errors = service.getSemanticDiagnostics(consumerPath).concat(service.getSyntacticDiagnostics(consumerPath));

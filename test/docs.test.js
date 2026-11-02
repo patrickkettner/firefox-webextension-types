@@ -21,6 +21,8 @@ function docOf(text, declaration) {
   return lines.slice(start - 1, at).join("\n");
 }
 
+// Firefox: tabs.json, i18n.json (the $(ref:) and $(topic:)[label] forms), types.json, events.json (the <var>, <em>, <ul> forms), downloads.json (<dl> and <a href>), extension_types.json (<b>, <br>), privacy.json (<code>&lt;..&gt;</code>), builtin_widget.json (<pref_branch>)
+// TypeScript: JSDoc renders Markdown and {@link browser.<namespace>.<name>}
 describe("schema markup rendering", () => {
   it("turns $(ref:) into a JSDoc link and $(topic:)[label] into its label", () => {
     assert.equal(
@@ -95,6 +97,7 @@ describe("schema markup rendering", () => {
   });
 });
 
+// Firefox: ExtensionChild.sys.mjs (shouldInject decides which contexts see an API), Extension.sys.mjs (PRIVILEGED_PERMS), manifest.json (PermissionPrivileged)
 describe("namespace documentation", () => {
   const manifest = namespace("manifest", {
     types: {
@@ -186,6 +189,8 @@ describe("namespace documentation", () => {
   });
 });
 
+// Firefox: Schemas.sys.mjs (description, deprecated, unsupported, min_manifest_version, max_manifest_version and requireUserInput are schema keys)
+// TypeScript: JSDoc tags @param, @returns and @deprecated
 describe("declaration documentation", () => {
   const emitter = () => {
     const e = new TypeScriptEmitter("desktop");
@@ -215,15 +220,18 @@ describe("declaration documentation", () => {
     assert.ok(text.includes(" * @returns Details about the duplicated tab."));
   });
 
+  // TypeScript: a JSDoc @param must name a parameter the signature declares, or the language service drops it
+  // Firefox: trial_ml.json (createEngine names its parameter after its type)
   it("names the parameter in @param the way the signature does", () => {
     const fn = {
       name: "createEngine",
       type: "function",
       parameters: [{ name: "CreateEngineRequest", $ref: "CreateEngineRequest", description: "What to create." }],
     };
-    const text = emitter().emitFunctionOverloads(fn, "find", "").join("\n");
-    assert.ok(text.includes(" * @param request What to create."));
-    assert.ok(text.includes("createEngine(request: CreateEngineRequest)"));
+    const text = emitter().emitFunctionOverloads(fn, "trial.ml", "").join("\n");
+    const emitted = text.match(/createEngine\((\w+): CreateEngineRequest\)/);
+    assert.ok(emitted, text);
+    assert.ok(text.includes(` * @param ${emitted[1]} What to create.`));
   });
 
   it("documents members of inline objects, including nested ones and manifest keys", () => {
@@ -394,6 +402,8 @@ describe("declaration documentation", () => {
   });
 });
 
+// TypeScript: a namespace merged with a function or interface holds the types named after its parameters and results
+// Packaging: those names are public API, test/fixtures/named_types.ts compiles against them
 describe("named helper types", () => {
   it("names inline parameter and result objects in a namespace merged with the function", () => {
     const ns = namespace("tabs", {

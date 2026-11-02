@@ -39,6 +39,7 @@ function check(moduleExports) {
   assert.equal(chrome.runtime.id, "chrome-mock");
 }
 
+// Packaging: the ESM and CommonJS entrypoints read globalThis.browser when accessed
 describe("runtime stubs", { skip: !built && "dist not built" }, () => {
   afterEach(() => {
     delete globalThis.browser;

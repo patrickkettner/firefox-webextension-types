@@ -13,6 +13,7 @@ const firefoxRoot = process.env.TOPSRCDIR || process.env.MOZ_TOPSRCDIR || proces
 // audit in scripts/verify-overrides.js, which compares src/overrides.js with
 // Firefox source.
 
+// Tooling: the audit in scripts/verify-overrides.js, no declaration text is asserted
 describe("evidence for hand-written tables", () => {
   let fake;
   before(() => {
@@ -79,6 +80,7 @@ describe("evidence for hand-written tables", () => {
   });
 });
 
+// Firefox: Schemas.sys.mjs (every anchor in the overrides table names a file in the checkout)
 describe("evidence against the Firefox checkout", { skip: !firefoxRoot && "no Firefox checkout: set TOPSRCDIR" }, () => {
   it("every anchor in src/overrides.js occurs in its Firefox file", () => {
     assert.deepEqual(checkEvidence(firefoxRoot, evidenceEntries(overrides)), []);

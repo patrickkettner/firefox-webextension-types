@@ -13,6 +13,7 @@ const shape = (overloads) =>
     ov.parameters.map((p) => `${p.name}${p.optional ? "?" : ""}${p.nullable ? "!" : ""}`).join(","),
   ]);
 
+// Firefox: Schemas.sys.mjs (checkParameters skips optional parameters by position, FunctionEntry adds a callback for async), ExtensionCommon.sys.mjs (SpreadArgs)
 describe("OverloadResolver", () => {
   it("identifies callback parameter correctly", () => {
     const params = [

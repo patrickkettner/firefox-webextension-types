@@ -45,6 +45,7 @@ const universe = ({ functions = [], events = [], types = [] } = {}) => ({
 
 const failuresFor = (mod, uni) => checkCompleteness(mod, schemaFacts([uni]));
 
+// Firefox: Schemas.sys.mjs (async adds a callback the schema never declares, unsupported entries are dropped)
 describe("overrides completeness against synthetic schemas", () => {
   it("passes an empty schema with empty tables", () => {
     assert.deepEqual(failuresFor(emptyMod(), universe()), []);
@@ -170,6 +171,7 @@ describe("overrides completeness against synthetic schemas", () => {
   });
 });
 
+// Firefox: every schema under toolkit, browser and mobile jar.mn
 describe("overrides completeness against the Firefox checkout", { skip: !firefoxRoot && "no Firefox checkout: set TOPSRCDIR" }, () => {
   const load = () => ["desktop", "mobile"].map((target) => loadIndependentSchemaUniverse(firefoxRoot, target));
 
