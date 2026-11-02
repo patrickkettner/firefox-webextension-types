@@ -100,6 +100,25 @@ describe("ThreeTierVerifier Planted Controls", () => {
     assert.strictEqual(result.summary.phantomTypes, 1);
   });
 
+  it("NEGATIVE CONTROL 2b: fails RED on a helper type not named after a parameter", () => {
+    const { schemaUniverse, emittedUniverse } = makeBaseUniverses();
+    schemaUniverse.namespaces.get("tabs").functions.set("query", {
+      name: "query",
+      parameters: [{ name: "queryInfo", type: "object", properties: { active: { type: "boolean" } } }],
+    });
+    const tabsNs = emittedUniverse.namespaces.get("tabs");
+    tabsNs.functions.set("query", [{ line: 1, raw: "export function query(queryInfo: query.QueryInfo): void;" }]);
+    tabsNs.helpers = new Map([["query", { types: ["QueryInfo", "Bogus"], nested: new Map() }]]);
+
+    const result = verifyDeclarations(schemaUniverse, emittedUniverse, { strict: true });
+    assert.strictEqual(result.passed, false, "Expected verifier to fail RED on a stray helper type");
+    assert.ok(result.errors.some((e) => e.includes("tabs.query.Bogus")));
+    assert.strictEqual(result.summary.phantomHelpers, 1);
+
+    tabsNs.helpers.set("query", { types: ["QueryInfo", "Result"], nested: new Map() });
+    assert.strictEqual(verifyDeclarations(schemaUniverse, emittedUniverse, { strict: true }).passed, true);
+  });
+
   it("NEGATIVE CONTROL 3: fails RED on fabricated readonly modifier", () => {
     const { schemaUniverse, emittedUniverse } = makeBaseUniverses();
     const tabsNs = emittedUniverse.namespaces.get("tabs");

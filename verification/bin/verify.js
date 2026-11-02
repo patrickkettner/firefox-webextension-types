@@ -55,7 +55,7 @@ export function runVerificationForTarget(firefoxRoot, target, dtsPath) {
 
   console.log("Audit Results:");
   console.log(`  Tier 1 Set Topology: S\\E = ${result.summary.inSchemaNotEmitted}, E\\S = ${result.summary.inEmittedNotSchema}, S∩E = ${result.summary.inBoth}`);
-  console.log(`  Tier 1 Phantoms    : ${result.summary.phantomTypes}`);
+  console.log(`  Tier 1 Phantoms    : ${result.summary.phantomTypes} types, ${result.summary.phantomHelpers} helper types`);
   console.log(`  Tier 2 Modifiers   : ${result.summary.fabricatedReadonly} fabricated readonly`);
   console.log(`  Tier 3 Collation   : ${result.summary.collationErrors} violations\n`);
 

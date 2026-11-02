@@ -142,11 +142,11 @@ export function buildDeclarations(firefoxRootPath, outDirPath, options = {}) {
   console.log(`   Discovered ${Object.keys(mobileNs).length} namespaces.`);
 
   const write = (name, text) => fs.writeFileSync(path.join(outDir, name), text, "utf8");
+  const namespacesFor = { desktop: desktopNs, mobile: mobileNs };
   const emitters = {};
   for (const target of ["desktop", "mobile"]) {
-    emitters[target] = new TypeScriptEmitter({ target, commitSha, emitCommitHeader });
+    emitters[target] = new TypeScriptEmitter({ target, commitSha, emitCommitHeader, surfaces: namespacesFor });
   }
-  const namespacesFor = { desktop: desktopNs, mobile: mobileNs };
   const gen = (target, mode, opts = {}) =>
     emitters[target].generate(namespacesFor[target], mode, { firefoxVersion, ...opts });
 

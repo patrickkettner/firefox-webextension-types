@@ -157,8 +157,9 @@ describe("TypeScriptEmitter", () => {
     emitter._emitNamespaceBody(ns, lines, "        ", "webRequest");
     const fullText = lines.join("\n");
     const blocking = "browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void";
-    assert.ok(fullText.includes(`export const onBeforeRequest: Omit<WebExtensionEvent<(details: {\nurl: string;\n}) => ${blocking}>, "addListener"> & { addListener(callback: (details: {\nurl: string;\n}) => ${blocking}, filter: RequestFilter, extraInfoSpec?: OnBeforeRequestOptions[] | null): void };`));
-    assert.ok(fullText.includes(`export const onErrorOccurred: Omit<WebExtensionEvent<(details: {\nurl: string;\n}) => void>, "addListener"> & { addListener(callback: (details: {\nurl: string;\n}) => void, filter: RequestFilter): void };`));
+    assert.ok(fullText.includes(`export const onBeforeRequest: Omit<WebExtensionEvent<(details: onBeforeRequest.Details) => ${blocking}>, "addListener"> & { addListener(callback: (details: onBeforeRequest.Details) => ${blocking}, filter: RequestFilter, extraInfoSpec?: OnBeforeRequestOptions[] | null): void };`));
+    assert.ok(fullText.includes(`export const onErrorOccurred: Omit<WebExtensionEvent<(details: onErrorOccurred.Details) => void>, "addListener"> & { addListener(callback: (details: onErrorOccurred.Details) => void, filter: RequestFilter): void };`));
+    assert.ok(fullText.includes("export namespace onBeforeRequest {\n            export type Details = {\n                url: string;\n            };\n        }"));
     assert.ok(!fullText.includes("WebExtensionWebRequestEvent"));
   });
 
@@ -586,8 +587,8 @@ describe("TypeScriptEmitter", () => {
     const lines = [];
     emitter._emitNamespaceBody(ns, lines, "", "userScripts");
     const fullText = lines.join("\n");
-    assert.ok(fullText.includes("export function register(userScriptOptions: UserScriptOptions): globalThis.Promise<{"));
-    assert.ok(fullText.includes("unregister: (() => globalThis.Promise<void>);"));
+    assert.ok(fullText.includes("export function register(userScriptOptions: UserScriptOptions): globalThis.Promise<register.Result>;"));
+    assert.ok(fullText.includes("export namespace register {\n    export type Result = {\n        unregister: (() => globalThis.Promise<void>);\n    };\n}"));
     assert.ok(fullText.includes("export function register(scripts: RegisteredUserScript[]): globalThis.Promise<void>;"));
   });
 
@@ -618,7 +619,7 @@ describe("TypeScriptEmitter", () => {
     const lines = emitter.emitFunctionOverloads(fn, "extension", "        ");
     const fullText = lines.join("\n");
     assert.ok(
-      fullText.includes("@deprecated Please use browser.runtime.getURL.")
+      fullText.includes("@deprecated Please use {@link browser.runtime.getURL}.")
     );
   });
 

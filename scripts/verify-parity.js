@@ -180,7 +180,7 @@ export function verifySoundnessAndFixedTypes() {
     errors.push("runtime.getManifest() not typed as browser.manifest.WebExtensionManifest");
   }
 
-  if (!indexDts.includes("getViews(fetchProperties?: {")) {
+  if (!indexDts.includes("getViews(fetchProperties?: getViews.FetchProperties | null): Window[];")) {
     errors.push("extension.getViews() not typed as Window[]");
   }
 

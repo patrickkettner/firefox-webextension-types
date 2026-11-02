@@ -42,56 +42,117 @@ export function sanitizePropertyName(name) {
   return JSON.stringify(name);
 }
 
+const TARGET_PRODUCT = { desktop: "Firefox", mobile: "Firefox for Android" };
+
+// Schemas.sys.mjs: MIN_MANIFEST_VERSION and MAX_MANIFEST_VERSION.
+const MIN_MANIFEST_VERSION = 2;
+const MAX_MANIFEST_VERSION = 3;
+
+// The three kinds of process an API can be injected into, named after the
+// envType values ExtensionChild.sys.mjs shouldInject compares against.
+const ENV_TYPES = ["addon_child", "content_child", "devtools_child"];
+
+// ExtensionChild.sys.mjs shouldInject, one rule per clause.
+function shouldInject(envType, allowedContexts) {
+  if (envType === "content_child" && !allowedContexts.includes("content")) return false;
+  if (envType === "devtools_child" && !allowedContexts.includes("devtools")) return false;
+  if (envType !== "devtools_child" && allowedContexts.includes("devtools_only")) return false;
+  if (envType !== "content_child" && allowedContexts.includes("content_only")) return false;
+  return true;
+}
+
+function reachOf(allowedContexts) {
+  return new Set(ENV_TYPES.filter((env) => shouldInject(env, allowedContexts)));
+}
+
+function sameSet(a, b) {
+  return a.size === b.size && [...a].every((x) => b.has(x));
+}
+
+function contextNote(reach) {
+  const addon = reach.has("addon_child");
+  const content = reach.has("content_child");
+  const devtools = reach.has("devtools_child");
+  if (addon && content && devtools) return "Also available in content scripts and devtools pages.";
+  if (addon && content) return "Also available in content scripts, but not in devtools pages.";
+  if (addon && devtools) return "Also available in devtools pages, but not in content scripts.";
+  if (addon) return "Not available in content scripts or devtools pages.";
+  if (content && devtools) return "Only available in content scripts and devtools pages.";
+  if (content) return "Only available in content scripts.";
+  if (devtools) return "Only available in devtools pages.";
+  return "Not injected into any context.";
+}
+
 function unescapeHtml(str) {
   return str
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&")
     .replace(/&nbsp;/g, " ")
     .replace(/&mdash;/g, "—")
     .replace(/&ndash;/g, "–")
     .replace(/&hellip;/g, "…")
     .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
-    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&amp;/g, "&");
 }
 
-export function cleanDocstring(doc, indent = "        ") {
-  if (!doc) return [];
-  // Replace references like $(ref:runtime.getURL) with browser.runtime.getURL
-  let text = doc.replace(/\$\((?:ref|topic):([^)]+)\)/g, "browser.$1");
-
-  // Sanitize HTML links: <a href="url">text</a> -> text (url) or text
-  text = text.replace(/<a\s+href="([^"]+)">([^<]+)<\/a>/g, (match, href, inner) => {
-    if (href.startsWith("http")) {
-      return `${inner} (${href})`;
-    }
-    return inner;
-  });
-
-  // Strip remaining HTML tags
-  text = text.replace(/<\/?(?:code|var|em|strong|p|ul|ol|li|i|b|a)[^>]*>/g, "");
-  text = unescapeHtml(text).trim();
-  if (!text) return [];
-
-  const lines = [];
-  for (const rawLine of text.split(/\r?\n/)) {
-    const line = rawLine.trimEnd();
-    if (line) {
-      lines.push(`${indent} * ${line}`);
-    } else {
-      lines.push(`${indent} *`);
-    }
-  }
-  return lines;
+// Tokens such as <all_urls> that are not markup stay visible in Markdown
+// only inside backticks.
+function quoteBareAngleTokens(text) {
+  return text
+    .split("`")
+    .map((segment, i) => (i % 2 === 1 ? segment : segment.replace(/<\/?[a-zA-Z_][^<>]*>/g, "`$&`")))
+    .join("`")
+    .replace(/``/g, "");
 }
 
-export function formatDeprecatedTag(dep, indent = "        ") {
+/**
+ * Renders schema description markup as Markdown: $(ref:) becomes a JSDoc
+ * link, $(topic:)[label] its label, <code> and <var> backticks, <em> and
+ * <b> emphasis, <p>, <br>, <ul> and <dl> line breaks and list items.
+ */
+export function renderDocText(text, resolveRef = (ref) => `browser.${ref}`) {
+  if (!text) return "";
+  let out = text
+    .replace(/\$\(ref:([^)]+)\)/g, (_, ref) => `{@link ${resolveRef(ref)}}`)
+    .replace(/\$\(topic:([^)]+)\)(?:\[([^\]]*)\])?/g, (_, topic, label) => label ?? topic)
+    .replace(/<a\s+href=(["'])([^"']*)\1[^>]*>([\s\S]*?)<\/a>/g, (_, q, href, inner) =>
+      /^https?:\/\//.test(href) ? `[${inner}](${href})` : inner
+    )
+    .replace(/<(code|var)>([\s\S]*?)<\/\1>/g, "`$2`")
+    .replace(/<(em|i)>([\s\S]*?)<\/\1>/g, "_$2_")
+    .replace(/<(b|strong)>([\s\S]*?)<\/\1>/g, "**$2**")
+    .replace(/<dt>([\s\S]*?)<\/dt>/g, "\n- `$1`")
+    .replace(/<dd>([\s\S]*?)<\/dd>/g, ": $1")
+    .replace(/<li>([\s\S]*?)<\/li>/g, "\n- $1")
+    .replace(/<(?:dl|ul|ol)>/g, "\n")
+    .replace(/<\/(?:dl|ul|ol)>/g, "\n\n")
+    .replace(/<\/p>/g, "\n\n")
+    .replace(/<p>/g, "")
+    .replace(/<br\s*\/?>/g, "\n");
+  out = quoteBareAngleTokens(unescapeHtml(out));
+  return out
+    .split("\n")
+    .map((line) => line.trim())
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function commentLines(text, indent) {
+  return text.split("\n").map((line) => (line ? `${indent} * ${line}` : `${indent} *`));
+}
+
+export function cleanDocstring(doc, indent = "        ", resolveRef) {
+  const text = renderDocText(doc, resolveRef);
+  return text ? commentLines(text, indent) : [];
+}
+
+export function formatDeprecatedTag(dep, indent = "        ", resolveRef) {
   if (typeof dep === "string" && dep) {
-    let depClean = dep.replace(/\$\((?:ref|topic):([^)]+)\)/g, "browser.$1");
-    depClean = depClean.replace(/<[^>]+>/g, "").trim();
-    return `${indent} * @deprecated ${depClean}`;
+    return `${indent} * @deprecated ${renderDocText(dep, resolveRef).replace(/\n+/g, " ")}`;
   }
   return `${indent} * @deprecated`;
 }
@@ -106,6 +167,28 @@ export function formatEnumVal(v) {
   return String(v);
 }
 
+function capitalize(name) {
+  return name[0].toUpperCase() + name.slice(1);
+}
+
+function isInlineObject(t) {
+  return Boolean(
+    t &&
+      typeof t === "object" &&
+      t.type === "object" &&
+      !("$ref" in t) &&
+      !("choices" in t) &&
+      !("isInstanceOf" in t) &&
+      typeof t.ts !== "string" &&
+      t.properties &&
+      Object.keys(t.properties).length > 0
+  );
+}
+
+function allUnsupported(definition) {
+  return [definition, ...(definition._alternates || [])].every((d) => d.unsupported);
+}
+
 export class TypeScriptEmitter {
   constructor(target = "desktop", commitSha = "unknown-commit", availableNamespaces = null, options = {}) {
     if (typeof target === "object" && target !== null && !(target instanceof Set)) {
@@ -113,19 +196,36 @@ export class TypeScriptEmitter {
       this.commitSha = target.commitSha || target.commit_sha || "unknown-commit";
       this.availableNamespaces = target.availableNamespaces || new Set();
       this.emitCommitHeader = Boolean(target.emitCommitHeader);
+      this.surfaces = target.surfaces || null;
     } else {
       this.target = target || "desktop";
       this.commitSha = commitSha || "unknown-commit";
       this.availableNamespaces = availableNamespaces || new Set();
       this.emitCommitHeader = Boolean(options.emitCommitHeader);
+      this.surfaces = options.surfaces || null;
     }
+    this.namespaces = {};
   }
 
   getSearchfoxUrl(sourceFile) {
     return `https://searchfox.org/mozilla-central/source/${sourceFile}`;
   }
 
-  emitType(typeInfo, currentNs) {
+  // A $(ref:) whose first segment is not a namespace names something in the
+  // namespace the description sits in.
+  resolveRef(ref, nsName) {
+    const first = ref.split(".")[0];
+    if (!nsName || this.availableNamespaces.has(first) || first === nsName.split(".")[0]) {
+      return `browser.${ref}`;
+    }
+    return `browser.${nsName}.${ref}`;
+  }
+
+  docText(text, nsName) {
+    return renderDocText(text, (ref) => this.resolveRef(ref, nsName));
+  }
+
+  emitType(typeInfo, currentNs, indent = "") {
     if (typeof typeInfo === "string") {
       return this.resolvePrimitive(typeInfo, currentNs);
     }
@@ -138,9 +238,13 @@ export class TypeScriptEmitter {
       return typeInfo.ts;
     }
 
+    if (typeof typeInfo._helper === "string") {
+      return typeInfo._helper;
+    }
+
     if (Array.isArray(typeInfo.tuple)) {
       const elements = typeInfo.tuple.map(
-        (p) => `${sanitizeName(p.name || "arg")}: ${this.emitValueType(p, currentNs)}`
+        (p) => `${sanitizeName(p.name || "arg")}: ${this.emitValueType(p, currentNs, indent)}`
       );
       return `[${elements.join(", ")}]`;
     }
@@ -197,7 +301,7 @@ export class TypeScriptEmitter {
     }
 
     if ("choices" in typeInfo) {
-      const rawChoices = typeInfo.choices.map((c) => this.emitType(c, currentNs));
+      const rawChoices = typeInfo.choices.map((c) => this.emitType(c, currentNs, indent));
       const hasBareString = rawChoices.includes("string");
       const hasLiterals = rawChoices.some((c) => c.startsWith('"'));
       const useOpenString =
@@ -232,7 +336,7 @@ export class TypeScriptEmitter {
       return "any";
     } else if (t === "array") {
       const items = typeInfo.items || {};
-      const innerType = this.emitType(items, currentNs);
+      const innerType = this.emitType(items, currentNs, indent);
       // Schemas.sys.mjs ArrayType.normalize rejects any other length.
       if (typeInfo.maxItems !== undefined && typeInfo.minItems === typeInfo.maxItems) {
         return `[${new Array(typeInfo.maxItems).fill(innerType).join(", ")}]`;
@@ -243,18 +347,7 @@ export class TypeScriptEmitter {
       return `${innerType}[]`;
     } else if (t === "object") {
       if (typeInfo.properties && Object.keys(typeInfo.properties).length > 0) {
-        const props = [];
-        const sortedEntries = Object.entries(typeInfo.properties).sort(entryCodePointCompare);
-        for (const [pName, pVal] of sortedEntries) {
-          let pType;
-          if (pName === "bytes" && currentNs.includes("webRequest")) {
-            pType = "ArrayBuffer";
-          } else {
-            pType = this.emitType(pVal, currentNs);
-          }
-          props.push(`${sanitizePropertyName(pName)}${this.optionalProperty(pVal, pType)}`);
-        }
-        return "{\n" + props.join(";\n") + ";\n}";
+        return this.emitObjectLiteral(typeInfo, currentNs, indent);
       }
       return this.emitMapType(typeInfo, currentNs);
     } else if (t === "function") {
@@ -262,18 +355,36 @@ export class TypeScriptEmitter {
         return "((...args: any[]) => void)";
       }
       const params = (typeInfo.parameters || []).map((p) => {
-        const pType = this.emitValueType(p, currentNs);
+        const pType = this.emitValueType(p, currentNs, indent);
         const pName = sanitizeName(p.name || "arg");
         return `${pName}: ${pType}`;
       });
       const paramsStr = params.join(", ");
       const retType = isAsyncFunction(typeInfo)
         ? "globalThis.Promise<void>"
-        : this.emitType(typeInfo.returns || "void", currentNs);
+        : this.emitType(typeInfo.returns || "void", currentNs, indent);
       return `((${paramsStr}) => ${retType})`;
     }
 
     return "unknown";
+  }
+
+  emitObjectLiteral(typeInfo, currentNs, indent) {
+    const inner = indent + "    ";
+    const lines = ["{"];
+    const sortedEntries = Object.entries(typeInfo.properties).sort(entryCodePointCompare);
+    for (const [pName, pVal] of sortedEntries) {
+      lines.push(...this.memberDoc(pVal, currentNs, inner));
+      let pType;
+      if (pName === "bytes" && currentNs.includes("webRequest")) {
+        pType = "ArrayBuffer";
+      } else {
+        pType = this.emitType(pVal, currentNs, inner);
+      }
+      lines.push(`${inner}${sanitizePropertyName(pName)}${this.optionalProperty(pVal, pType)};`);
+    }
+    lines.push(`${indent}}`);
+    return lines.join("\n");
   }
 
   resolvePrimitive(t, currentNs) {
@@ -298,8 +409,8 @@ export class TypeScriptEmitter {
 
   // A value the runtime hands to the extension: a schema-optional callback
   // argument or tuple element arrives as undefined when absent.
-  emitValueType(p, currentNs) {
-    const t = this.emitType(p, currentNs);
+  emitValueType(p, currentNs, indent = "") {
+    const t = this.emitType(p, currentNs, indent);
     if (!p || !p.optional || t === "any" || t === "unknown" || t.endsWith("| null")) {
       return t;
     }
@@ -330,40 +441,214 @@ export class TypeScriptEmitter {
     return "Record<string, unknown>";
   }
 
+  /**
+   * Assembles one JSDoc block. Every field is optional; an empty spec gives
+   * no lines at all.
+   */
+  jsdoc(spec, indent) {
+    const body = [];
+    if (spec.description) {
+      body.push(...commentLines(spec.description, indent));
+    }
+    const notes = (spec.notes || []).filter(Boolean);
+    if (notes.length) {
+      if (body.length) body.push(`${indent} *`);
+      body.push(...notes.map((n) => `${indent} * ${n}`));
+    }
+    const tags = [];
+    for (const [name, text] of spec.params || []) {
+      tags.push(...commentLines(`@param ${name} ${text}`, indent));
+    }
+    if (spec.returns) {
+      tags.push(...commentLines(`@returns ${spec.returns}`, indent));
+    }
+    if (spec.deprecated !== null && spec.deprecated !== undefined) {
+      tags.push(`${indent} * @deprecated${spec.deprecated ? ` ${spec.deprecated}` : ""}`);
+    }
+    if (spec.see) {
+      tags.push(`${indent} * @see ${spec.see}`);
+    }
+    if (spec.permissions && spec.permissions.length) {
+      tags.push(`${indent} * @permission ${[...spec.permissions].sort(codePointCompare).join(" or ")}`);
+    }
+    if (spec.platforms && spec.platforms.length) {
+      tags.push(`${indent} * @platform ${spec.platforms.join(", ")}`);
+    }
+    if (tags.length) {
+      if (body.length) body.push(`${indent} *`);
+      body.push(...tags);
+    }
+    if (!body.length) return [];
+    return [`${indent}/**`, ...body, `${indent} */`];
+  }
+
+  // Schemas.sys.mjs drops `unsupported` entries at load (Namespace.init,
+  // SubModuleType.parseSchema, TypeProperty.getDescriptor) and rejects a
+  // value carrying an unsupported property (ObjectType.checkProperty).
+  deprecationText(node, nsName, kind) {
+    const parts = [];
+    if (node.unsupported) {
+      const product = TARGET_PRODUCT[this.target] || "Firefox";
+      parts.push(
+        kind === "member"
+          ? `${product} does not support this property and rejects an object that includes it.`
+          : `${product} does not support this ${kind}; it does not exist at runtime.`
+      );
+    }
+    if (typeof node.deprecated === "string" && node.deprecated) {
+      parts.push(this.docText(node.deprecated, nsName).replace(/\n+/g, " "));
+    }
+    if (!parts.length) {
+      return node.deprecated ? "" : null;
+    }
+    return parts.join(" ");
+  }
+
+  manifestVersionNotes(node) {
+    const notes = [];
+    if (node.min_manifest_version !== undefined && node.min_manifest_version > MIN_MANIFEST_VERSION) {
+      notes.push(`Requires manifest_version ${node.min_manifest_version} or later.`);
+    }
+    if (node.max_manifest_version !== undefined && node.max_manifest_version < MAX_MANIFEST_VERSION) {
+      notes.push(`Only available in manifest_version ${node.max_manifest_version} or earlier.`);
+    }
+    return notes;
+  }
+
+  // Which contexts reach a namespace: Schemas.sys.mjs InjectionEntry uses the
+  // entry's own allowedContexts, else the parent's defaultContexts, and a
+  // member is only reachable through every namespace above it.
+  namespaceReach(nsName) {
+    let reach = new Set(ENV_TYPES);
+    let parentDefaults = [];
+    const parts = nsName.split(".");
+    for (let i = 1; i <= parts.length; i++) {
+      const ns = this.namespaces[parts.slice(0, i).join(".")];
+      const own = (ns && ns.allowedContexts) || [];
+      reach = new Set([...reach].filter((env) => reachOf(own.length ? own : parentDefaults).has(env)));
+      parentDefaults = (ns && ns.defaultContexts) || [];
+    }
+    return reach;
+  }
+
+  memberReach(node, nsName) {
+    const ns = this.namespaces[nsName];
+    const own = node.allowedContexts || [];
+    const allowed = own.length ? own : (ns && ns.defaultContexts) || [];
+    const nsReach = this.namespaceReach(nsName);
+    return new Set([...nsReach].filter((env) => reachOf(allowed).has(env)));
+  }
+
+  memberContextNote(node, nsName) {
+    const reach = this.memberReach(node, nsName);
+    return sameSet(reach, this.namespaceReach(nsName)) ? null : contextNote(reach);
+  }
+
+  // Targets whose surface carries the symbol with at least one supported
+  // definition. Without the other surfaces loaded, the build target stands.
+  platformsFor(nsName, kind, name, ownerTypeId = null) {
+    if (!this.surfaces) {
+      return [this.target];
+    }
+    const present = (namespaces) => {
+      const ns = namespaces[nsName];
+      if (!ns) return false;
+      if (kind === "namespace") return true;
+      if (ownerTypeId) {
+        const owner = ns.types[ownerTypeId];
+        const list = owner ? owner[kind === "event" ? "events" : "functions"] || [] : [];
+        return list.some((m) => m.name === name && !m.unsupported);
+      }
+      const bucket = { function: ns.functions, event: ns.events, property: ns.properties, type: ns.types }[kind];
+      const node = bucket && bucket[name];
+      return Boolean(node) && (kind === "type" || !allUnsupported(node));
+    };
+    return Object.keys(this.surfaces).filter((t) => present(this.surfaces[t]));
+  }
+
+  // JSDoc for a property of an object type: a schema type property, a
+  // manifest key or a member of an inline parameter object.
+  memberDoc(pVal, nsName, indent) {
+    if (!pVal || typeof pVal !== "object") return [];
+    const notes = this.manifestVersionNotes(pVal);
+    // Extension.sys.mjs rejects or ignores a privileged manifest key in an
+    // unprivileged extension.
+    if (pVal.privileged) {
+      notes.push("Only privileged extensions can use this key.");
+    }
+    return this.jsdoc(
+      {
+        description: this.docText(pVal.description, nsName),
+        notes,
+        deprecated: this.deprecationText(pVal, nsName, "member"),
+        permissions: pVal.permissions,
+      },
+      indent
+    );
+  }
+
+  // Names the inline object types of a function, method or event after the
+  // parameter they type, in a namespace merged with the owner, and marks
+  // each schema node so every later emission references that name.
+  nameHelpers(node, holder, currentNs) {
+    const helpers = [];
+    const register = (name, typeInfo) => {
+      const existing = helpers.find((h) => h.name === name);
+      if (existing) {
+        if (JSON.stringify(existing.typeInfo) !== JSON.stringify(typeInfo)) {
+          throw new Error(`${currentNs}.${holder}: two different inline types would be named ${name}`);
+        }
+        typeInfo._helper = `${holder}.${name}`;
+        return;
+      }
+      helpers.push({ name, typeInfo });
+      typeInfo._helper = `${holder}.${name}`;
+    };
+    const params = node.parameters || [];
+    for (const p of params) {
+      if (p.type === "function") {
+        const payload = p.parameters || [];
+        if (payload.length === 1 && isInlineObject(payload[0])) {
+          register("Result", payload[0]);
+        } else {
+          for (const q of payload) {
+            if (isInlineObject(q)) register(capitalize(sanitizeName(q.name || "arg")), q);
+          }
+        }
+      } else if (isInlineObject(p)) {
+        register(capitalize(sanitizeName(p.name || "arg")), p);
+      }
+    }
+    if (isInlineObject(node.returns)) {
+      register("Result", node.returns);
+    }
+    return helpers;
+  }
+
+  emitHelperTypes(helpers, currentNs, indent) {
+    const out = [];
+    for (const { name, typeInfo } of helpers) {
+      out.push(...this.jsdoc({ description: this.docText(typeInfo.description, currentNs) }, indent));
+      const literal = this.emitObjectLiteral(typeInfo, currentNs, indent);
+      out.push(`${indent}export type ${name} = ${literal};`);
+    }
+    return out;
+  }
+
   emitFunctionOverloads(fn, currentNs, indent, isMethod = false, ownerTypeId = null) {
+    return this.emitFunction(fn, currentNs, indent, isMethod, ownerTypeId).lines;
+  }
+
+  // The declaration lines plus the inline object types named after its
+  // parameters, which the caller places in a namespace merged with it.
+  emitFunction(fn, currentNs, indent, isMethod = false, ownerTypeId = null) {
     const lines = [];
     const name = sanitizeName(fn.name || "");
     const fnKey = [currentNs, ownerTypeId, fn.name].filter(Boolean).join(".");
     const override = FUNCTION_OVERRIDES[fnKey] || {};
-    const desc = fn.description || "";
     const sourceFile = fn._source_file || "";
-
-    const jsdoc = [`${indent}/**`];
-    const docLines = cleanDocstring(desc, indent);
-    if (docLines.length > 0) {
-      jsdoc.push(...docLines);
-      jsdoc.push(`${indent} *`);
-    }
-
-    if (fn.deprecated) {
-      jsdoc.push(formatDeprecatedTag(fn.deprecated, indent));
-      jsdoc.push(`${indent} *`);
-    }
-
-    if (sourceFile) {
-      const searchfox = this.getSearchfoxUrl(sourceFile);
-      jsdoc.push(`${indent} * @see ${searchfox}`);
-    }
-
-    if (Array.isArray(fn.permissions)) {
-      const sortedPerms = [...fn.permissions].sort(codePointCompare);
-      for (const p of sortedPerms) {
-        jsdoc.push(`${indent} * @permission ${p}`);
-      }
-    }
-
-    jsdoc.push(`${indent} * @platform ${this.target}`);
-    jsdoc.push(`${indent} */`);
+    const holder = name === "eval" ? "_eval" : name;
+    const helpers = this.nameHelpers(fn, ownerTypeId ? `${ownerTypeId}.${holder}` : holder, currentNs);
 
     const asyncResult = ASYNC_RESULTS[fnKey];
     let overloads = resolveOverloads(fn);
@@ -378,56 +663,89 @@ export class TypeScriptEmitter {
       ];
     }
 
-    const formatParams = (ov) => {
-      const out = [];
-      for (const p of ov.parameters) {
-        const isOpt = Boolean(p.optional);
-        const opt = isOpt ? "?" : "";
-        let pName = sanitizeName(p.name || "arg");
-        let pType;
-        if (override.parameters && override.parameters[p.name]) {
-          pType = override.parameters[p.name];
-        } else if (p.type === "function" && asyncResult && !(p.parameters || []).length) {
-          pType = `((result: ${asyncResult}) => void)`;
-        } else if (p.type === "function" && override.result && (p.parameters || []).length === 1) {
-          pType = `((${sanitizeName(p.parameters[0].name)}: ${override.result}) => void)`;
-        } else {
-          pType = this.emitType(p, currentNs);
-        }
-        // A Record<string, any> parameter would also accept the callback of
-        // the callback-style overloads, so the Promise form of an optional
-        // map parameter keeps unknown values.
-        if (ov.is_promise && isOpt) {
-          pType = pType.replaceAll("Record<string, any>", "Record<string, unknown>");
-        }
-        // Schemas.sys.mjs checkParameters substitutes the default when null
-        // or undefined is passed for an optional parameter.
-        if ((isOpt || p.nullable) && pType !== "any") {
-          pType = isOpt ? `${pType} | null` : `${pType} | null | undefined`;
-        }
+    const emitParam = (p, ov) => {
+      const isOpt = Boolean(p.optional);
+      let pName = sanitizeName(p.name || "arg");
+      let pType;
+      if (override.parameters && override.parameters[p.name]) {
+        pType = override.parameters[p.name];
+      } else if (p.type === "function" && asyncResult && !(p.parameters || []).length) {
+        pType = `((result: ${asyncResult}) => void)`;
+      } else if (p.type === "function" && override.result && (p.parameters || []).length === 1) {
+        pType = `((${sanitizeName(p.parameters[0].name)}: ${override.result}) => void)`;
+      } else {
+        pType = this.emitType(p, currentNs, indent);
+      }
+      // A Record<string, any> parameter would also accept the callback of
+      // the callback-style overloads, so the Promise form of an optional
+      // map parameter keeps unknown values.
+      if (ov.is_promise && isOpt) {
+        pType = pType.replaceAll("Record<string, any>", "Record<string, unknown>");
+      }
+      // Schemas.sys.mjs checkParameters substitutes the default when null
+      // or undefined is passed for an optional parameter.
+      if ((isOpt || p.nullable) && pType !== "any") {
+        pType = isOpt ? `${pType} | null` : `${pType} | null | undefined`;
+      }
 
-        const typeUnqualified = pType.split(".").pop();
-        if (pName === pType || pName === typeUnqualified) {
-          if (pName.endsWith("Request")) {
-            pName = "request";
-          } else if (pName.endsWith("Options")) {
-            pName = "options";
-          } else if (pName.endsWith("Details")) {
-            pName = "details";
-          } else if (pName.endsWith("Info")) {
-            pName = "info";
-          } else {
-            pName = pName[0].toLowerCase() + pName.slice(1);
-            if (pName === pType || pName === typeUnqualified) {
-              pName = "item";
-            }
+      const typeUnqualified = pType.split(".").pop();
+      if (pName === pType || pName === typeUnqualified) {
+        if (pName.endsWith("Request")) {
+          pName = "request";
+        } else if (pName.endsWith("Options")) {
+          pName = "options";
+        } else if (pName.endsWith("Details")) {
+          pName = "details";
+        } else if (pName.endsWith("Info")) {
+          pName = "info";
+        } else {
+          pName = pName[0].toLowerCase() + pName.slice(1);
+          if (pName === pType || pName === typeUnqualified) {
+            pName = "item";
           }
         }
-
-        out.push(`${pName}${opt}: ${pType}`);
       }
-      return out.join(", ");
+      return { name: pName, text: `${pName}${isOpt ? "?" : ""}: ${pType}` };
     };
+
+    const docParams = [];
+    const seenParams = new Set();
+    for (const ov of overloads) {
+      for (const p of ov.parameters) {
+        const { name: emitted } = emitParam(p, ov);
+        if (seenParams.has(emitted)) continue;
+        seenParams.add(emitted);
+        if (p.description) {
+          docParams.push([emitted, this.docText(p.description, currentNs)]);
+        }
+      }
+    }
+    const callback = (fn.parameters || []).find((p) => p.type === "function");
+    const payload = callback && (callback.parameters || []).length === 1 ? callback.parameters[0] : null;
+    const returnsText = (fn.returns && fn.returns.description) || (payload && payload.description) || "";
+
+    const notes = this.manifestVersionNotes(fn);
+    // ExtensionChild.sys.mjs callAsyncFunction rejects the call unless the
+    // window is handling user input.
+    if (fn.requireUserInput) {
+      notes.push("Must be called from a user input handler.");
+    }
+    if (!isMethod) {
+      notes.push(this.memberContextNote(fn, currentNs));
+    }
+    const jsdoc = this.jsdoc(
+      {
+        description: this.docText(fn.description, currentNs),
+        notes,
+        params: docParams,
+        returns: this.docText(returnsText, currentNs),
+        deprecated: this.deprecationText(fn, currentNs, isMethod ? "method" : "function"),
+        see: sourceFile ? this.getSearchfoxUrl(sourceFile) : null,
+        permissions: fn.permissions,
+        platforms: this.platformsFor(currentNs, "function", fn.name, ownerTypeId),
+      },
+      indent
+    );
 
     for (let i = 0; i < overloads.length; i++) {
       const ov = overloads[i];
@@ -435,12 +753,12 @@ export class TypeScriptEmitter {
         lines.push(...jsdoc);
       }
 
-      const paramsStr = formatParams(ov);
+      const paramsStr = ov.parameters.map((p) => emitParam(p, ov).text).join(", ");
       let actualRet;
       if (ov.is_promise) {
         actualRet = `globalThis.Promise<${this.promiseResult(ov.callback_payload, fnKey, currentNs)}>`;
       } else {
-        actualRet = override.returns || this.emitType(ov.returns, currentNs);
+        actualRet = override.returns || this.emitType(ov.returns, currentNs, indent);
       }
 
       const typeParams = override.typeParameters || "";
@@ -457,7 +775,7 @@ export class TypeScriptEmitter {
       lines.push(`${indent}export { _eval as eval };`);
     }
 
-    return lines;
+    return { lines, helpers, holder };
   }
 
   promiseResult(payload, fnKey, currentNs) {
@@ -499,7 +817,7 @@ export class TypeScriptEmitter {
   // Schemas.sys.mjs Event.getDescriptor: addListener(listener, ...extraParameters)
   // checks the extra arguments like function parameters, so an optional one
   // also takes null; removeListener and hasListener take the listener only.
-  emitEventType(ev, nsName, ownerTypeId = null) {
+  emitEventType(ev, nsName, ownerTypeId = null, indent = "") {
     const evKey = [nsName, ownerTypeId, ev.name].filter(Boolean).join(".");
     const paramOverrides = EVENT_PARAMETERS[evKey] || {};
     const params = ev.parameters || [];
@@ -510,13 +828,13 @@ export class TypeScriptEmitter {
       }
       const trailingOptional = p.optional && params.slice(i).every((q) => q.optional);
       if (trailingOptional) {
-        return `${name}?: ${this.emitType(p, nsName)}`;
+        return `${name}?: ${this.emitType(p, nsName, indent)}`;
       }
-      return `${name}: ${this.emitValueType(p, nsName)}`;
+      return `${name}: ${this.emitValueType(p, nsName, indent)}`;
     });
     let returns = EVENT_LISTENER_RETURNS[evKey];
     if (!returns) {
-      returns = ev.returns ? `${this.emitType(ev.returns, nsName)} | void` : "void";
+      returns = ev.returns ? `${this.emitType(ev.returns, nsName, indent)} | void` : "void";
     }
     const listener = `(${signature.join(", ")}) => ${returns}`;
     const extras = ev.extraParameters || [];
@@ -525,7 +843,7 @@ export class TypeScriptEmitter {
     }
     const extraSignature = extras.map((p) => {
       const name = sanitizeName(p.name || "arg");
-      const type = this.emitType(p, nsName);
+      const type = this.emitType(p, nsName, indent);
       return p.optional ? `${name}?: ${type} | null` : `${name}: ${type}`;
     });
     return (
@@ -534,23 +852,53 @@ export class TypeScriptEmitter {
     );
   }
 
+  eventDoc(ev, nsName, indent, ownerTypeId = null) {
+    const params = (ev.parameters || [])
+      .filter((p) => p.description)
+      .map((p) => [sanitizeName(p.name || "details"), this.docText(p.description, nsName)]);
+    const notes = this.manifestVersionNotes(ev);
+    if (!ownerTypeId) {
+      notes.push(this.memberContextNote(ev, nsName));
+    }
+    return this.jsdoc(
+      {
+        description: this.docText(ev.description, nsName),
+        notes,
+        params,
+        deprecated: this.deprecationText(ev, nsName, "event"),
+        see: ev._source_file ? this.getSearchfoxUrl(ev._source_file) : null,
+        permissions: ev.permissions,
+        platforms: this.platformsFor(nsName, "event", ev.name, ownerTypeId),
+      },
+      indent
+    );
+  }
+
+  emitHelperNamespace(holder, helpers, nsName, indent) {
+    if (!helpers.length) return [];
+    return [
+      `${indent}export namespace ${holder} {`,
+      ...this.emitHelperTypes(helpers, nsName, indent + "    "),
+      `${indent}}`,
+    ];
+  }
+
   _emitNamespaceBody(ns, out, indent, nsName) {
     const sortedTypes = Object.entries(ns.types).sort(entryCodePointCompare);
     for (const [typeId, tInfo] of sortedTypes) {
-      const desc = tInfo.description || "";
-      const docLines = cleanDocstring(desc, indent);
-      if (tInfo.deprecated) {
-        docLines.push(formatDeprecatedTag(tInfo.deprecated, indent));
-      }
-      if (docLines.length > 0) {
-        out.push(`${indent}/**`);
-        out.push(...docLines);
-        const sourceFile = tInfo._source_file || "";
-        if (sourceFile) {
-          out.push(`${indent} * @see ${this.getSearchfoxUrl(sourceFile)}`);
-        }
-        out.push(`${indent} */`);
-      }
+      const typeHelpers = [];
+      out.push(
+        ...this.jsdoc(
+          {
+            description: this.docText(tInfo.description, nsName),
+            notes: this.manifestVersionNotes(tInfo),
+            deprecated: this.deprecationText(tInfo, nsName, "type"),
+            see: tInfo._source_file ? this.getSearchfoxUrl(tInfo._source_file) : null,
+            platforms: this.platformsFor(nsName, "type", typeId),
+          },
+          indent
+        )
+      );
 
       if ("enum" in tInfo) {
         const enumStr = tInfo.enum.map(formatEnumVal).join(" | ");
@@ -558,12 +906,12 @@ export class TypeScriptEmitter {
       } else if (tInfo._webidl) {
         out.push(...this.emitWebidlInterface(typeId, tInfo._webidl, indent));
       } else if ("isInstanceOf" in tInfo) {
-        out.push(`${indent}export type ${typeId} = ${this.emitType(tInfo, nsName)};`);
+        out.push(`${indent}export type ${typeId} = ${this.emitType(tInfo, nsName, indent)};`);
       } else if ("choices" in tInfo) {
         const choicesEmitted = [];
         let hasBareString = false;
         for (const c of tInfo.choices) {
-          const cStr = this.emitType(c, nsName);
+          const cStr = this.emitType(c, nsName, indent);
           if (cStr === "string") {
             hasBareString = true;
           } else if (!choicesEmitted.includes(cStr)) {
@@ -594,26 +942,21 @@ export class TypeScriptEmitter {
         ) {
           out.push(`${indent}    [key: string]: unknown;`);
         } else {
+          const inner = indent + "    ";
           const sortedProps = Object.entries(propsDict).sort(entryCodePointCompare);
           for (const [pName, pVal] of sortedProps) {
-            const pDesc = pVal.description || "";
-            const pDocs = cleanDocstring(pDesc, indent + "    ");
-            if (pDocs.length > 0) {
-              out.push(`${indent}    /**`);
-              out.push(...pDocs);
-              out.push(`${indent}     */`);
-            }
+            out.push(...this.memberDoc(pVal, nsName, inner));
             let pType;
             if (pName === "bytes" && nsName.includes("webRequest")) {
               pType = "ArrayBuffer";
             } else {
-              pType = this.emitType(pVal, nsName);
+              pType = this.emitType(pVal, nsName, inner);
             }
 
             const isReadonly = Boolean(pVal.readOnly || pVal.readonly || pVal.unsupported);
             const ro = isReadonly ? "readonly " : "";
             out.push(
-              `${indent}    ${ro}${sanitizePropertyName(pName)}${this.optionalProperty(pVal, pType)};`
+              `${inner}${ro}${sanitizePropertyName(pName)}${this.optionalProperty(pVal, pType)};`
             );
           }
 
@@ -622,7 +965,9 @@ export class TypeScriptEmitter {
           );
           for (const fn of sortedFnsList) {
             for (const definition of [fn, ...(fn._alternates || [])]) {
-              out.push(...this.emitFunctionOverloads(definition, nsName, indent + "    ", true, typeId));
+              const { lines, helpers, holder } = this.emitFunction(definition, nsName, inner, true, typeId);
+              out.push(...lines);
+              typeHelpers.push({ holder, helpers });
             }
           }
 
@@ -630,24 +975,25 @@ export class TypeScriptEmitter {
             codePointCompare(a.name || "", b.name || "")
           );
           for (const ev of sortedEvsList) {
-            const evName = ev.name || "event";
-            const evDesc = ev.description || "";
-            const evDocs = cleanDocstring(evDesc, indent + "    ");
-            if (evDocs.length > 0) {
-              out.push(`${indent}    /**`);
-              out.push(...evDocs);
-              out.push(`${indent}     */`);
-            }
-
-            out.push(
-              `${indent}    ${sanitizeName(evName)}: ${this.emitEventType(ev, nsName, typeId)};`
-            );
+            const evName = sanitizeName(ev.name || "event");
+            const helpers = this.nameHelpers(ev, `${typeId}.${evName}`, nsName);
+            out.push(...this.eventDoc(ev, nsName, inner, typeId));
+            out.push(`${inner}${evName}: ${this.emitEventType(ev, nsName, typeId, inner)};`);
+            typeHelpers.push({ holder: evName, helpers });
           }
         }
 
         out.push(`${indent}}`);
+        const helperBlocks = typeHelpers.filter(({ helpers }) => helpers.length);
+        if (helperBlocks.length) {
+          out.push(`${indent}export namespace ${typeId} {`);
+          for (const { holder, helpers } of helperBlocks) {
+            out.push(...this.emitHelperNamespace(holder, helpers, nsName, indent + "    "));
+          }
+          out.push(`${indent}}`);
+        }
       } else {
-        const baseT = this.emitType(tInfo, nsName);
+        const baseT = this.emitType(tInfo, nsName, indent);
         out.push(`${indent}export type ${typeId} = ${baseT};`);
       }
       out.push("");
@@ -655,34 +1001,89 @@ export class TypeScriptEmitter {
 
     const sortedProps = Object.entries(ns.properties).sort(entryCodePointCompare);
     for (const [pName, pVal] of sortedProps) {
-      const pType = this.emitType(pVal, nsName);
+      out.push(
+        ...this.jsdoc(
+          {
+            description: this.docText(pVal.description, nsName),
+            notes: [...this.manifestVersionNotes(pVal), this.memberContextNote(pVal, nsName)],
+            deprecated: this.deprecationText(pVal, nsName, "property"),
+            see: pVal._source_file ? this.getSearchfoxUrl(pVal._source_file) : null,
+            permissions: pVal.permissions,
+            platforms: this.platformsFor(nsName, "property", pName),
+          },
+          indent
+        )
+      );
+      const pType = this.emitType(pVal, nsName, indent);
       out.push(`${indent}export const ${sanitizeName(pName)}: ${pType};`);
+    }
+    if (sortedProps.length) {
+      out.push("");
     }
 
     const sortedEvents = Object.entries(ns.events).sort(entryCodePointCompare);
     for (const [evName, evVal] of sortedEvents) {
-      const evDesc = evVal.description || "";
-      const docLines = cleanDocstring(evDesc, indent);
-      if (evVal.deprecated) {
-        docLines.push(formatDeprecatedTag(evVal.deprecated, indent));
-      }
-      if (docLines.length > 0) {
-        out.push(`${indent}/**`);
-        out.push(...docLines);
-        out.push(`${indent} */`);
-      }
-
-      out.push(`${indent}export const ${sanitizeName(evName)}: ${this.emitEventType(evVal, nsName)};`);
+      const holder = sanitizeName(evName);
+      const helpers = this.nameHelpers(evVal, holder, nsName);
+      out.push(...this.eventDoc(evVal, nsName, indent));
+      out.push(`${indent}export const ${holder}: ${this.emitEventType(evVal, nsName, null, indent)};`);
+      out.push(...this.emitHelperNamespace(holder, helpers, nsName, indent));
       out.push("");
     }
 
     const sortedFns = Object.entries(ns.functions).sort(entryCodePointCompare);
     for (const [fnName, fnVal] of sortedFns) {
+      const helperBlocks = [];
       for (const definition of [fnVal, ...(fnVal._alternates || [])]) {
-        out.push(...this.emitFunctionOverloads(definition, nsName, indent));
+        const { lines, helpers, holder } = this.emitFunction(definition, nsName, indent);
+        out.push(...lines);
+        for (const h of helpers) {
+          const existing = helperBlocks.find((x) => x.name === h.name);
+          if (existing && JSON.stringify(existing.typeInfo) !== JSON.stringify(h.typeInfo)) {
+            throw new Error(`${nsName}.${fnName}: two definitions would both name an inline type ${h.name}`);
+          }
+          if (!existing) helperBlocks.push({ ...h, holder });
+        }
+      }
+      if (helperBlocks.length) {
+        out.push(...this.emitHelperNamespace(helperBlocks[0].holder, helperBlocks, nsName, indent));
       }
       out.push("");
     }
+  }
+
+  // Extension.sys.mjs PRIVILEGED_PERMS: the manifest schema lists the same
+  // names as PermissionPrivileged, so a namespace gated only on those is
+  // unusable by an ordinary extension.
+  privilegedPermissions() {
+    const manifest = this.namespaces.manifest;
+    const type = manifest && manifest.types.PermissionPrivileged;
+    const names = new Set();
+    for (const choice of (type && type.choices) || []) {
+      for (const value of choice.enum || []) {
+        names.add(typeof value === "string" ? value : value.name);
+      }
+    }
+    return names;
+  }
+
+  namespaceDoc(ns, nsName, indent) {
+    const notes = this.manifestVersionNotes(ns);
+    const privileged = this.privilegedPermissions();
+    const perms = ns.permissions || [];
+    if (perms.length && perms.every((p) => privileged.has(p))) {
+      notes.push("Only privileged extensions can use this API.");
+    }
+    notes.push(contextNote(this.namespaceReach(nsName)));
+    return this.jsdoc(
+      {
+        description: this.docText(ns.description, nsName),
+        notes,
+        permissions: perms,
+        platforms: this.platformsFor(nsName, "namespace"),
+      },
+      indent
+    );
   }
 
   /**
@@ -733,6 +1134,7 @@ export class TypeScriptEmitter {
     }
 
     this.availableNamespaces = rootNsNames;
+    this.namespaces = namespaces;
 
     const sortedRoots = Array.from(rootNsNames).sort(codePointCompare);
     const ambient = mode === "ambient";
@@ -773,6 +1175,9 @@ export class TypeScriptEmitter {
 
     for (const nsName of sortedRoots) {
       const ns = namespaces[nsName];
+      if (ns) {
+        out.push(...this.namespaceDoc(ns, nsName, "    "));
+      }
       out.push(`    export namespace ${nsName} {`);
 
       if (ns) {
@@ -784,6 +1189,7 @@ export class TypeScriptEmitter {
           codePointCompare(a, b)
         );
         for (const [subName, subNs] of sortedSubList) {
+          out.push(...this.namespaceDoc(subNs, `${nsName}.${subName}`, "        "));
           out.push(`        export namespace ${subName} {`);
           this._emitNamespaceBody(subNs, out, "            ", `${nsName}.${subName}`);
           out.push("        }");

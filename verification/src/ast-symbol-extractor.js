@@ -21,7 +21,37 @@ export function extractSymbolsFromDts(dtsPath) {
   const reNsStart = /^\s*export\s+namespace\s+([a-zA-Z0-9_]+)\s*\{/;
   const reIface = /^\s*export\s+interface\s+([a-zA-Z0-9_]+)\s*(?:<[^{]*>)?\s*(?:extends\s+[a-zA-Z0-9_.]+\s*)?\{/;
   const reType = /^\s*export\s+type\s+([a-zA-Z0-9_]+)\s*=/;
-  const reFn = /^\s*export\s+function\s+([a-zA-Z0-9_]+)/;
+  const reFn = /^\s*(?:export\s+)?function\s+([a-zA-Z0-9_]+)/;
+  const reType0 = /^\s*export\s+type\s+([a-zA-Z0-9_]+)\s*=/;
+
+  // A namespace named after a function, event or interface of the namespace
+  // it sits in holds that owner's named parameter and result types.
+  const readHelperBlock = (start) => {
+    const types = [];
+    const nested = new Map();
+    let depth = (lines[start].match(/\{/g) || []).length - (lines[start].match(/\}/g) || []).length;
+    let current = null;
+    let j = start;
+    while (depth > 0 && j + 1 < lines.length) {
+      j++;
+      const text = lines[j];
+      const open = (text.match(/\{/g) || []).length;
+      const close = (text.match(/\}/g) || []).length;
+      const mInner = reNsStart.exec(text);
+      if (mInner && depth === 1) {
+        current = [];
+        nested.set(mInner[1], current);
+      } else {
+        const mT = reType0.exec(text);
+        if (mT) {
+          (current && depth === 2 ? current : types).push(mT[1]);
+        }
+      }
+      depth += open - close;
+      if (depth === 1) current = null;
+    }
+    return { types, nested, end: j };
+  };
   const reConst = /^\s*export\s+const\s+([a-zA-Z0-9_]+)\s*:\s*(.*)$/;
 
   let i = 0;
@@ -32,6 +62,13 @@ export function extractSymbolsFromDts(dtsPath) {
     const mNs = reNsStart.exec(line);
     if (mNs) {
       const nsName = mNs[1];
+      const parent = nsStack.length ? namespaces.get(nsStack.join(".")) : null;
+      if (parent && (parent.functions.has(nsName) || parent.events.has(nsName) || parent.types.has(nsName))) {
+        const { types, nested, end } = readHelperBlock(i);
+        parent.helpers.set(nsName, { types, nested });
+        i = end + 1;
+        continue;
+      }
       if (nsName !== "browser" && nsName !== "chrome") {
         nsStack.push(nsName);
         const fullNs = nsStack.join(".");
@@ -42,6 +79,7 @@ export function extractSymbolsFromDts(dtsPath) {
             functions: new Map(),
             events: new Map(),
             properties: new Map(),
+            helpers: new Map(),
             line: i + 1,
           });
         }

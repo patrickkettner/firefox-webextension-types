@@ -8,6 +8,31 @@
 
 import { codePointCompare } from "../../src/comparator.js";
 
+const RESERVED_PARAMETER_NAMES = {
+  default: "defaultValue",
+  delete: "deleteArg",
+  function: "func",
+  in: "inArg",
+  var: "variable",
+  new: "newArg",
+  class: "classArg",
+  export: "exportArg",
+  import: "importArg",
+};
+
+function helperTypeNames(owner) {
+  const names = new Set(["Result"]);
+  const add = (p) => {
+    const name = RESERVED_PARAMETER_NAMES[p.name] || p.name || "arg";
+    names.add(name[0].toUpperCase() + name.slice(1));
+  };
+  for (const p of owner.parameters || []) {
+    add(p);
+    for (const q of p.parameters || []) add(q);
+  }
+  return names;
+}
+
 export function verifyDeclarations(schemaUniverse, emittedUniverse) {
   const errors = [];
 
@@ -62,6 +87,50 @@ export function verifyDeclarations(schemaUniverse, emittedUniverse) {
         phantomTypes.push(`${nsName}.${t}`);
       }
     }
+  }
+
+  // Helper namespaces: one per function, event or type member, holding only
+  // types named after that owner's parameters or its result.
+  const phantomHelpers = [];
+  for (const nsName of inBoth) {
+    const sNs = schemaUniverse.namespaces.get(nsName);
+    const eNs = emittedUniverse.namespaces.get(nsName);
+    for (const [holder, helper] of (eNs.helpers || new Map()).entries()) {
+      const schemaName = holder.startsWith("_") ? holder.slice(1) : holder;
+      const owner = sNs.functions.get(schemaName) || sNs.events.get(schemaName);
+      if (owner) {
+        for (const t of helper.types) {
+          if (!helperTypeNames(owner).has(t)) phantomHelpers.push(`${nsName}.${holder}.${t}`);
+        }
+        for (const nestedName of helper.nested.keys()) {
+          phantomHelpers.push(`${nsName}.${holder}.${nestedName}`);
+        }
+        continue;
+      }
+      const ownerType = sNs.types.get(holder);
+      if (!ownerType) {
+        phantomHelpers.push(`${nsName}.${holder}`);
+        continue;
+      }
+      for (const t of helper.types) {
+        phantomHelpers.push(`${nsName}.${holder}.${t}`);
+      }
+      for (const [memberName, types] of helper.nested.entries()) {
+        const member =
+          (ownerType.functions || []).find((f) => f.name === memberName) ||
+          (ownerType.events || []).find((e) => e.name === memberName);
+        if (!member) {
+          phantomHelpers.push(`${nsName}.${holder}.${memberName}`);
+          continue;
+        }
+        for (const t of types) {
+          if (!helperTypeNames(member).has(t)) phantomHelpers.push(`${nsName}.${holder}.${memberName}.${t}`);
+        }
+      }
+    }
+  }
+  if (phantomHelpers.length > 0) {
+    errors.push(`Tier 1 FAIL: Helper types not named after a schema parameter or result (${phantomHelpers.length}): ${phantomHelpers.slice(0, 5).join(", ")}`);
   }
 
   if (missingTypes.length > 0) {
@@ -133,6 +202,7 @@ export function verifyDeclarations(schemaUniverse, emittedUniverse) {
       inBoth: inBoth.length,
       missingTypes: missingTypes.length,
       phantomTypes: phantomTypes.length,
+      phantomHelpers: phantomHelpers.length,
       fabricatedReadonly: fabricatedReadonly.length,
       collationErrors: collationErrors.length,
     },
