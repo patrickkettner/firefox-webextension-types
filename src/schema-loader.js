@@ -39,6 +39,14 @@ export function loadRawSchemaJson(schemaPath) {
   return [Array.isArray(data) ? data : [data], rawText];
 }
 
+// Schemas.sys.mjs keeps several definitions of one function as fallback
+// entries when their manifest version ranges do not overlap.
+function manifestVersionsDisjoint(a, b) {
+  const min = (fn) => fn.min_manifest_version ?? -Infinity;
+  const max = (fn) => fn.max_manifest_version ?? Infinity;
+  return max(a) < min(b) || max(b) < min(a);
+}
+
 export class LoadedNamespace {
   constructor(name, description = "", permissions = []) {
     this.name = name;
@@ -222,8 +230,12 @@ export class SchemaRegistry {
 
         if (Array.isArray(entry.functions)) {
           for (const fn of entry.functions) {
-            if (fn.name) {
-              fn._source_file = relPath;
+            if (!fn.name) continue;
+            fn._source_file = relPath;
+            const existing = ns.functions[fn.name];
+            if (existing && manifestVersionsDisjoint(existing, fn)) {
+              existing._alternates = [...(existing._alternates || []), fn];
+            } else {
               ns.functions[fn.name] = fn;
             }
           }

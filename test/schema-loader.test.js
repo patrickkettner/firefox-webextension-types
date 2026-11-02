@@ -304,6 +304,38 @@ comment */
     assert.deepEqual(Object.keys(namespaces), ["alarms"]);
   });
 
+  it("keeps function definitions with disjoint manifest version ranges", () => {
+    const dir = path.join(tempDir, "alt_test");
+    const tk = path.join(dir, "toolkit", "components", "extensions", "schemas");
+    const br = path.join(dir, "browser", "components", "extensions", "schemas");
+    fs.mkdirSync(tk, { recursive: true });
+    fs.mkdirSync(br, { recursive: true });
+    fs.writeFileSync(path.join(tk, "jar.mn"), "user_scripts.json\n", "utf8");
+    fs.writeFileSync(path.join(br, "jar.mn"), "", "utf8");
+    fs.writeFileSync(
+      path.join(tk, "user_scripts.json"),
+      JSON.stringify([
+        {
+          namespace: "userScripts",
+          functions: [
+            { name: "register", max_manifest_version: 2, type: "function", async: true, parameters: [] },
+            { name: "register", min_manifest_version: 3, type: "function", async: true, parameters: [] },
+            { name: "update", type: "function", async: true, parameters: [] },
+            { name: "update", type: "function", async: true, parameters: [{ name: "later", type: "string" }] },
+          ],
+        },
+      ]),
+      "utf8"
+    );
+
+    const { userScripts } = new SchemaRegistry(dir).loadTarget("desktop");
+    assert.equal(userScripts.functions.register.max_manifest_version, 2);
+    assert.equal(userScripts.functions.register._alternates.length, 1);
+    assert.equal(userScripts.functions.register._alternates[0].min_manifest_version, 3);
+    assert.equal(userScripts.functions.update.parameters.length, 1);
+    assert.equal(userScripts.functions.update._alternates, undefined);
+  });
+
   it("inherits types, functions, events, properties via namespace $import", () => {
     const firefoxDir = tempDir;
     const nsImpDir = path.join(firefoxDir, "ns_imp_test");

@@ -48,4 +48,116 @@ export const FUNCTION_OVERRIDES = {
   // normalized manifest (toolkit/components/extensions/Extension.sys.mjs).
   // Normalization fills absent optional keys with null.
   "runtime.getManifest": { returns: "browser.manifest.WebExtensionManifest" },
+  "scripting.executeScript": {
+    typeParameters: "<Args extends unknown[], Result>",
+    parameters: { injection: "ScriptInjection<Args, Result>" },
+    result: "InjectionResult<Awaited<Result>>[]",
+  },
+};
+
+// Value an async function resolves with when its schema has no callback
+// parameters and no `returns`. Keyed like FUNCTION_OVERRIDES; types are
+// written as seen from inside that namespace. browserAction imports action,
+// so both names are listed.
+export const ASYNC_RESULTS = {
+  // toolkit/components/extensions/ExtensionActions.sys.mjs
+  "action.getBadgeTextColor": "ColorArray",
+  "action.isEnabled": "boolean",
+  "browserAction.getBadgeTextColor": "ColorArray",
+  "browserAction.isEnabled": "boolean",
+  // toolkit/components/extensions/parent/ext-captivePortal.js
+  "captivePortal.getState": '"unknown" | "not_captive" | "unlocked_portal" | "locked_portal"',
+  "captivePortal.getLastChecked": "number",
+  // toolkit/components/extensions/child/ext-contentScripts.js
+  "contentScripts.register": "RegisteredContentScript",
+  // toolkit/components/extensions/parent/ext-contextualIdentities.js
+  "contextualIdentities.create": "ContextualIdentity",
+  "contextualIdentities.get": "ContextualIdentity",
+  "contextualIdentities.query": "ContextualIdentity[]",
+  "contextualIdentities.remove": "ContextualIdentity",
+  "contextualIdentities.update": "ContextualIdentity",
+  // toolkit/components/extensions/parent/ext-dns.js
+  "dns.resolve": "DNSRecord",
+  // browser/components/extensions/parent/ext-find.js (mergeFindResults) and
+  // toolkit/components/extensions/FindContent.sys.mjs (range and rect data)
+  "find.find":
+    "{ count: number; rangeData?: { framePos: number; text: string; startTextNodePos: number; startOffset: number; endTextNodePos: number; endOffset: number }[]; rectData?: { text: string; rectsAndTexts: { rectList: { top: number; left: number; bottom: number; right: number }[]; textList: string[] } }[] }",
+  // toolkit/components/extensions/parent/ext-geckoProfiler.js
+  "geckoProfiler.getProfile": "Record<string, unknown>",
+  "geckoProfiler.getProfileAsArrayBuffer": "ArrayBuffer",
+  "geckoProfiler.getProfileAsGzippedArrayBuffer": "ArrayBuffer",
+  // devtools/shared/performance-new/symbolication.sys.mjs
+  "geckoProfiler.getSymbols": "[addresses: Uint32Array, index: Uint32Array, buffer: Uint8Array]",
+  // toolkit/components/extensions/parent/ext-networkStatus.js
+  "networkStatus.getLinkInfo": "NetworkLinkInfo",
+  // toolkit/components/extensions/ExtensionActions.sys.mjs
+  "pageAction.isShown": "boolean",
+  // toolkit/components/extensions/parent/ext-permissions.js
+  "permissions.remove": "boolean",
+  // browser/components/extensions/parent/ext-pkcs11.js
+  "pkcs11.getModuleSlots":
+    "{ name: string; token: { name: string; manufacturer: string; HWVersion: string; FWVersion: string; serial: string; isLoggedIn: boolean } | null }[]",
+  "pkcs11.isModuleInstalled": "boolean",
+  // browser/components/extensions/parent/ext-search.js
+  "search.get": "SearchEngine[]",
+  // browser/components/extensions/parent/ext-sessions.js: JSON.parse of a
+  // value stored through setTabValue, whose schema type is any.
+  "sessions.getTabValue": "any",
+  "sessions.getWindowValue": "any",
+  // browser/components/extensions/parent/ext-sidebarAction.js
+  "sidebarAction.getPanel": "string",
+  "sidebarAction.getTitle": "string",
+  "sidebarAction.isOpen": "boolean",
+  // toolkit/components/extensions/parent/ext-tabs-base.js (data URL)
+  "tabs.captureTab": "string",
+  // browser/components/extensions/parent/ext-tabs.js (ids of the hidden tabs)
+  "tabs.hide": "number[]",
+  // toolkit/components/extensions/parent/ext-telemetry.js
+  "telemetry.canUpload": "boolean",
+  // toolkit/components/extensions/parent/ext-theme.js: the normalized
+  // theme, so absent optional keys are null.
+  "theme.getCurrent": "browser.manifest.ThemeType",
+  // toolkit/components/extensions/parent/ext-trial-ml.js
+  "trial.ml.deleteCachedModels": "boolean",
+  "trial.ml.runEngine": "unknown",
+  // toolkit/components/extensions/ExtensionPreferencesManager.sys.mjs
+  "types.Setting.clear": "boolean",
+  "types.Setting.set": "boolean",
+  // toolkit/components/extensions/webrequest/WebRequest.sys.mjs: undefined
+  // once the channel is gone.
+  "webRequest.getSecurityInfo": "SecurityInfo | undefined",
+};
+
+// Functions whose schema-optional callback payload is null, not undefined.
+export const NULL_RESULTS = new Set([
+  // toolkit/components/extensions/parent/ext-contextualIdentities.js
+  "contextualIdentities.getSiteAssociation",
+  // toolkit/components/extensions/parent/ext-cookies.js
+  "cookies.get",
+  "cookies.remove",
+  "cookies.set",
+  // toolkit/components/extensions/child/ext-backgroundPage.js
+  "runtime.getBackgroundPage",
+  // toolkit/components/extensions/parent/ext-webNavigation.js
+  "webNavigation.getAllFrames",
+  "webNavigation.getFrame",
+]);
+
+// Property types on schema types. A name the schema does not declare is
+// added as a required property.
+export const TYPE_OVERRIDES = {
+  // toolkit/components/extensions/child/ext-scripting.js spreads `args`
+  // into `func`; toolkit/components/extensions/ExtensionContent.sys.mjs
+  // awaits the script result.
+  "scripting.ScriptInjection": {
+    typeParameters: "<Args extends unknown[] = unknown[], Result = unknown>",
+    properties: {
+      args: "Args",
+      func: "(...args: Args) => Result",
+    },
+  },
+  "scripting.InjectionResult": {
+    typeParameters: "<Result = unknown>",
+    properties: { result: "Result" },
+  },
 };

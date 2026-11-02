@@ -335,6 +335,177 @@ describe("TypeScriptEmitter", () => {
     assert.ok(emitted.includes("data?: any;"));
   });
 
+  it("lets optional and leading-optional parameters take null and undefined", () => {
+    const fn = {
+      name: "sendMessage",
+      async: "responseCallback",
+      parameters: [
+        { name: "extensionId", type: "string", optional: true },
+        { name: "message", type: "any" },
+        { name: "options", type: "object", optional: true },
+        { name: "responseCallback", type: "function", parameters: [{ name: "response", type: "any" }] },
+      ],
+    };
+    const fullText = emitter.emitFunctionOverloads(fn, "runtime", "").join("\n");
+    assert.ok(
+      fullText.includes(
+        "export function sendMessage(extensionId: string | null | undefined, message: any, options?: Record<string, unknown> | null): globalThis.Promise<any>;"
+      )
+    );
+    assert.ok(fullText.includes("export function sendMessage(message: any, options?: Record<string, unknown> | null): globalThis.Promise<any>;"));
+    const promiseLines = fullText.split("\n").filter((l) => l.includes("globalThis.Promise"));
+    const callbackLines = fullText.split("\n").filter((l) => l.includes("responseCallback: "));
+    assert.ok(fullText.indexOf(promiseLines.at(-1)) < fullText.indexOf(callbackLines[0]));
+  });
+
+  it("resolves the Promise from the implementation when the schema has no payload", () => {
+    const fn = {
+      name: "query",
+      async: true,
+      parameters: [{ name: "details", type: "object", properties: { name: { type: "string", optional: true } } }],
+    };
+    const fullText = emitter.emitFunctionOverloads(fn, "contextualIdentities", "").join("\n");
+    assert.ok(fullText.includes("globalThis.Promise<ContextualIdentity[]>"));
+
+    const cb = {
+      name: "isOpen",
+      async: "callback",
+      parameters: [
+        { name: "details", type: "object" },
+        { name: "callback", type: "function", parameters: [] },
+      ],
+    };
+    const cbText = emitter.emitFunctionOverloads(cb, "sidebarAction", "").join("\n");
+    assert.ok(cbText.includes("globalThis.Promise<boolean>"));
+    assert.ok(cbText.includes("callback: ((result: boolean) => void)): void;"));
+  });
+
+  it("keeps a schema-optional payload optional, null where the implementation returns null", () => {
+    const get = {
+      name: "get",
+      async: "callback",
+      parameters: [
+        { name: "name", type: "string" },
+        { name: "callback", type: "function", parameters: [{ name: "alarm", $ref: "Alarm", optional: true }] },
+      ],
+    };
+    const alarmText = emitter.emitFunctionOverloads(get, "alarms", "").join("\n");
+    assert.ok(alarmText.includes("globalThis.Promise<Alarm | undefined>"));
+    assert.ok(alarmText.includes("callback: ((alarm: Alarm | undefined) => void)"));
+
+    const cookie = {
+      name: "get",
+      async: "callback",
+      parameters: [
+        { name: "details", type: "object" },
+        { name: "callback", type: "function", parameters: [{ name: "cookie", $ref: "Cookie", optional: true }] },
+      ],
+    };
+    const cookieText = emitter.emitFunctionOverloads(cookie, "cookies", "").join("\n");
+    assert.ok(cookieText.includes("globalThis.Promise<Cookie | null>"));
+  });
+
+  it("resolves a multi-argument callback as a tuple", () => {
+    const fn = {
+      name: "eval",
+      async: "callback",
+      parameters: [
+        { name: "expression", type: "string" },
+        {
+          name: "callback",
+          type: "function",
+          parameters: [
+            { name: "result", type: "any" },
+            { name: "exceptionInfo", $ref: "ExceptionInfo", optional: true },
+          ],
+        },
+      ],
+    };
+    const fullText = emitter.emitFunctionOverloads(fn, "devtools.inspectedWindow", "").join("\n");
+    assert.ok(fullText.includes("globalThis.Promise<[result: any, exceptionInfo: ExceptionInfo | undefined]>"));
+  });
+
+  it("types scripting.executeScript over its func, args and awaited result", () => {
+    const ns = new LoadedNamespace("scripting");
+    ns.types.ScriptInjection = {
+      id: "ScriptInjection",
+      type: "object",
+      properties: {
+        args: { type: "array", optional: true, items: { type: "any" } },
+        func: { type: "function", optional: true },
+        target: { type: "object" },
+      },
+    };
+    ns.types.InjectionResult = {
+      id: "InjectionResult",
+      type: "object",
+      properties: { frameId: { type: "integer" }, result: { type: "any", optional: true } },
+    };
+    ns.functions.executeScript = {
+      name: "executeScript",
+      async: "callback",
+      parameters: [
+        { name: "injection", $ref: "ScriptInjection" },
+        {
+          name: "callback",
+          type: "function",
+          parameters: [{ name: "results", type: "array", items: { $ref: "InjectionResult" } }],
+        },
+      ],
+    };
+    const lines = [];
+    emitter._emitNamespaceBody(ns, lines, "", "scripting");
+    const fullText = lines.join("\n");
+    assert.ok(fullText.includes("export interface ScriptInjection<Args extends unknown[] = unknown[], Result = unknown> {"));
+    assert.ok(fullText.includes("args?: Args | undefined;"));
+    assert.ok(fullText.includes("func?: (...args: Args) => Result | undefined;"));
+    assert.ok(fullText.includes("export interface InjectionResult<Result = unknown> {"));
+    assert.ok(fullText.includes("result?: Result | undefined;"));
+    assert.ok(
+      fullText.includes(
+        "export function executeScript<Args extends unknown[], Result>(injection: ScriptInjection<Args, Result>): globalThis.Promise<InjectionResult<Awaited<Result>>[]>;"
+      )
+    );
+    assert.ok(fullText.includes("callback: ((results: InjectionResult<Awaited<Result>>[]) => void)): void;"));
+  });
+
+  it("emits every manifest-version definition of a function as overloads", () => {
+    const ns = new LoadedNamespace("userScripts");
+    ns.functions.register = {
+      name: "register",
+      max_manifest_version: 2,
+      async: "callback",
+      parameters: [
+        { name: "userScriptOptions", $ref: "UserScriptOptions" },
+        {
+          name: "callback",
+          type: "function",
+          parameters: [
+            {
+              name: "legacyRegisteredUserScript",
+              type: "object",
+              properties: { unregister: { type: "function", async: true, parameters: [] } },
+            },
+          ],
+        },
+      ],
+      _alternates: [
+        {
+          name: "register",
+          min_manifest_version: 3,
+          async: true,
+          parameters: [{ name: "scripts", type: "array", items: { $ref: "RegisteredUserScript" } }],
+        },
+      ],
+    };
+    const lines = [];
+    emitter._emitNamespaceBody(ns, lines, "", "userScripts");
+    const fullText = lines.join("\n");
+    assert.ok(fullText.includes("export function register(userScriptOptions: UserScriptOptions): globalThis.Promise<{"));
+    assert.ok(fullText.includes("unregister: (() => globalThis.Promise<void>);"));
+    assert.ok(fullText.includes("export function register(scripts: RegisteredUserScript[]): globalThis.Promise<void>;"));
+  });
+
   it("does not fabricate readonly for manifest properties", () => {
     const ns = new LoadedNamespace("manifest");
     ns.types.WebExtensionManifest = {

@@ -22,6 +22,12 @@ export function identifyCallback(params, isAsync) {
   return -1;
 }
 
+// Schemas.sys.mjs checkParameters skips optional parameters by position and
+// substitutes the default for an explicit null or undefined. Optional
+// parameters that trail every required one stay `?` in a single signature.
+// An optional parameter followed by a required one yields two overloads,
+// one without it and one where it is kept in place and marked nullable,
+// because null and undefined are still accepted there.
 export function generateLeadingOptionalOverloads(params) {
   let lastRequired = -1;
   for (let i = 0; i < params.length; i++) {
@@ -30,44 +36,31 @@ export function generateLeadingOptionalOverloads(params) {
     }
   }
 
-  // If all parameters are optional: parameterless first, then specific overloads
+  const build = (index, chosen) => {
+    if (index > lastRequired) {
+      return [[...chosen, ...structuredClone(params.slice(index))]];
+    }
+    const p = structuredClone(params[index]);
+    if (!p.optional) {
+      return build(index + 1, [...chosen, p]);
+    }
+    p.optional = false;
+    p.nullable = true;
+    return [...build(index + 1, [...chosen, p]), ...build(index + 1, chosen)];
+  };
+
   if (lastRequired === -1) {
     if (params.length === 0) {
       return [[]];
     }
-    const overloads = [[]];
+    const overloads = [];
     for (let startIdx = params.length - 1; startIdx >= 0; startIdx--) {
-      const overload = structuredClone(params.slice(startIdx));
-      overload[0].optional = false;
-      overloads.push(overload);
+      overloads.push(structuredClone(params.slice(startIdx)));
     }
     return overloads;
   }
 
-  let firstRequired = -1;
-  for (let i = 0; i < params.length; i++) {
-    if (!params[i].optional) {
-      firstRequired = i;
-      break;
-    }
-  }
-
-  if (firstRequired === 0) {
-    return [params];
-  }
-
-  const overloads = [];
-  for (let startIdx = 0; startIdx <= firstRequired; startIdx++) {
-    const overload = structuredClone(params.slice(startIdx));
-    for (let i = 0; i < firstRequired - startIdx; i++) {
-      if (i < overload.length) {
-        overload[i].optional = false;
-      }
-    }
-    overloads.push(overload);
-  }
-
-  return overloads;
+  return build(0, []);
 }
 
 export function collapseUnifiableOverloads(overloads) {
@@ -89,7 +82,11 @@ export function collapseUnifiableOverloads(overloads) {
           const diffIndices = [];
           let namesMatch = true;
           for (let k = 0; k < p1.length; k++) {
-            if (p1[k].name !== p2[k].name || Boolean(p1[k].optional) !== Boolean(p2[k].optional)) {
+            if (
+              p1[k].name !== p2[k].name ||
+              Boolean(p1[k].optional) !== Boolean(p2[k].optional) ||
+              Boolean(p1[k].nullable) !== Boolean(p2[k].nullable)
+            ) {
               namesMatch = false;
               break;
             }
@@ -142,85 +139,75 @@ export function resolveOverloads(fnDict) {
     nonCbParams = [...params.slice(0, cbIdx), ...params.slice(cbIdx + 1)];
     cbPayload = "void";
     const cbArgs = cbParam.parameters || [];
-    if (cbArgs.length > 0) {
+    if (cbArgs.length === 1) {
       cbPayload = structuredClone(cbArgs[0]);
-      if (typeof cbPayload === "object" && cbPayload !== null && "optional" in cbPayload) {
-        cbPayload.optional = false;
-      }
+    } else if (cbArgs.length > 1) {
+      // ExtensionCommon.sys.mjs resolves a SpreadArgs result with the whole
+      // argument array when it holds more than one value.
+      cbPayload = { tuple: structuredClone(cbArgs) };
     } else if ("returns" in fnDict) {
       cbPayload = structuredClone(fnDict.returns);
-      if (typeof cbPayload === "object" && cbPayload !== null && "optional" in cbPayload) {
-        cbPayload.optional = false;
-      }
-    }
-    for (const p of cbParam.parameters || []) {
-      if ("optional" in p) {
-        p.optional = false;
-      }
     }
   } else {
     cbParam = null;
     nonCbParams = [...params];
     cbPayload = fnDict.returns || "void";
-    if (typeof cbPayload === "object" && cbPayload !== null && cbPayload.optional) {
-      cbPayload = structuredClone(cbPayload);
-      cbPayload.optional = false;
-    }
   }
 
   const baseOverloads = generateLeadingOptionalOverloads(nonCbParams);
   const hasCallback =
     cbParam !== null || fnDict.async === "callback" || fnDict.async === "responseCallback";
 
-  const resolved = [];
+  const promiseOverloads = [];
+  const callbackOverloads = [];
   for (const bo of baseOverloads) {
-    if (isAsync) {
-      resolved.push({
-        parameters: bo,
-        returns: "void",
-        is_promise: true,
-        callback_payload: cbPayload,
-      });
-      if (hasCallback) {
-        const variations = [bo];
-        let curr = [...bo];
-        while (curr.length > 0 && curr[curr.length - 1].optional) {
-          curr = curr.slice(0, -1);
-          variations.push(curr);
-        }
-
-        for (const variant of variations) {
-          const cbBo = structuredClone(variant);
-          for (const p of cbBo) {
-            p.optional = false;
-          }
-          const cbP = cbParam
-            ? structuredClone(cbParam)
-            : { name: "callback", type: "function", optional: false };
-          cbP.optional = false;
-          for (const p of cbP.parameters || []) {
-            if ("optional" in p) {
-              p.optional = false;
-            }
-          }
-          cbBo.push(cbP);
-          resolved.push({
-            parameters: cbBo,
-            returns: "void",
-            is_promise: false,
-            callback_payload: cbPayload,
-          });
-        }
-      }
-    } else {
-      resolved.push({
+    if (!isAsync) {
+      promiseOverloads.push({
         parameters: bo,
         returns: fnDict.returns || "void",
         is_promise: false,
         callback_payload: null,
       });
+      continue;
+    }
+    promiseOverloads.push({
+      parameters: bo,
+      returns: "void",
+      is_promise: true,
+      callback_payload: cbPayload,
+    });
+    if (!hasCallback) {
+      continue;
+    }
+    const variations = [bo];
+    let curr = [...bo];
+    while (curr.length > 0 && curr[curr.length - 1].optional) {
+      curr = curr.slice(0, -1);
+      variations.push(curr);
+    }
+    for (const variant of variations) {
+      const cbBo = structuredClone(variant);
+      for (const p of cbBo) {
+        if (p.optional) {
+          p.optional = false;
+          p.nullable = true;
+        }
+      }
+      const cbP = cbParam
+        ? structuredClone(cbParam)
+        : { name: "callback", type: "function", optional: false };
+      cbP.optional = false;
+      cbBo.push(cbP);
+      callbackOverloads.push({
+        parameters: cbBo,
+        returns: "void",
+        is_promise: false,
+        callback_payload: cbPayload,
+      });
     }
   }
+  // Promise forms first, so an `any` argument resolves to the Promise form.
+  const resolved = [...promiseOverloads, ...callbackOverloads];
 
   const seen = new Set();
   let deduped = [];
@@ -230,6 +217,7 @@ export function resolveOverloads(fnDict) {
       r.parameters.map((p) => [
         p.name,
         Boolean(p.optional),
+        Boolean(p.nullable),
         p.type,
         p.$ref,
         JSON.stringify(p.choices),

@@ -4,7 +4,14 @@ import {
   resolveOverloads,
   identifyCallback,
   collapseUnifiableOverloads,
+  generateLeadingOptionalOverloads,
 } from "../src/overload-resolver.js";
+
+const shape = (overloads) =>
+  overloads.map((ov) => [
+    ov.is_promise,
+    ov.parameters.map((p) => `${p.name}${p.optional ? "?" : ""}${p.nullable ? "!" : ""}`).join(","),
+  ]);
 
 describe("OverloadResolver", () => {
   it("identifies callback parameter correctly", () => {
@@ -16,7 +23,16 @@ describe("OverloadResolver", () => {
     assert.equal(identifyCallback(params, false), -1);
   });
 
-  it("handles leading optional parameters", () => {
+  it("keeps a trailing optional list as one signature", () => {
+    const overloads = generateLeadingOptionalOverloads([
+      { name: "a", type: "string" },
+      { name: "b", type: "string", optional: true },
+    ]);
+    assert.deepEqual(overloads.map((o) => o.map((p) => p.name)), [["a", "b"]]);
+    assert.equal(overloads[0][1].optional, true);
+  });
+
+  it("splits a leading optional parameter into positional overloads and marks it nullable", () => {
     const fn = {
       name: "sendMessage",
       parameters: [
@@ -25,14 +41,13 @@ describe("OverloadResolver", () => {
         { name: "options", type: "object", optional: true },
       ],
     };
-    const overloads = resolveOverloads(fn);
-    assert.equal(overloads.length, 2);
-    assert.equal(overloads[0].parameters[0].name, "extensionId");
-    assert.equal(overloads[0].parameters[0].optional, false);
-    assert.equal(overloads[1].parameters[0].name, "message");
+    assert.deepEqual(shape(resolveOverloads(fn)), [
+      [false, "extensionId!,message,options?"],
+      [false, "message,options?"],
+    ]);
   });
 
-  it("generates async overloads (promise and callback)", () => {
+  it("orders Promise overloads before callback overloads", () => {
     const fn = {
       name: "get",
       async: "callback",
@@ -46,26 +61,15 @@ describe("OverloadResolver", () => {
       ],
     };
     const overloads = resolveOverloads(fn);
-    assert.equal(overloads.length, 4);
-
-    // Parameterless overloads precede all-optional overloads
-    assert.equal(overloads[0].is_promise, true);
-    assert.equal(overloads[0].parameters.length, 0);
-
-    assert.equal(overloads[1].is_promise, false);
-    assert.equal(overloads[1].parameters.length, 1);
-    assert.equal(overloads[1].parameters[0].name, "callback");
-
-    assert.equal(overloads[2].is_promise, true);
-    assert.equal(overloads[2].parameters[0].name, "keys");
-    assert.equal(overloads[2].callback_payload.type, "object");
-
-    assert.equal(overloads[3].is_promise, false);
-    assert.equal(overloads[3].parameters.length, 2);
-    assert.equal(overloads[3].parameters[1].name, "callback");
+    assert.deepEqual(shape(overloads), [
+      [true, "keys?"],
+      [false, "keys!,callback"],
+      [false, "callback"],
+    ]);
+    assert.equal(overloads[0].callback_payload.type, "object");
   });
 
-  it("handles pure optional parameters in correct order", () => {
+  it("keeps every parameter optional in an all-optional list", () => {
     const fn = {
       name: "reload",
       parameters: [
@@ -73,25 +77,17 @@ describe("OverloadResolver", () => {
         { name: "reloadProperties", type: "object", optional: true },
       ],
     };
-    const overloads = resolveOverloads(fn);
-    assert.equal(overloads.length, 3);
-    // 1. Parameterless
-    assert.equal(overloads[0].parameters.length, 0);
-    // 2. 1 parameter (reloadProperties)
-    assert.equal(overloads[1].parameters.length, 1);
-    assert.equal(overloads[1].parameters[0].name, "reloadProperties");
-    // 3. 2 parameters (tabId, reloadProperties)
-    assert.equal(overloads[2].parameters.length, 2);
-    assert.equal(overloads[2].parameters[0].name, "tabId");
-    assert.equal(overloads[2].parameters[0].optional, false);
+    assert.deepEqual(shape(resolveOverloads(fn)), [
+      [false, "reloadProperties?"],
+      [false, "tabId?,reloadProperties?"],
+    ]);
   });
 
-  it("strips optional flag from callback arguments", () => {
+  it("preserves the optional flag on the callback payload", () => {
     const fn = {
-      name: "getTab",
+      name: "getCurrent",
       async: "callback",
       parameters: [
-        { name: "tabId", type: "integer" },
         {
           name: "callback",
           type: "function",
@@ -100,9 +96,33 @@ describe("OverloadResolver", () => {
       ],
     };
     const overloads = resolveOverloads(fn);
+    assert.equal(overloads[0].is_promise, true);
+    assert.equal(overloads[0].callback_payload.optional, true);
     const cbOv = overloads.find((ov) => !ov.is_promise);
-    const cbParam = cbOv.parameters[1];
-    assert.equal(cbParam.parameters[0].optional, false);
+    assert.equal(cbOv.parameters[0].parameters[0].optional, true);
+  });
+
+  it("resolves a multi-argument callback as a tuple payload", () => {
+    const fn = {
+      name: "eval",
+      async: "callback",
+      parameters: [
+        { name: "expression", type: "string" },
+        {
+          name: "callback",
+          type: "function",
+          parameters: [
+            { name: "result", type: "any" },
+            { name: "exceptionInfo", type: "object", optional: true },
+          ],
+        },
+      ],
+    };
+    const [promiseOv] = resolveOverloads(fn);
+    assert.deepEqual(
+      promiseOv.callback_payload.tuple.map((p) => p.name),
+      ["result", "exceptionInfo"]
+    );
   });
 
   it("unifies single parameter overloads differing by one argument type", () => {

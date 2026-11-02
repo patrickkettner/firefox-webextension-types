@@ -114,7 +114,7 @@ async function testWebExtensionConsumer() {
     // 19. devtools.inspectedWindow.Resource typed usage
     const resources: browser.devtools.inspectedWindow.Resource[] = await browser.devtools.inspectedWindow.getResources();
     if (resources.length > 0) {
-        const content: string = await resources[0].getContent();
+        const [content, encoding]: [string, string] = await resources[0].getContent();
     }
 
     // 20. devtools.panels.ExtensionPanel typed usage

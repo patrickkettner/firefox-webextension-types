@@ -5,9 +5,16 @@
  * Zero unbacked phantom types, zero fabricated readonly modifiers, zero generic overrides.
  */
 
-import { resolveOverloads } from "./overload-resolver.js";
+import { isAsyncFunction, resolveOverloads } from "./overload-resolver.js";
 import { codePointCompare, entryCodePointCompare } from "./comparator.js";
-import { FUNCTION_OVERRIDES, PLATFORM_TYPES, WEBIDL_EVENT_HANDLERS } from "./overrides.js";
+import {
+  ASYNC_RESULTS,
+  FUNCTION_OVERRIDES,
+  NULL_RESULTS,
+  PLATFORM_TYPES,
+  TYPE_OVERRIDES,
+  WEBIDL_EVENT_HANDLERS,
+} from "./overrides.js";
 import { webidlTypeToTs } from "./webidl.js";
 
 export const RESERVED_IDENTIFIERS = {
@@ -123,6 +130,17 @@ export class TypeScriptEmitter {
 
     if (!typeInfo || typeof typeInfo !== "object") {
       return "unknown";
+    }
+
+    if (typeof typeInfo.ts === "string") {
+      return typeInfo.ts;
+    }
+
+    if (Array.isArray(typeInfo.tuple)) {
+      const elements = typeInfo.tuple.map(
+        (p) => `${sanitizeName(p.name || "arg")}: ${this.emitValueType(p, currentNs)}`
+      );
+      return `[${elements.join(", ")}]`;
     }
 
     if ("isInstanceOf" in typeInfo) {
@@ -242,12 +260,14 @@ export class TypeScriptEmitter {
         return "((...args: any[]) => void)";
       }
       const params = (typeInfo.parameters || []).map((p) => {
-        const pType = this.emitType(p, currentNs);
+        const pType = this.emitValueType(p, currentNs);
         const pName = sanitizeName(p.name || "arg");
         return `${pName}: ${pType}`;
       });
       const paramsStr = params.join(", ");
-      const retType = this.emitType(typeInfo.returns || "void", currentNs);
+      const retType = isAsyncFunction(typeInfo)
+        ? "globalThis.Promise<void>"
+        : this.emitType(typeInfo.returns || "void", currentNs);
       return `((${paramsStr}) => ${retType})`;
     }
 
@@ -272,6 +292,16 @@ export class TypeScriptEmitter {
       return `?: ${pType}`;
     }
     return `?: ${pType} | undefined`;
+  }
+
+  // A value the runtime hands to the extension: a schema-optional callback
+  // argument or tuple element arrives as undefined when absent.
+  emitValueType(p, currentNs) {
+    const t = this.emitType(p, currentNs);
+    if (!p || !p.optional || t === "any" || t === "unknown" || t.endsWith("| null")) {
+      return t;
+    }
+    return `${t} | undefined`;
   }
 
   // Objects without named properties: the key space comes from
@@ -333,6 +363,7 @@ export class TypeScriptEmitter {
     jsdoc.push(`${indent} * @platform ${this.target}`);
     jsdoc.push(`${indent} */`);
 
+    const asyncResult = ASYNC_RESULTS[fnKey];
     let overloads = resolveOverloads(fn);
     if (!overloads || overloads.length === 0) {
       overloads = [
@@ -345,17 +376,33 @@ export class TypeScriptEmitter {
       ];
     }
 
-    const formatParams = (pList) => {
+    const formatParams = (ov) => {
       const out = [];
-      let hasOptional = false;
-      for (const p of pList) {
+      for (const p of ov.parameters) {
         const isOpt = Boolean(p.optional);
-        if (isOpt) {
-          hasOptional = true;
-        }
-        const opt = isOpt || hasOptional ? "?" : "";
+        const opt = isOpt ? "?" : "";
         let pName = sanitizeName(p.name || "arg");
-        let pType = this.emitType(p, currentNs);
+        let pType;
+        if (override.parameters && override.parameters[p.name]) {
+          pType = override.parameters[p.name];
+        } else if (p.type === "function" && asyncResult && !(p.parameters || []).length) {
+          pType = `((result: ${asyncResult}) => void)`;
+        } else if (p.type === "function" && override.result && (p.parameters || []).length === 1) {
+          pType = `((${sanitizeName(p.parameters[0].name)}: ${override.result}) => void)`;
+        } else {
+          pType = this.emitType(p, currentNs);
+        }
+        // A Record<string, any> parameter would also accept the callback of
+        // the callback-style overloads, so the Promise form of an optional
+        // map parameter keeps unknown values.
+        if (ov.is_promise && isOpt) {
+          pType = pType.replaceAll("Record<string, any>", "Record<string, unknown>");
+        }
+        // Schemas.sys.mjs checkParameters substitutes the default when null
+        // or undefined is passed for an optional parameter.
+        if ((isOpt || p.nullable) && pType !== "any") {
+          pType = isOpt ? `${pType} | null` : `${pType} | null | undefined`;
+        }
 
         const typeUnqualified = pType.split(".").pop();
         if (pName === pType || pName === typeUnqualified) {
@@ -386,24 +433,21 @@ export class TypeScriptEmitter {
         lines.push(...jsdoc);
       }
 
-      const paramsStr = formatParams(ov.parameters);
+      const paramsStr = formatParams(ov);
       let actualRet;
       if (ov.is_promise) {
-        const retType =
-          ov.callback_payload !== "void"
-            ? this.emitType(ov.callback_payload, currentNs)
-            : "void";
-        actualRet = `globalThis.Promise<${retType}>`;
+        actualRet = `globalThis.Promise<${this.promiseResult(ov.callback_payload, fnKey, currentNs)}>`;
       } else {
         actualRet = override.returns || this.emitType(ov.returns, currentNs);
       }
 
+      const typeParams = override.typeParameters || "";
       if (isMethod) {
-        lines.push(`${indent}${name}(${paramsStr}): ${actualRet};`);
+        lines.push(`${indent}${name}${typeParams}(${paramsStr}): ${actualRet};`);
       } else if (name === "eval") {
-        lines.push(`${indent}function _eval(${paramsStr}): ${actualRet};`);
+        lines.push(`${indent}function _eval${typeParams}(${paramsStr}): ${actualRet};`);
       } else {
-        lines.push(`${indent}export function ${name}(${paramsStr}): ${actualRet};`);
+        lines.push(`${indent}export function ${name}${typeParams}(${paramsStr}): ${actualRet};`);
       }
     }
 
@@ -412,6 +456,21 @@ export class TypeScriptEmitter {
     }
 
     return lines;
+  }
+
+  promiseResult(payload, fnKey, currentNs) {
+    const override = FUNCTION_OVERRIDES[fnKey] || {};
+    if (override.result) {
+      return override.result;
+    }
+    if (payload === "void") {
+      return ASYNC_RESULTS[fnKey] || "void";
+    }
+    const t = this.emitType(payload, currentNs);
+    if (!payload.optional || t === "any" || t === "unknown" || t.endsWith("| null")) {
+      return t;
+    }
+    return `${t} | ${NULL_RESULTS.has(fnKey) ? "null" : "undefined"}`;
   }
 
   emitWebidlInterface(typeId, idl, indent) {
@@ -477,9 +536,14 @@ export class TypeScriptEmitter {
         const unionStr = choicesEmitted.join(" | ");
         out.push(`${indent}export type ${typeId} = ${unionStr};`);
       } else if (tInfo.type === "object" || "properties" in tInfo) {
-        out.push(`${indent}export interface ${typeId} {`);
+        const typeOverride = TYPE_OVERRIDES[`${nsName}.${typeId}`] || {};
+        const overriddenProps = typeOverride.properties || {};
+        out.push(`${indent}export interface ${typeId}${typeOverride.typeParameters || ""} {`);
 
-        const propsDict = tInfo.properties || {};
+        const propsDict = { ...(tInfo.properties || {}) };
+        for (const [pName, ts] of Object.entries(overriddenProps)) {
+          propsDict[pName] = pName in propsDict ? { ...propsDict[pName], ts } : { ts };
+        }
         const fnsList = tInfo.functions || [];
         const evsList = tInfo.events || [];
 
@@ -517,8 +581,9 @@ export class TypeScriptEmitter {
             codePointCompare(a.name || "", b.name || "")
           );
           for (const fn of sortedFnsList) {
-            const fnLines = this.emitFunctionOverloads(fn, nsName, indent + "    ", true, typeId);
-            out.push(...fnLines);
+            for (const definition of [fn, ...(fn._alternates || [])]) {
+              out.push(...this.emitFunctionOverloads(definition, nsName, indent + "    ", true, typeId));
+            }
           }
 
           const sortedEvsList = [...evsList].sort((a, b) =>
@@ -603,8 +668,9 @@ export class TypeScriptEmitter {
 
     const sortedFns = Object.entries(ns.functions).sort(entryCodePointCompare);
     for (const [fnName, fnVal] of sortedFns) {
-      const fnLines = this.emitFunctionOverloads(fnVal, nsName, indent);
-      out.push(...fnLines);
+      for (const definition of [fnVal, ...(fnVal._alternates || [])]) {
+        out.push(...this.emitFunctionOverloads(definition, nsName, indent));
+      }
       out.push("");
     }
   }
