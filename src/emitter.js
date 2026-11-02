@@ -86,6 +86,10 @@ function contextNote(reach) {
   return "Not injected into any context.";
 }
 
+// "Defaults to", "Default is", "the default value" and "by default" in a schema
+// description.
+const STATES_DEFAULT = /\bdefaults?\s+(?:to|is|value)\b|\(the default|\bby default\b/i;
+
 function unescapeHtml(str) {
   return str
     .replace(/&quot;/g, '"')
@@ -518,6 +522,14 @@ export class TypeScriptEmitter {
     return text === null ? "" : `/** @deprecated${text ? ` ${text}` : ""} */ `;
   }
 
+  // Schemas.sys.mjs ObjectType.checkProperty and CallEntry.checkParameters
+  // substitute the schema default for an omitted optional value. A
+  // description that already says so is left alone.
+  defaultNote(node) {
+    if (node.default === undefined || STATES_DEFAULT.test(node.description || "")) return null;
+    return `Defaults to \`${JSON.stringify(node.default)}\`.`;
+  }
+
   manifestVersionNotes(node) {
     const notes = [];
     if (node.min_manifest_version !== undefined && node.min_manifest_version > MIN_MANIFEST_VERSION) {
@@ -590,6 +602,7 @@ export class TypeScriptEmitter {
     if (pVal.privileged) {
       notes.push("Only privileged extensions can use this key.");
     }
+    notes.push(this.defaultNote(pVal));
     return this.jsdoc(
       {
         description: this.docText(pVal.description, nsName),
@@ -732,8 +745,9 @@ export class TypeScriptEmitter {
         const { name: emitted } = emitParam(p, ov);
         if (seenParams.has(emitted)) continue;
         seenParams.add(emitted);
-        if (p.description) {
-          docParams.push([emitted, this.docText(p.description, currentNs)]);
+        const text = [p.description ? this.docText(p.description, currentNs) : "", this.defaultNote(p)];
+        if (text[0] || text[1]) {
+          docParams.push([emitted, text.filter(Boolean).join(" ")]);
         }
       }
     }
