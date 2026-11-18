@@ -114,7 +114,7 @@ async function testWebExtensionConsumer() {
     // 19. devtools.inspectedWindow.Resource typed usage
     const resources: browser.devtools.inspectedWindow.Resource[] = await browser.devtools.inspectedWindow.getResources();
     if (resources.length > 0) {
-        const content: string = await resources[0].getContent();
+        const [content, encoding]: [string, string] = await resources[0].getContent();
     }
 
     // 20. devtools.panels.ExtensionPanel typed usage
@@ -124,4 +124,33 @@ async function testWebExtensionConsumer() {
         "panel.html"
     );
     panel.onShown.addListener((win) => {});
+
+    // 21. browser_specific_settings carries the settings of other browsers
+    const otherBrowsers: browser.manifest.BrowserSpecificSettings = {
+        gecko: { id: "ext@example.com" },
+        safari: { strict_min_version: "15.4" },
+    };
+}
+async function testRejectedUsage() {
+    // @ts-expect-error tabs.query takes an object, not a number
+    await browser.tabs.query(42);
+
+    // @ts-expect-error id is a number
+    const badTab: browser.tabs.Tab = { id: "1", index: 0, highlighted: false, active: true, pinned: false, incognito: false };
+
+    // @ts-expect-error not a tabs.MutedInfoReason
+    const badReason: browser.tabs.MutedInfoReason = "loud";
+
+    // @ts-expect-error no such namespace
+    browser.notARealNamespace;
+
+    // @ts-expect-error the manifest warns about an unknown key and a misspelled one stays an error
+    const typo: browser.manifest.WebExtensionManifest = { manifest_version: 3, name: "x", version: "1", nmae: "y" };
+
+    // @ts-expect-error runtime.lastError is null outside a callback
+    browser.runtime.lastError.message;
+    browser.runtime.lastError?.message;
+
+    // @ts-expect-error webRequest listeners cannot return a number
+    browser.webRequest.onBeforeRequest.addListener(() => 1, { urls: ["<all_urls>"] });
 }

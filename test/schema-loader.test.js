@@ -6,6 +6,7 @@ import os from "node:os";
 import { parseJarMn } from "../src/jar-parser.js";
 import { loadRawSchemaJson, SchemaRegistry } from "../src/schema-loader.js";
 
+// Firefox: jar.mn in the toolkit, browser and mobile schema directories (#ifdef ANDROID decides the mobile list)
 describe("JarParser", () => {
   let tempDir;
   let jarPath;
@@ -35,17 +36,22 @@ content/extensions/schemas/desktop_only.json
 #ifdef ANDROID
 content/extensions/schemas/mobile_only.json
 #endif
-#if defined(FOO)
-content/extensions/schemas/foo.json
-#endif
 content/extensions/schemas/common.json
 `;
     fs.writeFileSync(jarPath, content, "utf8");
     const files = parseJarMn(jarPath, false);
     assert.ok(files.includes("desktop_only.json"));
     assert.ok(!files.includes("mobile_only.json"));
-    assert.ok(files.includes("foo.json"));
     assert.ok(files.includes("common.json"));
+  });
+
+  it("rejects a conditional it does not model", () => {
+    fs.writeFileSync(
+      jarPath,
+      "#if defined(FOO)\ncontent/extensions/schemas/foo.json\n#endif\n",
+      "utf8"
+    );
+    assert.throws(() => parseJarMn(jarPath, false), /jar\.mn:1: unsupported conditional "#if defined\(FOO\)"/);
   });
 
   it("parses android/mobile schemas properly", () => {
@@ -64,6 +70,7 @@ content/extensions/schemas/mobile_only.json
   });
 });
 
+// Firefox: Schemas.sys.mjs (Namespace.addSchema, $extend, $import, unsupported), ext-test.js (the test namespace)
 describe("SchemaLoader", () => {
   let tempDir;
 
@@ -281,6 +288,61 @@ comment */
     }
   });
 
+  it("drops the test namespace, which Firefox only exposes in automation", () => {
+    const exclDir = path.join(tempDir, "excl_test");
+    const tk = path.join(exclDir, "toolkit", "components", "extensions", "schemas");
+    const br = path.join(exclDir, "browser", "components", "extensions", "schemas");
+    fs.mkdirSync(tk, { recursive: true });
+    fs.mkdirSync(br, { recursive: true });
+    fs.writeFileSync(path.join(tk, "jar.mn"), "test.json\nalarms.json\n", "utf8");
+    fs.writeFileSync(path.join(br, "jar.mn"), "", "utf8");
+    fs.writeFileSync(
+      path.join(tk, "test.json"),
+      JSON.stringify([{ namespace: "test", functions: [{ name: "assertEq", type: "function" }] }]),
+      "utf8"
+    );
+    fs.writeFileSync(
+      path.join(tk, "alarms.json"),
+      JSON.stringify([{ namespace: "alarms", functions: [{ name: "clearAll", type: "function", async: true }] }]),
+      "utf8"
+    );
+
+    const namespaces = new SchemaRegistry(exclDir).loadTarget("desktop");
+    assert.deepEqual(Object.keys(namespaces), ["alarms"]);
+  });
+
+  it("keeps function definitions with disjoint manifest version ranges", () => {
+    const dir = path.join(tempDir, "alt_test");
+    const tk = path.join(dir, "toolkit", "components", "extensions", "schemas");
+    const br = path.join(dir, "browser", "components", "extensions", "schemas");
+    fs.mkdirSync(tk, { recursive: true });
+    fs.mkdirSync(br, { recursive: true });
+    fs.writeFileSync(path.join(tk, "jar.mn"), "user_scripts.json\n", "utf8");
+    fs.writeFileSync(path.join(br, "jar.mn"), "", "utf8");
+    fs.writeFileSync(
+      path.join(tk, "user_scripts.json"),
+      JSON.stringify([
+        {
+          namespace: "userScripts",
+          functions: [
+            { name: "register", max_manifest_version: 2, type: "function", async: true, parameters: [] },
+            { name: "register", min_manifest_version: 3, type: "function", async: true, parameters: [] },
+            { name: "update", type: "function", async: true, parameters: [] },
+            { name: "update", type: "function", async: true, parameters: [{ name: "later", type: "string" }] },
+          ],
+        },
+      ]),
+      "utf8"
+    );
+
+    const { userScripts } = new SchemaRegistry(dir).loadTarget("desktop");
+    assert.equal(userScripts.functions.register.max_manifest_version, 2);
+    assert.equal(userScripts.functions.register._alternates.length, 1);
+    assert.equal(userScripts.functions.register._alternates[0].min_manifest_version, 3);
+    assert.equal(userScripts.functions.update.parameters.length, 1);
+    assert.equal(userScripts.functions.update._alternates, undefined);
+  });
+
   it("inherits types, functions, events, properties via namespace $import", () => {
     const firefoxDir = tempDir;
     const nsImpDir = path.join(firefoxDir, "ns_imp_test");
@@ -329,6 +391,51 @@ comment */
     assert.ok("setTitle" in ba.functions);
     assert.ok("onClicked" in ba.events);
     assert.ok("propA" in ba.properties);
+  });
+
+  it("takes namespace gates from the namespace's own entries, last one wins, never from $import", () => {
+    const root = path.join(tempDir, "ns_gates");
+    const tk = path.join(root, "toolkit", "components", "extensions", "schemas");
+    const br = path.join(root, "browser", "components", "extensions", "schemas");
+    fs.mkdirSync(tk, { recursive: true });
+    fs.mkdirSync(br, { recursive: true });
+    fs.writeFileSync(path.join(tk, "jar.mn"), "menus.json\nmenus_child.json\n", "utf8");
+    fs.writeFileSync(path.join(br, "jar.mn"), "", "utf8");
+    fs.writeFileSync(
+      path.join(tk, "menus.json"),
+      JSON.stringify([
+        { namespace: "contextMenus", permissions: ["contextMenus"], $import: "menus" },
+        {
+          namespace: "menus",
+          permissions: ["menus"],
+          max_manifest_version: 2,
+          functions: [{ name: "create", type: "function", parameters: [] }],
+        },
+      ]),
+      "utf8"
+    );
+    fs.writeFileSync(
+      path.join(tk, "menus_child.json"),
+      JSON.stringify([
+        {
+          namespace: "menus",
+          permissions: ["menus", "contextMenus"],
+          allowedContexts: ["content", "devtools"],
+          functions: [{ name: "getTargetElement", type: "function", parameters: [] }],
+        },
+      ]),
+      "utf8"
+    );
+
+    const namespaces = new SchemaRegistry(root).loadTarget("desktop");
+    assert.deepEqual(namespaces.menus.permissions, ["menus", "contextMenus"]);
+    assert.deepEqual(namespaces.menus.allowedContexts, ["content", "devtools"]);
+    assert.deepEqual(namespaces.menus.defaultContexts, []);
+    assert.equal(namespaces.menus.max_manifest_version, 2);
+    assert.deepEqual(namespaces.contextMenus.permissions, ["contextMenus"]);
+    assert.deepEqual(namespaces.contextMenus.allowedContexts, []);
+    assert.equal(namespaces.contextMenus.max_manifest_version, undefined);
+    assert.ok("getTargetElement" in namespaces.contextMenus.functions);
   });
 
   it("merges properties via type $import", () => {

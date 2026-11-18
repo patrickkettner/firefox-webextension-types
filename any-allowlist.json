@@ -1,0 +1,393 @@
+{
+  "about": "Every any keyword in dist/, by declaration path, with how many times the path has one and why. npm test and npm run verify fail on a path that is not listed, on a count above the listed one, and on an entry whose count no longer matches.",
+  "entries": {
+    "WebExtensionEvent.TListener.args": {
+      "count": 1,
+      "reason": "The listener constraint of WebExtensionEvent. With any[] a listener with any parameter types satisfies it, and with unknown[] a listener whose parameters are narrower than unknown would not under strictFunctionTypes."
+    },
+    "browser.activityLog.onExtensionActivity.Details.data.args": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/activity_log.json types it as an array whose items are any."
+    },
+    "browser.devtools.inspectedWindow.Resource.setContent.callback.error": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/devtools_inspected_window.json types it as an object with additionalProperties of type any."
+    },
+    "browser.devtools.inspectedWindow.Resource.setContent.return": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/devtools_inspected_window.json types it as an object with additionalProperties of type any."
+    },
+    "browser.devtools.inspectedWindow._eval.ExceptionInfo.details": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/devtools_inspected_window.json types it as an array whose items are any."
+    },
+    "browser.devtools.inspectedWindow._eval.callback.result": {
+      "count": 2,
+      "reason": "browser/components/extensions/schemas/devtools_inspected_window.json types it as any."
+    },
+    "browser.devtools.inspectedWindow._eval.return": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/devtools_inspected_window.json types it as any."
+    },
+    "browser.devtools.network.getHAR.callback.harLog": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/devtools_network.json types it as an object with additionalProperties of type any."
+    },
+    "browser.devtools.network.getHAR.return": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/devtools_network.json types it as an object with additionalProperties of type any."
+    },
+    "browser.devtools.panels.openResource.callback.args": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/devtools_panels.json types it as a function and lists no parameters for it."
+    },
+    "browser.events.Event.addListener.callback.args": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/events.json types it as a function and lists no parameters for it."
+    },
+    "browser.events.Event.hasListener.callback.args": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/events.json types it as a function and lists no parameters for it."
+    },
+    "browser.events.Event.removeListener.callback.args": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/events.json types it as a function and lists no parameters for it."
+    },
+    "browser.events.Rule.actions": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/events.json types it as an array whose items are any."
+    },
+    "browser.events.Rule.conditions": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/events.json types it as an array whose items are any."
+    },
+    "browser.extension.onRequest.addListener.callback.request": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/extension.json types it as any."
+    },
+    "browser.extension.onRequest.addListener.callback.sendResponse.args": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/extension.json types it as a function and lists no parameters for it."
+    },
+    "browser.extension.onRequest.request": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/extension.json types it as any."
+    },
+    "browser.extension.onRequest.sendResponse.args": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/extension.json types it as a function and lists no parameters for it."
+    },
+    "browser.extension.onRequestExternal.addListener.callback.request": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/extension.json types it as any."
+    },
+    "browser.extension.onRequestExternal.addListener.callback.sendResponse.args": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/extension.json types it as a function and lists no parameters for it."
+    },
+    "browser.extension.onRequestExternal.request": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/extension.json types it as any."
+    },
+    "browser.extension.onRequestExternal.sendResponse.args": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/extension.json types it as a function and lists no parameters for it."
+    },
+    "browser.i18n.getMessage.substitutions": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/i18n.json types it as any."
+    },
+    "browser.manifest.NativeManifest.data": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/native_manifest.json types it as an object with additionalProperties of type any."
+    },
+    "browser.manifest.UnrecognizedProperty": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/manifest.json types it as any."
+    },
+    "browser.runtime.Port.onMessage.message": {
+      "count": 1,
+      "reason": "TYPE_OVERRIDES in src/overrides.js. toolkit/components/extensions/schemas/runtime.json types onMessage as events.Event with no listener, and ExtensionChild.sys.mjs hands the listener whatever the other side posted."
+    },
+    "browser.runtime.Port.postMessage.message": {
+      "count": 1,
+      "reason": "TYPE_OVERRIDES in src/overrides.js. toolkit/components/extensions/schemas/runtime.json types postMessage as a function with no parameters, and ExtensionChild.sys.mjs posts whatever value it is given."
+    },
+    "browser.runtime.getDocumentId.target": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "browser.runtime.getFrameId.target": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "browser.runtime.onMessage.addListener.callback.message": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "browser.runtime.onMessage.message": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "browser.runtime.onMessageExternal.addListener.callback.message": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "browser.runtime.onMessageExternal.message": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "browser.runtime.onUserScriptMessage.addListener.callback.message": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "browser.runtime.onUserScriptMessage.message": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "browser.runtime.sendMessage.message": {
+      "count": 6,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "browser.runtime.sendMessage.responseCallback.response": {
+      "count": 4,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "browser.runtime.sendMessage.return": {
+      "count": 2,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "browser.runtime.sendNativeMessage.message": {
+      "count": 2,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "browser.runtime.sendNativeMessage.responseCallback.response": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "browser.runtime.sendNativeMessage.return": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "browser.scripting.InjectionResult.error": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/scripting.json types it as any."
+    },
+    "browser.sessions.getTabValue.callback.value": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/sessions.json types it as any."
+    },
+    "browser.sessions.getTabValue.return": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/sessions.json types it as any."
+    },
+    "browser.sessions.getWindowValue.callback.value": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/sessions.json types it as any."
+    },
+    "browser.sessions.getWindowValue.return": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/sessions.json types it as any."
+    },
+    "browser.sessions.setTabValue.value": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/sessions.json types it as any."
+    },
+    "browser.sessions.setWindowValue.value": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/sessions.json types it as any."
+    },
+    "browser.storage.StorageArea.get.callback.items": {
+      "count": 2,
+      "reason": "toolkit/components/extensions/schemas/storage.json types it as an object with additionalProperties of type any."
+    },
+    "browser.storage.StorageArea.get.keys": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/storage.json gives it choices, one of them an object with additionalProperties of type any."
+    },
+    "browser.storage.StorageArea.get.return": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/storage.json types it as an object with additionalProperties of type any."
+    },
+    "browser.storage.StorageArea.set.items": {
+      "count": 2,
+      "reason": "toolkit/components/extensions/schemas/storage.json types it as an object with additionalProperties of type any."
+    },
+    "browser.storage.StorageChange.newValue": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/storage.json types it as any."
+    },
+    "browser.storage.StorageChange.oldValue": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/storage.json types it as any."
+    },
+    "browser.tabs.executeScript.callback.result": {
+      "count": 2,
+      "reason": "browser/components/extensions/schemas/tabs.json types it as an array whose items are any."
+    },
+    "browser.tabs.executeScript.return": {
+      "count": 2,
+      "reason": "browser/components/extensions/schemas/tabs.json types it as an array whose items are any."
+    },
+    "browser.tabs.sendMessage.message": {
+      "count": 3,
+      "reason": "browser/components/extensions/schemas/tabs.json types it as any."
+    },
+    "browser.tabs.sendMessage.responseCallback.response": {
+      "count": 2,
+      "reason": "browser/components/extensions/schemas/tabs.json types it as any."
+    },
+    "browser.tabs.sendMessage.return": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/tabs.json types it as any."
+    },
+    "browser.telemetry.keyedScalarSet.value": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/telemetry.json gives it choices, one of them an object with additionalProperties of type any."
+    },
+    "browser.telemetry.scalarSet.value": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/telemetry.json gives it choices, one of them an object with additionalProperties of type any."
+    },
+    "browser.telemetry.submitPing.Options.overrideEnvironment": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/telemetry.json types it as an object with additionalProperties of type any."
+    },
+    "browser.telemetry.submitPing.message": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/telemetry.json types it as an object with additionalProperties of type any."
+    },
+    "browser.types.Setting.get.Result.value": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/types.json types it as any."
+    },
+    "browser.types.Setting.onChange.Details.value": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/types.json types it as any."
+    },
+    "browser.types.Setting.set.Details.value": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/types.json types it as any."
+    },
+    "browser.userScripts.InjectionResult.error": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/user_scripts.json types it as any."
+    },
+    "browser.userScripts.InjectionResult.result": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/user_scripts.json types it as any."
+    },
+    "browser.userScripts.onBeforeScript.UserScript.export.return": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/user_scripts_content.json types it as any."
+    },
+    "browser.userScripts.onBeforeScript.UserScript.export.value": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/user_scripts_content.json types it as any."
+    },
+    "browser.userScripts.onBeforeScript.UserScript.global": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/user_scripts_content.json types it as any."
+    },
+    "browser.userScripts.onBeforeScript.UserScript.metadata": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/user_scripts_content.json types it as any."
+    },
+    "browser.webRequest.StreamFilter.ondata.return": {
+      "count": 1,
+      "reason": "dom/webidl/StreamFilter.webidl declares it as an EventHandler attribute, and a WebIDL EventHandler callback returns any."
+    },
+    "browser.webRequest.StreamFilter.onerror.return": {
+      "count": 1,
+      "reason": "dom/webidl/StreamFilter.webidl declares it as an EventHandler attribute, and a WebIDL EventHandler callback returns any."
+    },
+    "browser.webRequest.StreamFilter.onstart.return": {
+      "count": 1,
+      "reason": "dom/webidl/StreamFilter.webidl declares it as an EventHandler attribute, and a WebIDL EventHandler callback returns any."
+    },
+    "browser.webRequest.StreamFilter.onstop.return": {
+      "count": 1,
+      "reason": "dom/webidl/StreamFilter.webidl declares it as an EventHandler attribute, and a WebIDL EventHandler callback returns any."
+    },
+    "chrome.devtools.inspectedWindow._eval.callback.result": {
+      "count": 2,
+      "reason": "browser/components/extensions/schemas/devtools_inspected_window.json types it as any."
+    },
+    "chrome.devtools.network.getHAR.callback.harLog": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/devtools_network.json types it as an object with additionalProperties of type any."
+    },
+    "chrome.devtools.panels.openResource.callback.args": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/devtools_panels.json types it as a function and lists no parameters for it."
+    },
+    "chrome.runtime.sendMessage.message": {
+      "count": 6,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "chrome.runtime.sendMessage.responseCallback.response": {
+      "count": 4,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "chrome.runtime.sendNativeMessage.message": {
+      "count": 2,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "chrome.runtime.sendNativeMessage.responseCallback.response": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/runtime.json types it as any."
+    },
+    "chrome.sessions.getTabValue.callback.value": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/sessions.json types it as any."
+    },
+    "chrome.sessions.getWindowValue.callback.value": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/sessions.json types it as any."
+    },
+    "chrome.sessions.setTabValue.value": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/sessions.json types it as any."
+    },
+    "chrome.sessions.setWindowValue.value": {
+      "count": 1,
+      "reason": "browser/components/extensions/schemas/sessions.json types it as any."
+    },
+    "chrome.storage.StorageArea.get.callback.items": {
+      "count": 2,
+      "reason": "toolkit/components/extensions/schemas/storage.json types it as an object with additionalProperties of type any."
+    },
+    "chrome.storage.StorageArea.get.keys": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/storage.json gives it choices, one of them an object with additionalProperties of type any."
+    },
+    "chrome.storage.StorageArea.set.items": {
+      "count": 2,
+      "reason": "toolkit/components/extensions/schemas/storage.json types it as an object with additionalProperties of type any."
+    },
+    "chrome.tabs.executeScript.callback.result": {
+      "count": 2,
+      "reason": "browser/components/extensions/schemas/tabs.json types it as an array whose items are any."
+    },
+    "chrome.tabs.sendMessage.message": {
+      "count": 3,
+      "reason": "browser/components/extensions/schemas/tabs.json types it as any."
+    },
+    "chrome.tabs.sendMessage.responseCallback.response": {
+      "count": 2,
+      "reason": "browser/components/extensions/schemas/tabs.json types it as any."
+    },
+    "chrome.telemetry.keyedScalarSet.value": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/telemetry.json gives it choices, one of them an object with additionalProperties of type any."
+    },
+    "chrome.telemetry.scalarSet.value": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/telemetry.json gives it choices, one of them an object with additionalProperties of type any."
+    },
+    "chrome.telemetry.submitPing.message": {
+      "count": 1,
+      "reason": "toolkit/components/extensions/schemas/telemetry.json types it as an object with additionalProperties of type any."
+    }
+  }
+}

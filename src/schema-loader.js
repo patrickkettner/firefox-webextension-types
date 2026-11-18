@@ -2,14 +2,20 @@ import fs from "node:fs";
 import path from "node:path";
 import { parseJarMn } from "./jar-parser.js";
 import { codePointCompare, entryCodePointCompare } from "./comparator.js";
+import { EXCLUDED_NAMESPACES, WEBIDL_TYPES } from "./overrides.js";
+import { loadWebidlTypes } from "./webidl.js";
+import { instrument, nodeValues } from "./schema-trace.js";
 
 /**
  * Strips comments from raw schema JSON and returns the parsed object/array.
  *
  * @param {string} schemaPath - Absolute path to the schema JSON file.
+ * @param {string} [source] - The file as the read trace names it in positions.
+ *   The desktop and Android schema directories share file names, so the
+ *   registry passes the path under the Firefox checkout.
  * @returns {[Array<Record<string, any>>, string]} Parsed schema entries and raw text.
  */
-export function loadRawSchemaJson(schemaPath) {
+export function loadRawSchemaJson(schemaPath, source = path.basename(schemaPath)) {
   const rawText = fs.readFileSync(schemaPath, "utf8");
 
   // Strip multi-line block comments /* ... */
@@ -34,14 +40,38 @@ export function loadRawSchemaJson(schemaPath) {
     throw new Error(`Failed to parse schema JSON in ${schemaPath}: ${err.message}`);
   }
 
-  return [Array.isArray(data) ? data : [data], rawText];
+  return [instrument(Array.isArray(data) ? data : [data], source), rawText];
 }
+
+// Schemas.sys.mjs keeps several definitions of one function as fallback
+// entries when their manifest version ranges do not overlap.
+function manifestVersionsDisjoint(a, b) {
+  const min = (fn) => fn.min_manifest_version ?? -Infinity;
+  const max = (fn) => fn.max_manifest_version ?? Infinity;
+  return max(a) < min(b) || max(b) < min(a);
+}
+
+// Schemas.sys.mjs Namespace.addSchema takes permissions, allowedContexts,
+// defaultContexts and the manifest version bounds from the namespace's own
+// schema entries, last entry wins, and a $import carries none of them.
+const NAMESPACE_GATES = [
+  "permissions",
+  "allowedContexts",
+  "defaultContexts",
+  "min_manifest_version",
+  "max_manifest_version",
+];
 
 export class LoadedNamespace {
   constructor(name, description = "", permissions = []) {
     this.name = name;
     this.description = description;
     this.permissions = Array.from(permissions);
+    this.neverInjected = false;
+    this.allowedContexts = [];
+    this.defaultContexts = [];
+    this.min_manifest_version = undefined;
+    this.max_manifest_version = undefined;
     this.types = {};
     this.functions = {};
     this.events = {};
@@ -54,7 +84,6 @@ export class LoadedNamespace {
 export class SchemaRegistry {
   constructor(firefoxRoot) {
     this.firefoxRoot = path.resolve(firefoxRoot);
-    this.geckoRoot = this.firefoxRoot;
     this.toolkitDir = path.join(this.firefoxRoot, "toolkit", "components", "extensions", "schemas");
     this.browserDir = path.join(this.firefoxRoot, "browser", "components", "extensions", "schemas");
     this.mobileDir = path.join(this.firefoxRoot, "mobile", "shared", "components", "extensions", "schemas");
@@ -141,18 +170,14 @@ export class SchemaRegistry {
 
     for (const { path: schemaPath, tier } of activeSchemas) {
       const relPath = path.relative(this.firefoxRoot, schemaPath);
-      const [rawEntries] = loadRawSchemaJson(schemaPath);
+      const [rawEntries] = loadRawSchemaJson(schemaPath, relPath);
 
       for (const entry of rawEntries) {
         const nsName = entry.namespace;
         if (!nsName) continue;
 
         if (!namespaces[nsName]) {
-          namespaces[nsName] = new LoadedNamespace(
-            nsName,
-            entry.description || "",
-            entry.permissions || []
-          );
+          namespaces[nsName] = new LoadedNamespace(nsName, entry.description || "");
         }
         const ns = namespaces[nsName];
 
@@ -160,12 +185,16 @@ export class SchemaRegistry {
           ns.description = entry.description;
         }
 
-        if (Array.isArray(entry.permissions)) {
-          for (const p of entry.permissions) {
-            if (!ns.permissions.includes(p)) {
-              ns.permissions.push(p);
-            }
+        for (const key of NAMESPACE_GATES) {
+          if (entry[key]) {
+            ns[key] = Array.isArray(entry[key]) ? Array.from(entry[key]) : entry[key];
           }
+        }
+        // An explicit empty list is not "no permission needed". InjectionEntry
+        // never grants it (hasPermission is `[].some(...)`), which is how
+        // Schemas.sys.mjs keeps the manifest namespace out of `browser`.
+        if (Array.isArray(entry.permissions)) {
+          ns.neverInjected = entry.permissions.length === 0;
         }
 
         if (entry.$import) {
@@ -220,8 +249,12 @@ export class SchemaRegistry {
 
         if (Array.isArray(entry.functions)) {
           for (const fn of entry.functions) {
-            if (fn.name) {
-              fn._source_file = relPath;
+            if (!fn.name) continue;
+            fn._source_file = relPath;
+            const existing = ns.functions[fn.name];
+            if (existing && manifestVersionsDisjoint(existing, fn)) {
+              existing._alternates = [...(existing._alternates || []), fn];
+            } else {
               ns.functions[fn.name] = fn;
             }
           }
@@ -314,11 +347,6 @@ export class SchemaRegistry {
                 ns.properties[pname] = structuredClone(pval);
               }
             }
-            for (const p of superNs.permissions) {
-              if (!ns.permissions.includes(p)) {
-                ns.permissions.push(p);
-              }
-            }
             if (!ns.description && superNs.description) {
               ns.description = superNs.description;
             }
@@ -383,7 +411,7 @@ export class SchemaRegistry {
           }
         }
 
-        for (const v of Object.values(obj)) {
+        for (const v of nodeValues(obj)) {
           resolveObjImports(v, currentNs, depth + 1);
         }
       } else if (Array.isArray(obj)) {
@@ -405,6 +433,17 @@ export class SchemaRegistry {
       }
       for (const prop of Object.values(ns.properties)) {
         resolveObjImports(prop, ns);
+      }
+    }
+
+    for (const excluded of EXCLUDED_NAMESPACES) {
+      delete namespaces[excluded];
+    }
+
+    for (const [nsName, files] of Object.entries(WEBIDL_TYPES)) {
+      if (!namespaces[nsName]) continue;
+      for (const t of loadWebidlTypes(this.firefoxRoot, files)) {
+        namespaces[nsName].types[t.id] = t;
       }
     }
 

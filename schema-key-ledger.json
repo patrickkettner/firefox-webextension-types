@@ -1,0 +1,751 @@
+{
+  "about": "Every key in the Firefox schemas, by context. consumed: the generator reads it and output depends on it, at every position that carries it except those an unread group names with a reason. declined: ignored on purpose, reason required, firefox names the Firefox file when the reason is Firefox behavior. unresolved: a new or newly unread pair nobody has decided, npm test fails until it is consumed or declined. Regenerate statuses with npm run ledger:update, check with npm test and npm run ablate.",
+  "entries": [
+    {"context":"events[]","key":"allowedContexts","status":"consumed"},
+    {"context":"events[]","key":"deprecated","status":"consumed"},
+    {"context":"events[]","key":"description","status":"consumed"},
+    {"context":"events[]","key":"extraParameters","status":"consumed"},
+    {"context":"events[]","key":"filters","status":"declined","reason":"Event.parseSchema skips filters (\"We ignore these properties for now\") and Event.getDescriptor's addListener takes no extra argument for this event, so a declared filter would describe an argument Firefox rejects","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"events[]","key":"max_manifest_version","status":"consumed"},
+    {"context":"events[]","key":"name","status":"consumed"},
+    {"context":"events[]","key":"parameters","status":"consumed"},
+    {"context":"events[]","key":"permissions","status":"consumed"},
+    {"context":"events[]","key":"returns","status":"consumed"},
+    {"context":"events[]","key":"type","status":"declined","reason":"value is \"function\" on every instance and the containing array already says so, so it has no output meaning (ablation.md)"},
+    {"context":"events[]","key":"unsupported","status":"consumed"},
+    {"context":"events[] > additionalProperties.items","key":"type","status":"consumed"},
+    {"context":"events[] > extraParameters[]","key":"$ref","status":"consumed"},
+    {"context":"events[] > extraParameters[]","key":"description","status":"consumed"},
+    {"context":"events[] > extraParameters[]","key":"items","status":"consumed"},
+    {"context":"events[] > extraParameters[]","key":"name","status":"consumed"},
+    {"context":"events[] > extraParameters[]","key":"optional","status":"consumed"},
+    {"context":"events[] > extraParameters[]","key":"postprocess","status":"declined","reason":"mutuallyExclusiveBlockingOrAsyncBlocking rejects blocking together with asyncBlocking at runtime, and an array of string literals cannot say not both without listing every combination","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"events[] > extraParameters[]","key":"type","status":"consumed"},
+    {"context":"events[] > extraParameters[].items","key":"$ref","status":"consumed"},
+    {"context":"events[] > extraParameters[].items","key":"enum","status":"consumed"},
+    {"context":"events[] > extraParameters[].items","key":"type","status":"declined","reason":"the items schema is an enum and the enum is the whole type, StringType.normalize checks membership","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"events[] > filters[]","key":"description","status":"declined","reason":"Event.parseSchema skips filters (\"We ignore these properties for now\") and Event.getDescriptor's addListener takes no extra argument for this event, so a declared filter would describe an argument Firefox rejects","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"events[] > filters[]","key":"items","status":"declined","reason":"Event.parseSchema skips filters (\"We ignore these properties for now\") and Event.getDescriptor's addListener takes no extra argument for this event, so a declared filter would describe an argument Firefox rejects","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"events[] > filters[]","key":"name","status":"declined","reason":"Event.parseSchema skips filters (\"We ignore these properties for now\") and Event.getDescriptor's addListener takes no extra argument for this event, so a declared filter would describe an argument Firefox rejects","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"events[] > filters[]","key":"type","status":"declined","reason":"Event.parseSchema skips filters (\"We ignore these properties for now\") and Event.getDescriptor's addListener takes no extra argument for this event, so a declared filter would describe an argument Firefox rejects","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"events[] > filters[].items","key":"$ref","status":"declined","reason":"Event.parseSchema skips filters (\"We ignore these properties for now\") and Event.getDescriptor's addListener takes no extra argument for this event, so a declared filter would describe an argument Firefox rejects","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"events[] > items.choices[]","key":"type","status":"consumed"},
+    {"context":"events[] > parameters[]","key":"$ref","status":"consumed"},
+    {"context":"events[] > parameters[]","key":"additionalProperties","status":"consumed","unread":[
+      {"reason":"acceptsAnyKey in src/emitter.js reads additionalProperties only for objects in the manifest. Firefox fires this event with only the version (ext-runtime.js onUpdateAvailable passes { version: upgrade.version }), despite the schema description's mention of manifest details, so the declarations list only that property and a misspelled member does not compile.","at":[
+          "toolkit/components/extensions/schemas/runtime.json:runtime.events[onUpdateAvailable].parameters[details]"
+        ]}
+    ]},
+    {"context":"events[] > parameters[]","key":"description","status":"consumed"},
+    {"context":"events[] > parameters[]","key":"enum","status":"consumed"},
+    {"context":"events[] > parameters[]","key":"items","status":"consumed"},
+    {"context":"events[] > parameters[]","key":"minimum","status":"declined","reason":"IntegerType.normalize rejects a value below the minimum at runtime and TypeScript has no number range, so the type stays number","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"events[] > parameters[]","key":"name","status":"consumed"},
+    {"context":"events[] > parameters[]","key":"optional","status":"consumed","unread":[
+      {"reason":"REQUIRED_EVENT_PARAMETERS in src/overrides.js decides whether this listener argument can be missing, so the schema's optional flag is not read.","at":[
+          "browser/components/extensions/schemas/commands.json:commands.events[onCommand].parameters[tab]"
+        ]}
+    ]},
+    {"context":"events[] > parameters[]","key":"parameters","status":"consumed"},
+    {"context":"events[] > parameters[]","key":"properties","status":"consumed"},
+    {"context":"events[] > parameters[]","key":"type","status":"consumed"},
+    {"context":"events[] > parameters[].additionalProperties","key":"$ref","status":"consumed"},
+    {"context":"events[] > parameters[].additionalProperties","key":"type","status":"declined","reason":"a value Firefox hands to the extension, an index signature would let a misspelled member compile","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"events[] > parameters[].items","key":"$ref","status":"consumed"},
+    {"context":"events[] > parameters[].properties{}","key":"$ref","status":"consumed"},
+    {"context":"events[] > parameters[].properties{}","key":"additionalProperties","status":"consumed"},
+    {"context":"events[] > parameters[].properties{}","key":"description","status":"consumed"},
+    {"context":"events[] > parameters[].properties{}","key":"enum","status":"consumed"},
+    {"context":"events[] > parameters[].properties{}","key":"items","status":"consumed"},
+    {"context":"events[] > parameters[].properties{}","key":"minimum","status":"declined","reason":"IntegerType.normalize rejects a value below the minimum at runtime and TypeScript has no number range, so the type stays number","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"events[] > parameters[].properties{}","key":"optional","status":"consumed","unread":[
+      {"reason":"An unsupported property of a value Firefox hands to the extension is declared ?: undefined whether or not the schema marks it optional. The onInstalled handlers in toolkit/components/extensions/parent/ext-runtime.js fire details with no id.","at":[
+          "toolkit/components/extensions/schemas/runtime.json:runtime.events[onInstalled].parameters[details].properties{id}"
+        ]}
+    ]},
+    {"context":"events[] > parameters[].properties{}","key":"parameters","status":"consumed"},
+    {"context":"events[] > parameters[].properties{}","key":"permissions","status":"consumed"},
+    {"context":"events[] > parameters[].properties{}","key":"properties","status":"consumed"},
+    {"context":"events[] > parameters[].properties{}","key":"returns","status":"consumed"},
+    {"context":"events[] > parameters[].properties{}","key":"type","status":"consumed"},
+    {"context":"events[] > parameters[].properties{}","key":"unsupported","status":"consumed"},
+    {"context":"events[] > properties{}.additionalProperties","key":"items","status":"consumed"},
+    {"context":"events[] > properties{}.additionalProperties","key":"type","status":"consumed"},
+    {"context":"events[] > properties{}.items","key":"$ref","status":"consumed"},
+    {"context":"events[] > properties{}.items","key":"choices","status":"consumed"},
+    {"context":"events[] > properties{}.items","key":"minimum","status":"declined","reason":"IntegerType.normalize rejects a value below the minimum at runtime and TypeScript has no number range, so the type stays number","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"events[] > properties{}.items","key":"type","status":"consumed"},
+    {"context":"events[] > properties{}.parameters[]","key":"description","status":"consumed"},
+    {"context":"events[] > properties{}.parameters[]","key":"name","status":"consumed"},
+    {"context":"events[] > properties{}.parameters[]","key":"type","status":"consumed"},
+    {"context":"events[] > properties{}.returns","key":"type","status":"consumed"},
+    {"context":"events[] > returns","key":"$ref","status":"consumed"},
+    {"context":"events[] > returns","key":"description","status":"consumed"},
+    {"context":"events[] > returns","key":"optional","status":"consumed"},
+    {"context":"events[] > returns","key":"type","status":"consumed"},
+    {"context":"functions[]","key":"allowAmbiguousOptionalArguments","status":"declined","reason":"FunctionEntry.checkParameters skips argument matching and passes the raw arguments to the implementation, so the schema does not say which argument forms exist and the overloads come from the parameter list as for any function","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[]","key":"allowCrossOriginArguments","status":"declined","reason":"FunctionEntry.getDescriptor only hands it to Cu.exportFunction, where it lets a page of another origin call the function, so it says nothing about parameter types","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[]","key":"allowedContexts","status":"consumed"},
+    {"context":"functions[]","key":"async","status":"consumed"},
+    {"context":"functions[]","key":"deprecated","status":"consumed"},
+    {"context":"functions[]","key":"description","status":"consumed"},
+    {"context":"functions[]","key":"max_manifest_version","status":"consumed"},
+    {"context":"functions[]","key":"min_manifest_version","status":"consumed"},
+    {"context":"functions[]","key":"name","status":"consumed"},
+    {"context":"functions[]","key":"parameters","status":"consumed"},
+    {"context":"functions[]","key":"permissions","status":"consumed"},
+    {"context":"functions[]","key":"requireUserInput","status":"consumed"},
+    {"context":"functions[]","key":"returns","status":"consumed"},
+    {"context":"functions[]","key":"type","status":"declined","reason":"value is \"function\" on every instance and the containing array already says so, so it has no output meaning (ablation.md)"},
+    {"context":"functions[]","key":"unsupported","status":"consumed"},
+    {"context":"functions[] > choices[].additionalProperties","key":"type","status":"consumed"},
+    {"context":"functions[] > choices[].items","key":"$ref","status":"consumed"},
+    {"context":"functions[] > choices[].items","key":"minimum","status":"declined","reason":"IntegerType.normalize rejects a value below the minimum at runtime and TypeScript has no number range, so the type stays number","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[] > choices[].items","key":"type","status":"consumed"},
+    {"context":"functions[] > choices[].patternProperties{}","key":"$ref","status":"consumed"},
+    {"context":"functions[] > choices[].patternProperties{}","key":"type","status":"consumed"},
+    {"context":"functions[] > choices[].properties{}","key":"description","status":"consumed"},
+    {"context":"functions[] > choices[].properties{}","key":"format","status":"declined","reason":"StringType.normalize runs the named FORMATS function on the string at runtime, the caller still passes a string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[] > choices[].properties{}","key":"optional","status":"consumed"},
+    {"context":"functions[] > choices[].properties{}","key":"type","status":"consumed"},
+    {"context":"functions[] > items.additionalProperties","key":"type","status":"declined","reason":"the schema sets additionalProperties any only because ObjectType requires isInstanceOf to be otherwise unrestricted, and the instance class is the type","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[] > items.properties{}","key":"$ref","status":"consumed"},
+    {"context":"functions[] > items.properties{}","key":"choices","status":"consumed"},
+    {"context":"functions[] > items.properties{}","key":"description","status":"consumed"},
+    {"context":"functions[] > items.properties{}","key":"items","status":"consumed"},
+    {"context":"functions[] > items.properties{}","key":"optional","status":"consumed"},
+    {"context":"functions[] > items.properties{}","key":"properties","status":"consumed"},
+    {"context":"functions[] > items.properties{}","key":"type","status":"consumed"},
+    {"context":"functions[] > items.properties{}","key":"unsupported","status":"consumed"},
+    {"context":"functions[] > parameters[]","key":"$import","status":"consumed"},
+    {"context":"functions[] > parameters[]","key":"$ref","status":"consumed"},
+    {"context":"functions[] > parameters[]","key":"additionalProperties","status":"consumed","unread":[
+      {"reason":"The node has isInstanceOf, which decides its type through PLATFORM_TYPES in src/overrides.js, so its other type keys are not read.","at":[
+          "toolkit/components/extensions/schemas/clipboard.json:clipboard.functions[setImageData].parameters[imageData]",
+          "toolkit/components/extensions/schemas/geckoProfiler.json:geckoProfiler.functions[getProfileAsArrayBuffer].parameters[callback].parameters[profile]",
+          "toolkit/components/extensions/schemas/geckoProfiler.json:geckoProfiler.functions[getProfileAsGzippedArrayBuffer].parameters[callback].parameters[profile]",
+          "toolkit/components/extensions/schemas/runtime.json:runtime.functions[getBackgroundPage].parameters[callback].parameters[backgroundPage]",
+          "toolkit/components/extensions/schemas/runtime.json:runtime.functions[getPackageDirectoryEntry].parameters[callback].parameters[directoryEntry]"
+        ]}
+    ]},
+    {"context":"functions[] > parameters[]","key":"choices","status":"consumed"},
+    {"context":"functions[] > parameters[]","key":"default","status":"consumed"},
+    {"context":"functions[] > parameters[]","key":"description","status":"consumed"},
+    {"context":"functions[] > parameters[]","key":"enum","status":"consumed"},
+    {"context":"functions[] > parameters[]","key":"isInstanceOf","status":"consumed"},
+    {"context":"functions[] > parameters[]","key":"items","status":"consumed"},
+    {"context":"functions[] > parameters[]","key":"maxLength","status":"declined","reason":"StringType.normalize rejects a longer string at runtime and TypeScript has no string length, so the type stays string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[] > parameters[]","key":"minItems","status":"declined","reason":"plain arrays kept: a non-empty tuple type would reject plain array variables consumers already have (report.md Not Adopted, SIG-8)"},
+    {"context":"functions[] > parameters[]","key":"minimum","status":"declined","reason":"IntegerType.normalize rejects a value below the minimum at runtime and TypeScript has no number range, so the type stays number","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[] > parameters[]","key":"name","status":"consumed"},
+    {"context":"functions[] > parameters[]","key":"optional","status":"consumed","unread":[
+      {"reason":"The parameter the function's async names becomes the returned Promise, and the callback overload always takes it, so its optional flag is not read.","rule":"asyncCallback"},
+      {"reason":"REQUIRED_RESULTS in src/overrides.js says Firefox always passes this result, so the generator does not read its optional flag.","at":[
+          "browser/components/extensions/schemas/tabs.json:tabs.functions[create].parameters[callback].parameters[tab]",
+          "browser/components/extensions/schemas/tabs.json:tabs.functions[duplicate].parameters[callback].parameters[tab]",
+          "browser/components/extensions/schemas/tabs.json:tabs.functions[executeScript].parameters[callback].parameters[result]",
+          "browser/components/extensions/schemas/tabs.json:tabs.functions[update].parameters[callback].parameters[tab]",
+          "browser/components/extensions/schemas/windows.json:windows.functions[create].parameters[callback].parameters[window]",
+          "mobile/shared/components/extensions/schemas/tabs.json:tabs.functions[create].parameters[callback].parameters[tab]",
+          "mobile/shared/components/extensions/schemas/tabs.json:tabs.functions[duplicate].parameters[callback].parameters[tab]",
+          "mobile/shared/components/extensions/schemas/tabs.json:tabs.functions[executeScript].parameters[callback].parameters[result]",
+          "mobile/shared/components/extensions/schemas/tabs.json:tabs.functions[update].parameters[callback].parameters[tab]",
+          "toolkit/components/extensions/schemas/downloads.json:downloads.functions[getFileIcon].parameters[callback].parameters[iconURL]",
+          "toolkit/components/extensions/schemas/identity.json:identity.functions[launchWebAuthFlow].parameters[callback].parameters[ responseUrl]"
+        ]}
+    ]},
+    {"context":"functions[] > parameters[]","key":"parameters","status":"consumed"},
+    {"context":"functions[] > parameters[]","key":"pattern","status":"declined","reason":"StringType.normalize matches the string against the pattern at runtime and TypeScript has no pattern type, so the type stays string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[] > parameters[]","key":"properties","status":"consumed"},
+    {"context":"functions[] > parameters[]","key":"type","status":"consumed"},
+    {"context":"functions[] > parameters[].additionalProperties","key":"$ref","status":"consumed"},
+    {"context":"functions[] > parameters[].additionalProperties","key":"type","status":"consumed","unread":[
+      {"reason":"Part of a node with isInstanceOf, which decides the type through PLATFORM_TYPES in src/overrides.js.","at":[
+          "toolkit/components/extensions/schemas/runtime.json:runtime.functions[getBackgroundPage].parameters[callback].parameters[backgroundPage].additionalProperties",
+          "toolkit/components/extensions/schemas/runtime.json:runtime.functions[getPackageDirectoryEntry].parameters[callback].parameters[directoryEntry].additionalProperties"
+        ]}
+    ]},
+    {"context":"functions[] > parameters[].choices[]","key":"$ref","status":"consumed"},
+    {"context":"functions[] > parameters[].choices[]","key":"additionalProperties","status":"consumed"},
+    {"context":"functions[] > parameters[].choices[]","key":"description","status":"consumed"},
+    {"context":"functions[] > parameters[].choices[]","key":"enum","status":"consumed"},
+    {"context":"functions[] > parameters[].choices[]","key":"items","status":"consumed"},
+    {"context":"functions[] > parameters[].choices[]","key":"minItems","status":"declined","reason":"plain arrays kept: a non-empty tuple type would reject plain array variables consumers already have (report.md Not Adopted, SIG-8)"},
+    {"context":"functions[] > parameters[].choices[]","key":"minimum","status":"declined","reason":"IntegerType.normalize rejects a value below the minimum at runtime and TypeScript has no number range, so the type stays number","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[] > parameters[].choices[]","key":"properties","status":"consumed"},
+    {"context":"functions[] > parameters[].choices[]","key":"type","status":"consumed","unread":[
+      {"reason":"The node has an enum, and the generator types it as the union of the enum values without reading its type.","at":[
+          "browser/components/extensions/schemas/devtools_panels.json:devtools.panels.functions[create].parameters[iconPath].choices[0]"
+        ]}
+    ]},
+    {"context":"functions[] > parameters[].items","key":"$import","status":"consumed"},
+    {"context":"functions[] > parameters[].items","key":"$ref","status":"consumed"},
+    {"context":"functions[] > parameters[].items","key":"minimum","status":"declined","reason":"IntegerType.normalize rejects a value below the minimum at runtime and TypeScript has no number range, so the type stays number","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[] > parameters[].items","key":"properties","status":"consumed"},
+    {"context":"functions[] > parameters[].items","key":"type","status":"consumed"},
+    {"context":"functions[] > parameters[].properties{}","key":"$ref","status":"consumed"},
+    {"context":"functions[] > parameters[].properties{}","key":"additionalProperties","status":"consumed"},
+    {"context":"functions[] > parameters[].properties{}","key":"async","status":"consumed"},
+    {"context":"functions[] > parameters[].properties{}","key":"choices","status":"consumed"},
+    {"context":"functions[] > parameters[].properties{}","key":"default","status":"consumed"},
+    {"context":"functions[] > parameters[].properties{}","key":"deprecated","status":"consumed"},
+    {"context":"functions[] > parameters[].properties{}","key":"description","status":"consumed","unread":[
+      {"reason":"FUNCTION_OVERRIDES in src/overrides.js types runtime.sendMessage options as Record<string, never>, because parseBonkersArgs in toolkit/components/extensions/child/ext-runtime.js throws on options with any key, so the properties the schema lists for options are not read.","at":[
+          "toolkit/components/extensions/schemas/runtime.json:runtime.functions[sendMessage].parameters[options].properties{includeTlsChannelId}"
+        ]}
+    ]},
+    {"context":"functions[] > parameters[].properties{}","key":"enum","status":"consumed"},
+    {"context":"functions[] > parameters[].properties{}","key":"format","status":"declined","reason":"StringType.normalize runs the named FORMATS function on the string at runtime, the caller still passes a string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[] > parameters[].properties{}","key":"items","status":"consumed"},
+    {"context":"functions[] > parameters[].properties{}","key":"max_manifest_version","status":"consumed"},
+    {"context":"functions[] > parameters[].properties{}","key":"maximum","status":"declined","reason":"IntegerType.normalize rejects a value above the maximum at runtime and TypeScript has no number range, so the type stays number","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[] > parameters[].properties{}","key":"minItems","status":"declined","reason":"plain arrays kept: a non-empty tuple type would reject plain array variables consumers already have (report.md Not Adopted, SIG-8)"},
+    {"context":"functions[] > parameters[].properties{}","key":"minLength","status":"declined","reason":"StringType.normalize rejects a shorter string at runtime and TypeScript has no string length, so the type stays string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[] > parameters[].properties{}","key":"minimum","status":"declined","reason":"IntegerType.normalize rejects a value below the minimum at runtime and TypeScript has no number range, so the type stays number","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[] > parameters[].properties{}","key":"optional","status":"consumed","unread":[
+      {"reason":"An unsupported property of a value Firefox normalizes on the way in is declared ?: never whether or not the schema marks it optional, because Schemas.sys.mjs ObjectType.checkProperty rejects it whenever the key is present.","at":[
+          "browser/components/extensions/schemas/devtools_inspected_window.json:devtools.inspectedWindow.functions[eval].parameters[options].properties{contextSecurityOrigin}",
+          "browser/components/extensions/schemas/devtools_inspected_window.json:devtools.inspectedWindow.functions[eval].parameters[options].properties{frameURL}",
+          "browser/components/extensions/schemas/devtools_inspected_window.json:devtools.inspectedWindow.functions[eval].parameters[options].properties{useContentScriptContext}",
+          "browser/components/extensions/schemas/devtools_inspected_window.json:devtools.inspectedWindow.functions[reload].parameters[reloadOptions].properties{preprocessorScript}",
+          "mobile/shared/components/extensions/schemas/tabs.json:tabs.functions[create].parameters[createProperties].properties{openerTabId}",
+          "mobile/shared/components/extensions/schemas/tabs.json:tabs.functions[update].parameters[updateProperties].properties{highlighted}",
+          "mobile/shared/components/extensions/schemas/tabs.json:tabs.functions[update].parameters[updateProperties].properties{muted}",
+          "mobile/shared/components/extensions/schemas/tabs.json:tabs.functions[update].parameters[updateProperties].properties{openerTabId}",
+          "mobile/shared/components/extensions/schemas/tabs.json:tabs.functions[update].parameters[updateProperties].properties{pinned}"
+        ]},
+      {"reason":"FUNCTION_OVERRIDES in src/overrides.js types runtime.sendMessage options as Record<string, never>, because parseBonkersArgs in toolkit/components/extensions/child/ext-runtime.js throws on options with any key, so the properties the schema lists for options are not read.","at":[
+          "toolkit/components/extensions/schemas/runtime.json:runtime.functions[sendMessage].parameters[options].properties{includeTlsChannelId}"
+        ]}
+    ]},
+    {"context":"functions[] > parameters[].properties{}","key":"parameters","status":"consumed"},
+    {"context":"functions[] > parameters[].properties{}","key":"pattern","status":"declined","reason":"StringType.normalize matches the string against the pattern at runtime and TypeScript has no pattern type, so the type stays string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[] > parameters[].properties{}","key":"patternProperties","status":"consumed"},
+    {"context":"functions[] > parameters[].properties{}","key":"properties","status":"consumed"},
+    {"context":"functions[] > parameters[].properties{}","key":"type","status":"consumed"},
+    {"context":"functions[] > parameters[].properties{}","key":"unsupported","status":"consumed","unread":[
+      {"reason":"FUNCTION_OVERRIDES in src/overrides.js types runtime.sendMessage options as Record<string, never>, because parseBonkersArgs in toolkit/components/extensions/child/ext-runtime.js throws on options with any key, so the properties the schema lists for options are not read.","at":[
+          "toolkit/components/extensions/schemas/runtime.json:runtime.functions[sendMessage].parameters[options].properties{includeTlsChannelId}"
+        ]}
+    ]},
+    {"context":"functions[] > properties{}.additionalProperties","key":"type","status":"consumed"},
+    {"context":"functions[] > properties{}.choices[]","key":"$ref","status":"consumed"},
+    {"context":"functions[] > properties{}.choices[]","key":"additionalProperties","status":"consumed","unread":[
+      {"reason":"The object has patternProperties, which give its key and value types, and additionalProperties: false allows no other key.","at":[
+          "browser/components/extensions/schemas/sidebar_action.json:sidebarAction.functions[setIcon].parameters[details].properties{imageData}.choices[1]"
+        ]}
+    ]},
+    {"context":"functions[] > properties{}.choices[]","key":"deprecated","status":"consumed"},
+    {"context":"functions[] > properties{}.choices[]","key":"description","status":"consumed"},
+    {"context":"functions[] > properties{}.choices[]","key":"enum","status":"consumed"},
+    {"context":"functions[] > properties{}.choices[]","key":"items","status":"consumed"},
+    {"context":"functions[] > properties{}.choices[]","key":"max_manifest_version","status":"consumed"},
+    {"context":"functions[] > properties{}.choices[]","key":"minItems","status":"declined","reason":"plain arrays kept: a non-empty tuple type would reject plain array variables consumers already have (report.md Not Adopted, SIG-8)"},
+    {"context":"functions[] > properties{}.choices[]","key":"min_manifest_version","status":"consumed"},
+    {"context":"functions[] > properties{}.choices[]","key":"minimum","status":"declined","reason":"IntegerType.normalize rejects a value below the minimum at runtime and TypeScript has no number range, so the type stays number","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[] > properties{}.choices[]","key":"patternProperties","status":"consumed"},
+    {"context":"functions[] > properties{}.choices[]","key":"properties","status":"consumed"},
+    {"context":"functions[] > properties{}.choices[]","key":"type","status":"consumed","unread":[
+      {"reason":"The node has an enum, and the generator types it as the union of the enum values without reading its type.","at":[
+          "browser/components/extensions/schemas/menus.json:menus.functions[create].parameters[createProperties].properties{command}.choices[1]",
+          "browser/components/extensions/schemas/menus.json:menus.functions[create].parameters[createProperties].properties{command}.choices[2]",
+          "browser/components/extensions/schemas/tabs.json:tabs.functions[query].parameters[queryInfo].properties{screen}.choices[0]",
+          "browser/components/extensions/schemas/windows.json:windows.functions[create].parameters[createData].properties{focused}.choices[0]",
+          "browser/components/extensions/schemas/windows.json:windows.functions[create].parameters[createData].properties{focused}.choices[1]"
+        ]}
+    ]},
+    {"context":"functions[] > properties{}.items","key":"$ref","status":"consumed"},
+    {"context":"functions[] > properties{}.items","key":"description","status":"consumed"},
+    {"context":"functions[] > properties{}.items","key":"properties","status":"consumed"},
+    {"context":"functions[] > properties{}.items","key":"type","status":"consumed"},
+    {"context":"functions[] > properties{}.parameters[]","key":"$ref","status":"consumed"},
+    {"context":"functions[] > properties{}.parameters[]","key":"description","status":"consumed"},
+    {"context":"functions[] > properties{}.parameters[]","key":"name","status":"consumed"},
+    {"context":"functions[] > properties{}.patternProperties{}","key":"type","status":"consumed"},
+    {"context":"functions[] > returns","key":"$ref","status":"consumed"},
+    {"context":"functions[] > returns","key":"additionalProperties","status":"declined","reason":"runtime.getManifest returns an object whose type is the FUNCTION_OVERRIDES entry, and the other returns carry isInstanceOf, where ObjectType requires additionalProperties to be unrestricted","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[] > returns","key":"choices","status":"consumed"},
+    {"context":"functions[] > returns","key":"description","status":"consumed"},
+    {"context":"functions[] > returns","key":"isInstanceOf","status":"consumed"},
+    {"context":"functions[] > returns","key":"items","status":"consumed"},
+    {"context":"functions[] > returns","key":"optional","status":"consumed"},
+    {"context":"functions[] > returns","key":"properties","status":"declined","reason":"runtime.getManifest returns an empty properties next to additionalProperties any, and its return type is the FUNCTION_OVERRIDES entry"},
+    {"context":"functions[] > returns","key":"type","status":"consumed","unread":[
+      {"reason":"FUNCTION_OVERRIDES in src/overrides.js gives runtime.getManifest its return type.","at":[
+          "toolkit/components/extensions/schemas/runtime.json:runtime.functions[getManifest].returns"
+        ]}
+    ]},
+    {"context":"functions[] > returns.additionalProperties","key":"type","status":"declined","reason":"the schema sets additionalProperties any only because ObjectType requires isInstanceOf to be otherwise unrestricted, and the instance class is the type","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[] > returns.choices[]","key":"type","status":"consumed"},
+    {"context":"functions[] > returns.items","key":"additionalProperties","status":"declined","reason":"the schema sets additionalProperties any only because ObjectType requires isInstanceOf to be otherwise unrestricted, and the instance class is the type","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"functions[] > returns.items","key":"isInstanceOf","status":"consumed"},
+    {"context":"functions[] > returns.items","key":"type","status":"declined","reason":"the schema sets additionalProperties any only because ObjectType requires isInstanceOf to be otherwise unrestricted, and the instance class is the type","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"ns","key":"$import","status":"consumed"},
+    {"context":"ns","key":"allowedContexts","status":"consumed"},
+    {"context":"ns","key":"defaultContexts","status":"consumed"},
+    {"context":"ns","key":"description","status":"consumed","unread":[
+      {"reason":"menus_child.json declares the menus namespace a second time, and the namespace description comes from menus.json, the first file loaded.","at":[
+          "browser/components/extensions/schemas/menus_child.json:menus"
+        ]}
+    ]},
+    {"context":"ns","key":"events","status":"consumed"},
+    {"context":"ns","key":"functions","status":"consumed"},
+    {"context":"ns","key":"max_manifest_version","status":"consumed"},
+    {"context":"ns","key":"min_manifest_version","status":"consumed"},
+    {"context":"ns","key":"namespace","status":"consumed"},
+    {"context":"ns","key":"nocompile","status":"declined","reason":"no reader in Firefox, it is a Chromium schema compiler flag that devtools_panels.json and devtools_inspected_window.json keep","firefox":"browser/components/extensions/schemas/devtools_panels.json"},
+    {"context":"ns","key":"permissions","status":"consumed"},
+    {"context":"ns","key":"properties","status":"consumed"},
+    {"context":"ns","key":"types","status":"consumed"},
+    {"context":"properties{}","key":"$ref","status":"consumed"},
+    {"context":"properties{}","key":"additionalProperties","status":"declined","reason":"a value Firefox hands to the extension, an index signature would let a misspelled member compile","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"properties{}","key":"allowedContexts","status":"consumed"},
+    {"context":"properties{}","key":"deprecated","status":"consumed"},
+    {"context":"properties{}","key":"description","status":"consumed"},
+    {"context":"properties{}","key":"max_manifest_version","status":"consumed"},
+    {"context":"properties{}","key":"optional","status":"declined","reason":"Namespace.loadProperty ignores it (\"We ignore the optional attribute on properties\"), and lastError is null outside a callback while inIncognitoContext is always a boolean, so neither is undefined","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"properties{}","key":"properties","status":"consumed","unread":[
+      {"reason":"Schemas.sys.mjs SubModuleProperty does not inject the properties of a $ref namespace property (TODO: Inject this.properties), so the declarations leave them out.","at":[
+          "toolkit/components/extensions/schemas/storage.json:storage.properties{local}",
+          "toolkit/components/extensions/schemas/storage.json:storage.properties{managed}",
+          "toolkit/components/extensions/schemas/storage.json:storage.properties{sync}"
+        ]},
+      {"reason":"Schemas.sys.mjs does not inject these properties, but toolkit/components/extensions/parent/ext-storage.js gives storage.session a QUOTA_BYTES getter, which the declarations do not have yet.","at":[
+          "toolkit/components/extensions/schemas/storage.json:storage.properties{session}"
+        ]}
+    ]},
+    {"context":"properties{}","key":"type","status":"consumed"},
+    {"context":"properties{}","key":"unsupported","status":"consumed"},
+    {"context":"properties{}","key":"value","status":"consumed"},
+    {"context":"properties{} > additionalProperties","key":"type","status":"declined","reason":"a value Firefox hands to the extension, an index signature would let a misspelled member compile","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"properties{} > properties{}","key":"deprecated","status":"declined","reason":"sits on storage.sync MAX_SUSTAINED_WRITE_OPERATIONS_PER_MINUTE, a quota constant that is not emitted (report.md Not Adopted, EVT-8)","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"properties{} > properties{}","key":"description","status":"consumed","unread":[
+      {"reason":"Schemas.sys.mjs SubModuleProperty does not inject the properties of a $ref namespace property (TODO: Inject this.properties), so the declarations leave them out.","at":[
+          "toolkit/components/extensions/schemas/storage.json:storage.properties{local}.properties{QUOTA_BYTES}",
+          "toolkit/components/extensions/schemas/storage.json:storage.properties{managed}.properties{QUOTA_BYTES}",
+          "toolkit/components/extensions/schemas/storage.json:storage.properties{sync}.properties{MAX_ITEMS}",
+          "toolkit/components/extensions/schemas/storage.json:storage.properties{sync}.properties{MAX_SUSTAINED_WRITE_OPERATIONS_PER_MINUTE}",
+          "toolkit/components/extensions/schemas/storage.json:storage.properties{sync}.properties{MAX_WRITE_OPERATIONS_PER_HOUR}",
+          "toolkit/components/extensions/schemas/storage.json:storage.properties{sync}.properties{MAX_WRITE_OPERATIONS_PER_MINUTE}",
+          "toolkit/components/extensions/schemas/storage.json:storage.properties{sync}.properties{QUOTA_BYTES_PER_ITEM}",
+          "toolkit/components/extensions/schemas/storage.json:storage.properties{sync}.properties{QUOTA_BYTES}"
+        ]},
+      {"reason":"Schemas.sys.mjs does not inject these properties, but toolkit/components/extensions/parent/ext-storage.js gives storage.session a QUOTA_BYTES getter, which the declarations do not have yet.","at":[
+          "toolkit/components/extensions/schemas/storage.json:storage.properties{session}.properties{QUOTA_BYTES}"
+        ]}
+    ]},
+    {"context":"properties{} > properties{}","key":"optional","status":"consumed"},
+    {"context":"properties{} > properties{}","key":"type","status":"consumed"},
+    {"context":"properties{} > properties{}","key":"value","status":"declined","reason":"storage quota constants are not emitted: SubModuleProperty does not inject nested properties and a Firefox 158 probe saw QUOTA_BYTES undefined on every area (report.md Not Adopted, EVT-8)","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[]","key":"$extend","status":"consumed"},
+    {"context":"types[]","key":"$import","status":"consumed"},
+    {"context":"types[]","key":"additionalProperties","status":"consumed","unread":[
+      {"reason":"The node has isInstanceOf, which decides its type through PLATFORM_TYPES in src/overrides.js, so its other type keys are not read.","at":[
+          "browser/components/extensions/schemas/sidebar_action.json:sidebarAction.types[ImageDataType]",
+          "toolkit/components/extensions/schemas/browser_action.json:action.types[ImageDataType]",
+          "toolkit/components/extensions/schemas/page_action.json:pageAction.types[ImageDataType]"
+        ]},
+      {"reason":"runtime.Port is a value Firefox hands to the extension, and TYPE_OVERRIDES in src/overrides.js gives its members. acceptsAnyKey in src/emitter.js reads additionalProperties only for objects in the manifest.","at":[
+          "toolkit/components/extensions/schemas/runtime.json:runtime.types[Port]"
+        ]},
+      {"reason":"An object type with no properties is declared with a [key: string]: unknown index signature, so additionalProperties: true adds nothing.","at":[
+          "toolkit/components/extensions/schemas/trial_ml.json:trial.ml.types[CreateEngineRequest]",
+          "toolkit/components/extensions/schemas/trial_ml.json:trial.ml.types[RunEngineRequest]"
+        ]}
+    ]},
+    {"context":"types[]","key":"allowedContexts","status":"consumed","unread":[
+      {"reason":"allowedContexts on a type is read only for an enum type, whose constant is a runtime value with a context note. These types are declared only as interfaces, which exist in no context.","at":[
+          "toolkit/components/extensions/schemas/runtime.json:runtime.types[MessageSender]",
+          "toolkit/components/extensions/schemas/runtime.json:runtime.types[PlatformInfo]"
+        ]},
+      {"reason":"runtime.Port is a value Firefox hands to the extension, and TYPE_OVERRIDES in src/overrides.js gives its members. acceptsAnyKey in src/emitter.js reads additionalProperties only for objects in the manifest.","at":[
+          "toolkit/components/extensions/schemas/runtime.json:runtime.types[Port]"
+        ]}
+    ]},
+    {"context":"types[]","key":"choices","status":"consumed"},
+    {"context":"types[]","key":"deprecated","status":"consumed"},
+    {"context":"types[]","key":"description","status":"consumed"},
+    {"context":"types[]","key":"enum","status":"consumed"},
+    {"context":"types[]","key":"events","status":"consumed"},
+    {"context":"types[]","key":"format","status":"declined","reason":"StringType.normalize runs the named FORMATS function on the string at runtime, the caller still passes a string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[]","key":"functions","status":"consumed"},
+    {"context":"types[]","key":"id","status":"consumed"},
+    {"context":"types[]","key":"isInstanceOf","status":"consumed"},
+    {"context":"types[]","key":"items","status":"consumed"},
+    {"context":"types[]","key":"maxItems","status":"consumed"},
+    {"context":"types[]","key":"max_manifest_version","status":"consumed"},
+    {"context":"types[]","key":"minItems","status":"consumed","unread":[
+      {"reason":"minItems is read only together with maxItems, for a fixed-length tuple. These arrays have no maxItems.","at":[
+          "toolkit/components/extensions/schemas/experiments.json:experiments.types[APIPath]",
+          "toolkit/components/extensions/schemas/experiments.json:experiments.types[APIPaths]"
+        ]}
+    ]},
+    {"context":"types[]","key":"min_manifest_version","status":"consumed"},
+    {"context":"types[]","key":"pattern","status":"declined","reason":"StringType.normalize matches the string against the pattern at runtime and TypeScript has no pattern type, so the type stays string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[]","key":"postprocess","status":"declined","reason":"Type.postprocess runs a named function on the value after it is checked, for the implementation to receive, the caller still passes the declared type","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[]","key":"preprocess","status":"declined","reason":"Type.preprocess runs a function from the validation context (localize, stringToLowerCase) on the value before it is checked, the caller still passes the declared type","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[]","key":"properties","status":"consumed"},
+    {"context":"types[]","key":"type","status":"consumed","unread":[
+      {"reason":"The node has an enum, and the generator types it as the union of the enum values without reading its type.","at":[
+          "toolkit/components/extensions/schemas/builtin_widget.json:manifest.types[WidgetSize]"
+        ]},
+      {"reason":"The node has isInstanceOf, which decides its type through PLATFORM_TYPES in src/overrides.js, so its other type keys are not read.","at":[
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[ImageData]"
+        ]}
+    ]},
+    {"context":"types[] > additionalProperties","key":"$ref","status":"declined","reason":"manifest.json UnrecognizedProperty makes ObjectType.normalize accept an unknown manifest key with a warning, so the object stays closed and the compiler flags the typo","firefox":"toolkit/components/extensions/schemas/manifest.json"},
+    {"context":"types[] > additionalProperties","key":"type","status":"consumed","unread":[
+      {"reason":"Part of a node with isInstanceOf, which decides the type through PLATFORM_TYPES in src/overrides.js.","at":[
+          "browser/components/extensions/schemas/sidebar_action.json:sidebarAction.types[ImageDataType].additionalProperties",
+          "toolkit/components/extensions/schemas/browser_action.json:action.types[ImageDataType].additionalProperties",
+          "toolkit/components/extensions/schemas/page_action.json:pageAction.types[ImageDataType].additionalProperties"
+        ]},
+      {"reason":"runtime.Port is a value Firefox hands to the extension, and TYPE_OVERRIDES in src/overrides.js gives its members. acceptsAnyKey in src/emitter.js reads additionalProperties only for objects in the manifest.","at":[
+          "toolkit/components/extensions/schemas/runtime.json:runtime.types[Port].additionalProperties"
+        ]}
+    ]},
+    {"context":"types[] > additionalProperties.properties{}","key":"$ref","status":"consumed"},
+    {"context":"types[] > additionalProperties.properties{}","key":"deprecated","status":"consumed"},
+    {"context":"types[] > additionalProperties.properties{}","key":"optional","status":"consumed"},
+    {"context":"types[] > additionalProperties.properties{}","key":"preprocess","status":"declined","reason":"Type.preprocess runs a function from the validation context (localize, stringToLowerCase) on the value before it is checked, the caller still passes the declared type","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > additionalProperties.properties{}","key":"properties","status":"consumed"},
+    {"context":"types[] > additionalProperties.properties{}","key":"type","status":"consumed"},
+    {"context":"types[] > choices[]","key":"$ref","status":"consumed"},
+    {"context":"types[] > choices[]","key":"additionalProperties","status":"consumed","unread":[
+      {"reason":"The node has isInstanceOf, which decides its type through PLATFORM_TYPES in src/overrides.js, so its other type keys are not read.","at":[
+          "toolkit/components/extensions/schemas/extension_types.json:extensionTypes.types[Date].choices[2]"
+        ]},
+      {"reason":"The object has patternProperties, which give its key and value types, and additionalProperties: false allows no other key.","at":[
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[IconImageData].choices[0]",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[IconPath].choices[0]"
+        ]},
+      {"reason":"The object lists its properties, and additionalProperties: false allows no other key, which an interface with only those properties already says.","at":[
+          "toolkit/components/extensions/schemas/theme.json:manifest.types[ThemeCSSGradient].choices[0]",
+          "toolkit/components/extensions/schemas/theme.json:manifest.types[ThemeCSSGradient].choices[1]",
+          "toolkit/components/extensions/schemas/theme.json:manifest.types[ThemeCSSGradient].choices[2]",
+          "toolkit/components/extensions/schemas/theme.json:manifest.types[ThemeCSSGradient].choices[3]",
+          "toolkit/components/extensions/schemas/theme.json:manifest.types[ThemeCSSGradient].choices[4]",
+          "toolkit/components/extensions/schemas/theme.json:manifest.types[ThemeCSSGradient].choices[5]"
+        ]}
+    ]},
+    {"context":"types[] > choices[]","key":"enum","status":"consumed"},
+    {"context":"types[] > choices[]","key":"format","status":"declined","reason":"StringType.normalize runs the named FORMATS function on the string at runtime, the caller still passes a string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > choices[]","key":"isInstanceOf","status":"consumed"},
+    {"context":"types[] > choices[]","key":"items","status":"consumed"},
+    {"context":"types[] > choices[]","key":"maxItems","status":"consumed"},
+    {"context":"types[] > choices[]","key":"max_manifest_version","status":"consumed"},
+    {"context":"types[] > choices[]","key":"minItems","status":"consumed"},
+    {"context":"types[] > choices[]","key":"min_manifest_version","status":"consumed"},
+    {"context":"types[] > choices[]","key":"minimum","status":"declined","reason":"IntegerType.normalize rejects a value below the minimum at runtime and TypeScript has no number range, so the type stays number","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > choices[]","key":"pattern","status":"declined","reason":"StringType.normalize matches the string against the pattern at runtime and TypeScript has no pattern type, so the type stays string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > choices[]","key":"patternProperties","status":"consumed"},
+    {"context":"types[] > choices[]","key":"postprocess","status":"declined","reason":"Type.postprocess runs a named function on the value after it is checked, for the implementation to receive, the caller still passes the declared type","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > choices[]","key":"properties","status":"consumed"},
+    {"context":"types[] > choices[]","key":"type","status":"consumed","unread":[
+      {"reason":"The node has an enum, and the generator types it as the union of the enum values without reading its type.","at":[
+          "browser/components/extensions/schemas/bookmarks.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "browser/components/extensions/schemas/devtools.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "browser/components/extensions/schemas/find.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "browser/components/extensions/schemas/history.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "browser/components/extensions/schemas/menus.json:manifest.types[$extend OptionalPermissionNoPrompt].choices[0]",
+          "browser/components/extensions/schemas/menus.json:manifest.types[$extend PermissionNoPrompt].choices[0]",
+          "browser/components/extensions/schemas/pkcs11.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "browser/components/extensions/schemas/search.json:manifest.types[$extend OptionalPermissionNoPrompt].choices[0]",
+          "browser/components/extensions/schemas/sessions.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "browser/components/extensions/schemas/tabGroups.json:manifest.types[$extend OptionalPermissionNoPrompt].choices[0]",
+          "browser/components/extensions/schemas/tabs.json:manifest.types[$extend OptionalPermissionNoPrompt].choices[0]",
+          "browser/components/extensions/schemas/tabs.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "browser/components/extensions/schemas/top_sites.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "mobile/shared/components/extensions/schemas/gecko_view_addons.json:manifest.types[$extend PermissionPrivileged].choices[0]",
+          "mobile/shared/components/extensions/schemas/tabs.json:manifest.types[$extend OptionalPermissionNoPrompt].choices[0]",
+          "mobile/shared/components/extensions/schemas/tabs.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "toolkit/components/extensions/schemas/activity_log.json:manifest.types[$extend PermissionPrivileged].choices[0]",
+          "toolkit/components/extensions/schemas/browser_settings.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "toolkit/components/extensions/schemas/browsing_data.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "toolkit/components/extensions/schemas/captive_portal.json:manifest.types[$extend PermissionNoPrompt].choices[0]",
+          "toolkit/components/extensions/schemas/contextual_identities.json:manifest.types[$extend PermissionNoPrompt].choices[0]",
+          "toolkit/components/extensions/schemas/cookies.json:manifest.types[$extend OptionalPermissionNoPrompt].choices[0]",
+          "toolkit/components/extensions/schemas/declarative_net_request.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "toolkit/components/extensions/schemas/declarative_net_request.json:manifest.types[$extend PermissionNoPrompt].choices[0]",
+          "toolkit/components/extensions/schemas/declarative_net_request.json:manifest.types[$extend Permission].choices[0]",
+          "toolkit/components/extensions/schemas/dns.json:manifest.types[$extend PermissionNoPrompt].choices[0]",
+          "toolkit/components/extensions/schemas/downloads.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "toolkit/components/extensions/schemas/geckoProfiler.json:manifest.types[$extend PermissionNoPrompt].choices[0]",
+          "toolkit/components/extensions/schemas/identity.json:manifest.types[$extend PermissionNoPrompt].choices[0]",
+          "toolkit/components/extensions/schemas/management.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[CommonDataCollectionPermission].choices[0]",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[DataCollectionPermission].choices[1]",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[MatchPattern].choices[0]",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[OptionalDataCollectionPermission].choices[1]",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[OptionalOnlyPermission].choices[0]",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[OptionalPermissionNoPrompt].choices[0]",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[OptionalPermission].choices[1]",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[PermissionNoPrompt].choices[2]",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[PermissionPrivileged].choices[0]",
+          "toolkit/components/extensions/schemas/network_status.json:manifest.types[$extend PermissionPrivileged].choices[0]",
+          "toolkit/components/extensions/schemas/privacy.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "toolkit/components/extensions/schemas/proxy.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "toolkit/components/extensions/schemas/public_suffix.json:manifest.types[$extend OptionalPermissionNoPrompt].choices[0]",
+          "toolkit/components/extensions/schemas/runtime.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "toolkit/components/extensions/schemas/scripting.json:manifest.types[$extend OptionalPermissionNoPrompt].choices[0]",
+          "toolkit/components/extensions/schemas/telemetry.json:manifest.types[$extend PermissionPrivileged].choices[0]",
+          "toolkit/components/extensions/schemas/theme.json:manifest.types[$extend PermissionNoPrompt].choices[0]",
+          "toolkit/components/extensions/schemas/trial_ml.json:manifest.types[$extend OptionalOnlyPermission].choices[0]",
+          "toolkit/components/extensions/schemas/user_scripts.json:manifest.types[$extend OptionalOnlyPermission].choices[0]",
+          "toolkit/components/extensions/schemas/web_navigation.json:manifest.types[$extend OptionalPermission].choices[0]",
+          "toolkit/components/extensions/schemas/web_request.json:manifest.types[$extend OptionalPermissionNoPrompt].choices[0]"
+        ]},
+      {"reason":"The node has isInstanceOf, which decides its type through PLATFORM_TYPES in src/overrides.js, so its other type keys are not read.","at":[
+          "toolkit/components/extensions/schemas/extension_types.json:extensionTypes.types[Date].choices[2]"
+        ]}
+    ]},
+    {"context":"types[] > choices[].additionalProperties","key":"$ref","status":"consumed","unread":[
+      {"reason":"additionalProperties is manifest.json UnrecognizedProperty, which accepts another key with a warning. acceptsAnyKey in src/emitter.js reads additionalProperties only when it is any, so a misspelled key stays a compile error.","at":[
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[WebExtensionManifest].properties{background}.choices[0].additionalProperties",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[WebExtensionManifest].properties{content_security_policy}.choices[1].additionalProperties"
+        ]}
+    ]},
+    {"context":"types[] > choices[].additionalProperties","key":"type","status":"consumed","unread":[
+      {"reason":"Part of a node with isInstanceOf, which decides the type through PLATFORM_TYPES in src/overrides.js.","at":[
+          "toolkit/components/extensions/schemas/extension_types.json:extensionTypes.types[Date].choices[2].additionalProperties"
+        ]}
+    ]},
+    {"context":"types[] > choices[].items","key":"$ref","status":"consumed"},
+    {"context":"types[] > choices[].items","key":"additionalProperties","status":"declined","reason":"manifest.json UnrecognizedProperty makes ObjectType.normalize accept an unknown manifest key with a warning, so the object stays closed and the compiler flags the typo","firefox":"toolkit/components/extensions/schemas/manifest.json"},
+    {"context":"types[] > choices[].items","key":"maximum","status":"declined","reason":"IntegerType.normalize rejects a value above the maximum at runtime and TypeScript has no number range, so the type stays number","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > choices[].items","key":"minimum","status":"declined","reason":"IntegerType.normalize rejects a value below the minimum at runtime and TypeScript has no number range, so the type stays number","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > choices[].items","key":"onError","status":"declined","reason":"ObjectType.checkProperty and ArrayType.normalize log a warning and carry on instead of throwing, so the declared type is still the valid one","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > choices[].items","key":"preprocess","status":"declined","reason":"Type.preprocess runs a function from the validation context (localize, stringToLowerCase) on the value before it is checked, the caller still passes the declared type","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > choices[].items","key":"properties","status":"consumed"},
+    {"context":"types[] > choices[].items","key":"type","status":"consumed"},
+    {"context":"types[] > choices[].patternProperties{}","key":"$ref","status":"consumed"},
+    {"context":"types[] > choices[].properties{}","key":"$ref","status":"consumed"},
+    {"context":"types[] > choices[].properties{}","key":"additionalProperties","status":"consumed"},
+    {"context":"types[] > choices[].properties{}","key":"default","status":"consumed"},
+    {"context":"types[] > choices[].properties{}","key":"description","status":"consumed"},
+    {"context":"types[] > choices[].properties{}","key":"enum","status":"consumed"},
+    {"context":"types[] > choices[].properties{}","key":"format","status":"declined","reason":"StringType.normalize runs the named FORMATS function on the string at runtime, the caller still passes a string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > choices[].properties{}","key":"items","status":"consumed"},
+    {"context":"types[] > choices[].properties{}","key":"max_manifest_version","status":"consumed"},
+    {"context":"types[] > choices[].properties{}","key":"minItems","status":"declined","reason":"plain arrays kept: a non-empty tuple type would reject plain array variables consumers already have (report.md Not Adopted, SIG-8)"},
+    {"context":"types[] > choices[].properties{}","key":"optional","status":"consumed"},
+    {"context":"types[] > choices[].properties{}","key":"pattern","status":"declined","reason":"StringType.normalize matches the string against the pattern at runtime and TypeScript has no pattern type, so the type stays string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > choices[].properties{}","key":"type","status":"consumed"},
+    {"context":"types[] > enum[]","key":"description","status":"consumed"},
+    {"context":"types[] > enum[]","key":"name","status":"consumed"},
+    {"context":"types[] > events[]","key":"description","status":"consumed"},
+    {"context":"types[] > events[]","key":"name","status":"consumed"},
+    {"context":"types[] > events[]","key":"parameters","status":"consumed"},
+    {"context":"types[] > events[]","key":"type","status":"declined","reason":"value is \"function\" on every instance and the containing array already says so, so it has no output meaning (ablation.md)"},
+    {"context":"types[] > events[]","key":"unsupported","status":"consumed"},
+    {"context":"types[] > events[].parameters[]","key":"additionalProperties","status":"consumed","unread":[
+      {"reason":"The node has isInstanceOf, which decides its type through PLATFORM_TYPES in src/overrides.js, so its other type keys are not read.","at":[
+          "browser/components/extensions/schemas/devtools_panels.json:devtools.panels.types[ExtensionPanel].events[onShown].parameters[window]",
+          "browser/components/extensions/schemas/devtools_panels.json:devtools.panels.types[ExtensionSidebarPane].events[onShown].parameters[window]"
+        ]}
+    ]},
+    {"context":"types[] > events[].parameters[]","key":"description","status":"consumed"},
+    {"context":"types[] > events[].parameters[]","key":"isInstanceOf","status":"consumed"},
+    {"context":"types[] > events[].parameters[]","key":"name","status":"consumed"},
+    {"context":"types[] > events[].parameters[]","key":"optional","status":"consumed"},
+    {"context":"types[] > events[].parameters[]","key":"properties","status":"consumed"},
+    {"context":"types[] > events[].parameters[]","key":"type","status":"consumed"},
+    {"context":"types[] > functions[]","key":"async","status":"consumed"},
+    {"context":"types[] > functions[]","key":"description","status":"consumed"},
+    {"context":"types[] > functions[]","key":"name","status":"consumed"},
+    {"context":"types[] > functions[]","key":"parameters","status":"consumed"},
+    {"context":"types[] > functions[]","key":"returns","status":"consumed"},
+    {"context":"types[] > functions[]","key":"type","status":"declined","reason":"value is \"function\" on every instance and the containing array already says so, so it has no output meaning (ablation.md)"},
+    {"context":"types[] > functions[]","key":"unsupported","status":"consumed"},
+    {"context":"types[] > functions[].parameters[]","key":"$ref","status":"consumed"},
+    {"context":"types[] > functions[].parameters[]","key":"additionalProperties","status":"consumed"},
+    {"context":"types[] > functions[].parameters[]","key":"choices","status":"consumed"},
+    {"context":"types[] > functions[].parameters[]","key":"description","status":"consumed","unread":[
+      {"reason":"browser/components/extensions/child/ext-devtools-panels.js gives the sidebar pane setObject and setExpression with no callback parameter, so FUNCTION_OVERRIDES promiseOnly drops the callback forms and the callback's description has no place.","at":[
+          "browser/components/extensions/schemas/devtools_panels.json:devtools.panels.types[ExtensionSidebarPane].functions[setExpression].parameters[callback]",
+          "browser/components/extensions/schemas/devtools_panels.json:devtools.panels.types[ExtensionSidebarPane].functions[setObject].parameters[callback]"
+        ]}
+    ]},
+    {"context":"types[] > functions[].parameters[]","key":"items","status":"consumed"},
+    {"context":"types[] > functions[].parameters[]","key":"name","status":"consumed"},
+    {"context":"types[] > functions[].parameters[]","key":"optional","status":"consumed","unread":[
+      {"reason":"The parameter the function's async names becomes the returned Promise, and the callback overload always takes it, so its optional flag is not read.","rule":"asyncCallback"}
+    ]},
+    {"context":"types[] > functions[].parameters[]","key":"parameters","status":"consumed"},
+    {"context":"types[] > functions[].parameters[]","key":"properties","status":"consumed"},
+    {"context":"types[] > functions[].parameters[]","key":"type","status":"consumed"},
+    {"context":"types[] > functions[].returns","key":"$ref","status":"consumed"},
+    {"context":"types[] > functions[].returns","key":"description","status":"consumed"},
+    {"context":"types[] > functions[].returns","key":"type","status":"consumed"},
+    {"context":"types[] > items","key":"$ref","status":"consumed"},
+    {"context":"types[] > items","key":"enum","status":"consumed"},
+    {"context":"types[] > items","key":"maximum","status":"declined","reason":"IntegerType.normalize rejects a value above the maximum at runtime and TypeScript has no number range, so the type stays number","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > items","key":"minimum","status":"declined","reason":"IntegerType.normalize rejects a value below the minimum at runtime and TypeScript has no number range, so the type stays number","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > items","key":"onError","status":"declined","reason":"ObjectType.checkProperty and ArrayType.normalize log a warning and carry on instead of throwing, so the declared type is still the valid one","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > items","key":"properties","status":"consumed"},
+    {"context":"types[] > items","key":"type","status":"consumed","unread":[
+      {"reason":"The node has an enum, and the generator types it as the union of the enum values without reading its type.","at":[
+          "toolkit/components/extensions/schemas/dns.json:dns.types[ResolveFlags].items"
+        ]}
+    ]},
+    {"context":"types[] > items.additionalProperties","key":"$ref","status":"declined","reason":"manifest.json UnrecognizedProperty makes ObjectType.normalize accept an unknown manifest key with a warning, so the object stays closed and the compiler flags the typo","firefox":"toolkit/components/extensions/schemas/manifest.json"},
+    {"context":"types[] > items.choices[]","key":"$ref","status":"consumed"},
+    {"context":"types[] > items.choices[]","key":"description","status":"consumed"},
+    {"context":"types[] > items.choices[]","key":"enum","status":"consumed"},
+    {"context":"types[] > items.choices[]","key":"items","status":"consumed"},
+    {"context":"types[] > items.choices[]","key":"maxItems","status":"consumed"},
+    {"context":"types[] > items.choices[]","key":"minItems","status":"consumed"},
+    {"context":"types[] > items.choices[]","key":"type","status":"consumed","unread":[
+      {"reason":"The node has an enum, and the generator types it as the union of the enum values without reading its type.","at":[
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[WebExtensionManifest].properties{web_accessible_resources}.choices[1].items.properties{extension_ids}.items.choices[1]"
+        ]}
+    ]},
+    {"context":"types[] > items.properties{}","key":"$ref","status":"consumed"},
+    {"context":"types[] > items.properties{}","key":"default","status":"consumed"},
+    {"context":"types[] > items.properties{}","key":"description","status":"consumed"},
+    {"context":"types[] > items.properties{}","key":"enum","status":"consumed"},
+    {"context":"types[] > items.properties{}","key":"items","status":"consumed"},
+    {"context":"types[] > items.properties{}","key":"optional","status":"consumed"},
+    {"context":"types[] > items.properties{}","key":"pattern","status":"declined","reason":"StringType.normalize matches the string against the pattern at runtime and TypeScript has no pattern type, so the type stays string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > items.properties{}","key":"type","status":"consumed"},
+    {"context":"types[] > parameters[].additionalProperties","key":"$ref","status":"consumed"},
+    {"context":"types[] > parameters[].additionalProperties","key":"type","status":"consumed","unread":[
+      {"reason":"Part of a node with isInstanceOf, which decides the type through PLATFORM_TYPES in src/overrides.js.","at":[
+          "browser/components/extensions/schemas/devtools_panels.json:devtools.panels.types[ExtensionPanel].events[onShown].parameters[window].additionalProperties",
+          "browser/components/extensions/schemas/devtools_panels.json:devtools.panels.types[ExtensionSidebarPane].events[onShown].parameters[window].additionalProperties"
+        ]}
+    ]},
+    {"context":"types[] > parameters[].choices[]","key":"additionalProperties","status":"consumed"},
+    {"context":"types[] > parameters[].choices[]","key":"description","status":"consumed"},
+    {"context":"types[] > parameters[].choices[]","key":"items","status":"consumed"},
+    {"context":"types[] > parameters[].choices[]","key":"type","status":"consumed"},
+    {"context":"types[] > parameters[].items","key":"$ref","status":"consumed"},
+    {"context":"types[] > parameters[].items","key":"type","status":"consumed"},
+    {"context":"types[] > parameters[].properties{}","key":"$ref","status":"consumed"},
+    {"context":"types[] > parameters[].properties{}","key":"description","status":"consumed"},
+    {"context":"types[] > parameters[].properties{}","key":"optional","status":"consumed"},
+    {"context":"types[] > parameters[].properties{}","key":"type","status":"consumed"},
+    {"context":"types[] > patternProperties{}.choices[]","key":"$ref","status":"consumed"},
+    {"context":"types[] > patternProperties{}.choices[]","key":"patternProperties","status":"consumed"},
+    {"context":"types[] > patternProperties{}.choices[]","key":"type","status":"consumed"},
+    {"context":"types[] > patternProperties{}.properties{}","key":"$ref","status":"consumed"},
+    {"context":"types[] > patternProperties{}.properties{}","key":"items","status":"consumed"},
+    {"context":"types[] > patternProperties{}.properties{}","key":"optional","status":"consumed"},
+    {"context":"types[] > patternProperties{}.properties{}","key":"patternProperties","status":"consumed"},
+    {"context":"types[] > patternProperties{}.properties{}","key":"type","status":"consumed"},
+    {"context":"types[] > properties{}","key":"$ref","status":"consumed"},
+    {"context":"types[] > properties{}","key":"additionalProperties","status":"consumed","unread":[
+      {"reason":"additionalProperties is manifest.json UnrecognizedProperty, which accepts another key with a warning. acceptsAnyKey in src/emitter.js reads additionalProperties only when it is any, so a misspelled key stays a compile error.","at":[
+          "browser/components/extensions/schemas/chrome_settings_overrides.json:manifest.types[$extend WebExtensionManifest].properties{chrome_settings_overrides}",
+          "browser/components/extensions/schemas/chrome_settings_overrides.json:manifest.types[$extend WebExtensionManifest].properties{chrome_settings_overrides}.properties{search_provider}",
+          "browser/components/extensions/schemas/omnibox.json:manifest.types[$extend WebExtensionManifest].properties{omnibox}",
+          "browser/components/extensions/schemas/sidebar_action.json:manifest.types[$extend WebExtensionManifest].properties{sidebar_action}",
+          "toolkit/components/extensions/schemas/declarative_net_request.json:manifest.types[$extend WebExtensionManifest].properties{declarative_net_request}",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[FirefoxSpecificProperties].properties{data_collection_permissions}",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[WebExtensionManifest].properties{options_ui}",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[WebExtensionManifest].properties{sandbox}",
+          "toolkit/components/extensions/schemas/page_action.json:manifest.types[$extend WebExtensionManifest].properties{page_action}",
+          "toolkit/components/extensions/schemas/user_scripts.json:manifest.types[$extend WebExtensionManifest].properties{user_scripts}"
+        ]}
+    ]},
+    {"context":"types[] > properties{}","key":"choices","status":"consumed"},
+    {"context":"types[] > properties{}","key":"default","status":"consumed"},
+    {"context":"types[] > properties{}","key":"deprecated","status":"consumed"},
+    {"context":"types[] > properties{}","key":"description","status":"consumed"},
+    {"context":"types[] > properties{}","key":"enum","status":"consumed"},
+    {"context":"types[] > properties{}","key":"format","status":"declined","reason":"StringType.normalize runs the named FORMATS function on the string at runtime, the caller still passes a string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}","key":"items","status":"consumed"},
+    {"context":"types[] > properties{}","key":"maxItems","status":"declined","reason":"ArrayType.normalize rejects a longer array at runtime and a TypeScript array has no length bound, a tuple is only emitted where minItems equals maxItems","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}","key":"max_manifest_version","status":"consumed"},
+    {"context":"types[] > properties{}","key":"maximum","status":"declined","reason":"IntegerType.normalize rejects a value above the maximum at runtime and TypeScript has no number range, so the type stays number","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}","key":"minItems","status":"declined","reason":"plain arrays kept: a non-empty tuple type would reject plain array variables consumers already have (report.md Not Adopted, SIG-8)"},
+    {"context":"types[] > properties{}","key":"minLength","status":"declined","reason":"StringType.normalize rejects a shorter string at runtime and TypeScript has no string length, so the type stays string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}","key":"min_manifest_version","status":"consumed"},
+    {"context":"types[] > properties{}","key":"minimum","status":"declined","reason":"IntegerType.normalize rejects a value below the minimum at runtime and TypeScript has no number range, so the type stays number","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}","key":"onError","status":"declined","reason":"ObjectType.checkProperty and ArrayType.normalize log a warning and carry on instead of throwing, so the declared type is still the valid one","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}","key":"optional","status":"consumed","unread":[
+      {"reason":"An unsupported property of a value Firefox normalizes on the way in is declared ?: never whether or not the schema marks it optional, because Schemas.sys.mjs ObjectType.checkProperty rejects it whenever the key is present.","at":[
+          "browser/components/extensions/schemas/omnibox.json:omnibox.types[DefaultSuggestResult].properties{descriptionStylesRaw}",
+          "browser/components/extensions/schemas/omnibox.json:omnibox.types[DefaultSuggestResult].properties{descriptionStyles}",
+          "browser/components/extensions/schemas/url_overrides.json:manifest.types[$extend WebExtensionManifest].properties{chrome_url_overrides}.properties{bookmarks}",
+          "browser/components/extensions/schemas/url_overrides.json:manifest.types[$extend WebExtensionManifest].properties{chrome_url_overrides}.properties{history}",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[DeprecatedApplications].properties{gecko_android}",
+          "toolkit/components/extensions/schemas/notifications.json:notifications.types[CreateNotificationOptions].properties{buttons}",
+          "toolkit/components/extensions/schemas/notifications.json:notifications.types[UpdateNotificationOptions].properties{buttons}"
+        ]},
+      {"reason":"An unsupported property of a value Firefox hands to the extension is declared ?: undefined whether or not the schema marks it optional. Nothing under toolkit/components/extensions sets tlsChannelId, and the Android Tab getter for openerTabId in mobile/shared/components/extensions/ext-android.js returns undefined.","at":[
+          "mobile/shared/components/extensions/schemas/tabs.json:tabs.types[Tab].properties{openerTabId}",
+          "toolkit/components/extensions/schemas/runtime.json:runtime.types[MessageSender].properties{tlsChannelId}"
+        ]}
+    ]},
+    {"context":"types[] > properties{}","key":"pattern","status":"declined","reason":"StringType.normalize matches the string against the pattern at runtime and TypeScript has no pattern type, so the type stays string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}","key":"patternProperties","status":"consumed"},
+    {"context":"types[] > properties{}","key":"permissions","status":"consumed"},
+    {"context":"types[] > properties{}","key":"postprocess","status":"declined","reason":"Type.postprocess runs a named function on the value after it is checked, for the implementation to receive, the caller still passes the declared type","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}","key":"preprocess","status":"declined","reason":"Type.preprocess runs a function from the validation context (localize, stringToLowerCase) on the value before it is checked, the caller still passes the declared type","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}","key":"privileged","status":"consumed"},
+    {"context":"types[] > properties{}","key":"properties","status":"consumed"},
+    {"context":"types[] > properties{}","key":"type","status":"consumed"},
+    {"context":"types[] > properties{}","key":"unsupported","status":"consumed"},
+    {"context":"types[] > properties{}.additionalProperties","key":"$ref","status":"consumed","unread":[
+      {"reason":"additionalProperties is manifest.json UnrecognizedProperty, which accepts another key with a warning. acceptsAnyKey in src/emitter.js reads additionalProperties only when it is any, so a misspelled key stays a compile error.","at":[
+          "browser/components/extensions/schemas/chrome_settings_overrides.json:manifest.types[$extend WebExtensionManifest].properties{chrome_settings_overrides}.additionalProperties",
+          "browser/components/extensions/schemas/chrome_settings_overrides.json:manifest.types[$extend WebExtensionManifest].properties{chrome_settings_overrides}.properties{search_provider}.additionalProperties",
+          "browser/components/extensions/schemas/commands.json:manifest.types[$extend WebExtensionManifest].properties{commands}.additionalProperties.additionalProperties",
+          "browser/components/extensions/schemas/omnibox.json:manifest.types[$extend WebExtensionManifest].properties{omnibox}.additionalProperties",
+          "browser/components/extensions/schemas/sidebar_action.json:manifest.types[$extend WebExtensionManifest].properties{sidebar_action}.additionalProperties",
+          "toolkit/components/extensions/schemas/declarative_net_request.json:manifest.types[$extend WebExtensionManifest].properties{declarative_net_request}.additionalProperties",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[FirefoxSpecificProperties].properties{data_collection_permissions}.additionalProperties",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[WebExtensionManifest].properties{options_ui}.additionalProperties",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[WebExtensionManifest].properties{sandbox}.additionalProperties",
+          "toolkit/components/extensions/schemas/page_action.json:manifest.types[$extend WebExtensionManifest].properties{page_action}.additionalProperties",
+          "toolkit/components/extensions/schemas/user_scripts.json:manifest.types[$extend WebExtensionManifest].properties{user_scripts}.additionalProperties"
+        ]}
+    ]},
+    {"context":"types[] > properties{}.additionalProperties","key":"additionalProperties","status":"declined","reason":"manifest.json UnrecognizedProperty makes ObjectType.normalize accept an unknown manifest key with a warning, so the object stays closed and the compiler flags the typo","firefox":"toolkit/components/extensions/schemas/manifest.json"},
+    {"context":"types[] > properties{}.additionalProperties","key":"properties","status":"consumed"},
+    {"context":"types[] > properties{}.additionalProperties","key":"type","status":"consumed"},
+    {"context":"types[] > properties{}.choices[]","key":"$ref","status":"consumed"},
+    {"context":"types[] > properties{}.choices[]","key":"additionalProperties","status":"declined","reason":"manifest.json UnrecognizedProperty makes ObjectType.normalize accept an unknown manifest key with a warning, so the object stays closed and the compiler flags the typo","firefox":"toolkit/components/extensions/schemas/manifest.json"},
+    {"context":"types[] > properties{}.choices[]","key":"enum","status":"consumed"},
+    {"context":"types[] > properties{}.choices[]","key":"format","status":"declined","reason":"StringType.normalize runs the named FORMATS function on the string at runtime, the caller still passes a string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}.choices[]","key":"items","status":"consumed"},
+    {"context":"types[] > properties{}.choices[]","key":"max_manifest_version","status":"consumed"},
+    {"context":"types[] > properties{}.choices[]","key":"minItems","status":"declined","reason":"plain arrays kept: a non-empty tuple type would reject plain array variables consumers already have (report.md Not Adopted, SIG-8)"},
+    {"context":"types[] > properties{}.choices[]","key":"min_manifest_version","status":"consumed"},
+    {"context":"types[] > properties{}.choices[]","key":"pattern","status":"declined","reason":"StringType.normalize matches the string against the pattern at runtime and TypeScript has no pattern type, so the type stays string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}.choices[]","key":"postprocess","status":"declined","reason":"Type.postprocess runs a named function on the value after it is checked, for the implementation to receive, the caller still passes the declared type","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}.choices[]","key":"preprocess","status":"declined","reason":"Type.preprocess runs a function from the validation context (localize, stringToLowerCase) on the value before it is checked, the caller still passes the declared type","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}.choices[]","key":"properties","status":"consumed"},
+    {"context":"types[] > properties{}.choices[]","key":"type","status":"consumed","unread":[
+      {"reason":"The node has an enum, and the generator types it as the union of the enum values without reading its type.","at":[
+          "toolkit/components/extensions/schemas/extension_protocol_handlers.json:manifest.types[ProtocolHandler].properties{protocol}.choices[0]"
+        ]}
+    ]},
+    {"context":"types[] > properties{}.items","key":"$ref","status":"consumed"},
+    {"context":"types[] > properties{}.items","key":"additionalProperties","status":"declined","reason":"manifest.json UnrecognizedProperty makes ObjectType.normalize accept an unknown manifest key with a warning, so the object stays closed and the compiler flags the typo","firefox":"toolkit/components/extensions/schemas/manifest.json"},
+    {"context":"types[] > properties{}.items","key":"choices","status":"consumed"},
+    {"context":"types[] > properties{}.items","key":"description","status":"consumed"},
+    {"context":"types[] > properties{}.items","key":"enum","status":"consumed"},
+    {"context":"types[] > properties{}.items","key":"format","status":"declined","reason":"StringType.normalize runs the named FORMATS function on the string at runtime, the caller still passes a string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}.items","key":"onError","status":"declined","reason":"ObjectType.checkProperty and ArrayType.normalize log a warning and carry on instead of throwing, so the declared type is still the valid one","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}.items","key":"preprocess","status":"declined","reason":"Type.preprocess runs a function from the validation context (localize, stringToLowerCase) on the value before it is checked, the caller still passes the declared type","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}.items","key":"properties","status":"consumed"},
+    {"context":"types[] > properties{}.items","key":"type","status":"consumed","unread":[
+      {"reason":"The node has an enum, and the generator types it as the union of the enum values without reading its type.","at":[
+          "browser/components/extensions/schemas/menus.json:menus.types[OnClickData].properties{modifiers}.items",
+          "toolkit/components/extensions/schemas/browser_action.json:action.types[OnClickData].properties{modifiers}.items",
+          "toolkit/components/extensions/schemas/manifest.json:manifest.types[WebExtensionManifest].properties{background}.choices[0].properties{preferred_environment}.items",
+          "toolkit/components/extensions/schemas/page_action.json:pageAction.types[OnClickData].properties{modifiers}.items",
+          "toolkit/components/extensions/schemas/theme.json:manifest.types[ThemeType].properties{properties}.properties{additional_backgrounds_alignment}.items",
+          "toolkit/components/extensions/schemas/theme.json:manifest.types[ThemeType].properties{properties}.properties{additional_backgrounds_tiling}.items"
+        ]}
+    ]},
+    {"context":"types[] > properties{}.patternProperties{}","key":"$ref","status":"consumed"},
+    {"context":"types[] > properties{}.patternProperties{}","key":"choices","status":"consumed"},
+    {"context":"types[] > properties{}.patternProperties{}","key":"format","status":"declined","reason":"StringType.normalize runs the named FORMATS function on the string at runtime, the caller still passes a string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}.patternProperties{}","key":"pattern","status":"declined","reason":"StringType.normalize matches the string against the pattern at runtime and TypeScript has no pattern type, so the type stays string","firefox":"toolkit/components/extensions/Schemas.sys.mjs"},
+    {"context":"types[] > properties{}.patternProperties{}","key":"properties","status":"consumed"},
+    {"context":"types[] > properties{}.patternProperties{}","key":"type","status":"consumed"}
+  ]
+}

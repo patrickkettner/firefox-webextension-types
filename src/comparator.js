@@ -1,9 +1,5 @@
-/**
- * comparator.js - Strict Unicode code-point collation utilities
- *
- * Guarantees deterministic, bit-for-bit identical sort ordering across
- * all environments regardless of host OS, Node version, or ambient LANG/LC_ALL locale.
- */
+// String comparison that ignores the locale, so sorted output is the same on
+// every machine.
 
 /**
  * Compares two strings using UTF-16 code-unit binary ordering.

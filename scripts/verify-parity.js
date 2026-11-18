@@ -1,99 +1,46 @@
 #!/usr/bin/env node
-/**
- * verify-parity.js - Parity, schema coverage, and type safety audits for Firefox WebExtension types
- */
+// Checks dist/ and package.json. Each top-level schema namespace has a
+// namespace in firefox-desktop.d.ts and firefox-mobile.d.ts, six
+// declarations in index.d.ts have their expected text, no declaration file
+// has an empty interface, a dead overload, a callback parameter marked
+// optional or an "upstream any" comment, and every file package.json names
+// exists.
 
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { parseJarMn } from "../src/jar-parser.js";
-import { loadRawSchemaJson } from "../src/schema-loader.js";
+import { parseArgs } from "node:util";
+import { resolveFirefoxPath } from "../src/firefox-root.js";
+import { SchemaRegistry, loadRawSchemaJson } from "../src/schema-loader.js";
+import { EXCLUDED_NAMESPACES } from "../verification/src/declared-differences.js";
+import { findDeadOverloads } from "./lib/dead-overloads.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJ = path.resolve(__dirname, "..");
 
-export function getFirefoxRoot() {
-  const args = process.argv.slice(2);
-  for (let i = 0; i < args.length; i++) {
-    if (
-      (args[i] === "--firefox-source" || args[i] === "--topsrcdir") &&
-      i + 1 < args.length
-    ) {
-      const p = path.resolve(args[i + 1]);
-      if (fs.existsSync(p)) return p;
-      throw new Error(`Firefox repository from CLI argument (${args[i + 1]}) not found.`);
-    }
-  }
+const { values } = parseArgs({
+  options: { "firefox-source": { type: "string" } },
+  strict: false,
+});
+const MOZ = resolveFirefoxPath(values["firefox-source"]);
 
-  const envMoz =
-    process.env.TOPSRCDIR ||
-    process.env.MOZ_TOPSRCDIR ||
-    process.env.MOZILLA_CENTRAL;
-  if (envMoz) {
-    const p = path.resolve(envMoz);
-    if (fs.existsSync(p)) return p;
-    throw new Error(`Firefox repository from environment (${envMoz}) not found.`);
-  }
-
-  throw new Error(
-    "Firefox repository not configured. Pass --firefox-source <path> or set the TOPSRCDIR environment variable."
-  );
+function getPlatformSchemas(platform) {
+  return new SchemaRegistry(MOZ).getActiveSchemas(platform).map((s) => s.path);
 }
 
-const MOZ = getFirefoxRoot();
-
-export function getPlatformSchemas(platform) {
-  const isAndroid = platform === "mobile";
-  const schemas = [];
-
-  const tkDir = path.join(MOZ, "toolkit", "components", "extensions", "schemas");
-  const tkJar = path.join(tkDir, "jar.mn");
-  for (const fname of parseJarMn(tkJar, isAndroid)) {
-    const fpath = path.join(tkDir, fname);
-    if (!fs.existsSync(fpath)) {
-      throw new Error(`Schema file declared in jar.mn not found: ${fpath}`);
-    }
-    schemas.push(fpath);
-  }
-
-  if (platform === "desktop") {
-    const brDir = path.join(MOZ, "browser", "components", "extensions", "schemas");
-    const brJar = path.join(brDir, "jar.mn");
-    for (const fname of parseJarMn(brJar, false)) {
-      const fpath = path.join(brDir, fname);
-      if (!fs.existsSync(fpath)) {
-        throw new Error(`Schema file declared in jar.mn not found: ${fpath}`);
-      }
-      schemas.push(fpath);
-    }
-  } else if (platform === "mobile") {
-    const mbDir = path.join(MOZ, "mobile", "shared", "components", "extensions", "schemas");
-    const mbJar = path.join(mbDir, "jar.mn");
-    for (const fname of parseJarMn(mbJar, true)) {
-      const fpath = path.join(mbDir, fname);
-      if (!fs.existsSync(fpath)) {
-        throw new Error(`Schema file declared in jar.mn not found: ${fpath}`);
-      }
-      schemas.push(fpath);
-    }
-  }
-
-  return schemas;
-}
-
-export function parseSchemaNamespaces(schemaPath) {
+function parseSchemaNamespaces(schemaPath) {
   const [data] = loadRawSchemaJson(schemaPath);
   const namespaces = [];
   for (const entry of data) {
     const ns = entry.namespace;
-    if (ns && !ns.includes(".")) {
+    if (ns && !ns.includes(".") && !Object.hasOwn(EXCLUDED_NAMESPACES, ns)) {
       namespaces.push(ns);
     }
   }
   return namespaces;
 }
 
-export function verifyPlatformSchemaCoverage(platform, dtsPath) {
+function verifyPlatformSchemaCoverage(platform, dtsPath) {
   if (!fs.existsSync(dtsPath)) {
     console.log(`FAIL: Missing declaration file: ${dtsPath}`);
     return false;
@@ -103,12 +50,13 @@ export function verifyPlatformSchemaCoverage(platform, dtsPath) {
   const schemas = getPlatformSchemas(platform);
   const parseErrors = [];
   const missingNamespaces = [];
-  const skippedInternal = [];
+  const checked = new Set();
 
   for (const schemaPath of schemas) {
     try {
       const nsList = parseSchemaNamespaces(schemaPath);
       for (const ns of nsList) {
+        checked.add(ns);
         const pattern = `export namespace ${ns} {`;
         if (!dtsContent.includes(pattern)) {
           missingNamespaces.push(
@@ -138,12 +86,12 @@ export function verifyPlatformSchemaCoverage(platform, dtsPath) {
   }
 
   console.log(
-    `PASS: 100% ${platform} schema coverage across ${schemas.length} schemas in ${path.basename(dtsPath)}.`
+    `PASS: ${path.basename(dtsPath)} declares a namespace for each of the ${checked.size} top-level namespaces in the ${schemas.length} ${platform} schemas.`
   );
   return true;
 }
 
-export function verifyNoInlineComments() {
+function verifyNoInlineComments() {
   const distDir = path.join(PROJ, "dist");
   const dtsFiles = fs.readdirSync(distDir).filter((f) => f.endsWith(".d.ts"));
   if (dtsFiles.length === 0) {
@@ -167,19 +115,19 @@ export function verifyNoInlineComments() {
     return false;
   }
 
-  console.log("PASS: Zero inline '/* upstream any */' comments in emitted types.");
+  console.log("PASS: No declaration file in dist/ has an '/* upstream any */' comment.");
   return true;
 }
 
-export function verifySoundnessAndFixedTypes() {
+function verifySoundnessAndFixedTypes() {
   const indexDts = fs.readFileSync(path.join(PROJ, "dist", "index.d.ts"), "utf8");
   const errors = [];
 
-  if (!indexDts.includes("getManifest(): Record<string, unknown>;")) {
-    errors.push("runtime.getManifest() not typed as Record<string, unknown>");
+  if (!/getManifest\(\): Normalized<browser\.manifest\.WebExtensionManifest, "[^>]*"permissions"[^>]*>;/.test(indexDts)) {
+    errors.push("runtime.getManifest() not typed as Normalized<browser.manifest.WebExtensionManifest, ...> naming the keys normalization fills");
   }
 
-  if (!indexDts.includes("getViews(): Window[];")) {
+  if (!indexDts.includes("getViews(fetchProperties?: getViews.FetchProperties | null): Window[];")) {
     errors.push("extension.getViews() not typed as Window[]");
   }
 
@@ -187,16 +135,16 @@ export function verifySoundnessAndFixedTypes() {
     errors.push("extension.getBackgroundPage() not typed as Window | null");
   }
 
-  if (!indexDts.includes("bytes?: ArrayBuffer;")) {
+  if (!indexDts.includes("bytes?: ArrayBuffer | undefined;")) {
     errors.push("webRequest.UploadData.bytes not typed as ArrayBuffer");
   }
 
   if (
     !indexDts.includes(
-      "browser.webRequest.BlockingResponse | Promise<browser.webRequest.BlockingResponse> | void"
+      "BlockingResponse | globalThis.Promise<BlockingResponse | void> | void"
     )
   ) {
-    errors.push("WebExtensionWebRequestEvent listener return type incorrect");
+    errors.push("webRequest blocking listener return type incorrect");
   }
 
   if (!indexDts.includes("(string & {})")) {
@@ -212,12 +160,14 @@ export function verifySoundnessAndFixedTypes() {
   }
 
   console.log(
-    "PASS: All soundness fixes verified (manifest, Window, ArrayBuffer, BlockingResponse, (string & {}))."
+    "PASS: index.d.ts has the text of six declarations: runtime.getManifest() as Normalized<WebExtensionManifest, ...>, " +
+      "extension.getViews() as Window[], extension.getBackgroundPage() as Window | null, UploadData.bytes as ArrayBuffer, " +
+      "the blocking webRequest listener return, and an open (string & {}) union."
   );
   return true;
 }
 
-export function verifyZeroEmptyInterfaces() {
+function verifyZeroEmptyInterfaces() {
   const distDir = path.join(PROJ, "dist");
   const dtsFiles = fs.readdirSync(distDir).filter((f) => f.endsWith(".d.ts"));
   const emptyInterfaces = [];
@@ -238,57 +188,30 @@ export function verifyZeroEmptyInterfaces() {
     return false;
   }
 
-  console.log(
-    "PASS: Zero empty interfaces (all empty schema objects emit [key: string]: unknown)."
-  );
+  console.log("PASS: No declaration file in dist/ has an interface with an empty body.");
   return true;
 }
 
-export function verifyZeroDeadOverloads() {
+function verifyZeroDeadOverloads() {
   const distDir = path.join(PROJ, "dist");
-  const dtsFiles = fs.readdirSync(distDir).filter((f) => f.endsWith(".d.ts"));
+  const files = fs.readdirSync(distDir).filter((f) => f.endsWith(".d.ts") || f.endsWith(".d.cts")).sort();
+  const byText = new Map();
+  for (const f of files) {
+    const text = fs.readFileSync(path.join(distDir, f), "utf8");
+    if (!byText.has(text)) byText.set(text, []);
+    byText.get(text).push(f);
+  }
+
   const deadOverloads = [];
-
-  for (const dtsFile of dtsFiles) {
-    const content = fs.readFileSync(path.join(distDir, dtsFile), "utf8");
-    const nsBlocks = Array.from(
-      content.matchAll(/namespace\s+([A-Za-z0-9_]+)\s*\{([^}]+(?:\{[^}]*\}[^}]*)*)\}/g)
-    );
-
-    for (const [, nsName, block] of nsBlocks) {
-      const fnMatches = Array.from(
-        block.matchAll(/(?:export\s+)?function\s+([A-Za-z0-9_]+)\s*\((.*?)\)\s*:\s*([^;]+);/g)
-      );
-      const fnGroups = new Map();
-      for (const [, name, params, ret] of fnMatches) {
-        if (!fnGroups.has(name)) fnGroups.set(name, []);
-        fnGroups.get(name).push([params.trim(), ret.trim()]);
-      }
-
-      for (const [name, sigs] of fnGroups.entries()) {
-        if (sigs.length <= 1) continue;
-        let seenAllOptional = false;
-        for (const [params] of sigs) {
-          const isParameterless = params.length === 0;
-          if (isParameterless && seenAllOptional) {
-            deadOverloads.push(
-              `${dtsFile}: ${nsName}.${name} parameterless shadowed by all-optional overload`
-            );
-            break;
-          }
-          if (params) {
-            const paramList = params
-              .split(",")
-              .map((p) => p.trim())
-              .filter(Boolean);
-            const allOpt = paramList.every((p) => p.includes("?:"));
-            if (allOpt) {
-              seenAllOptional = true;
-            }
-          }
-        }
-      }
-    }
+  let functions = 0;
+  let signatures = 0;
+  let overloadSets = 0;
+  for (const names of byText.values()) {
+    const result = findDeadOverloads(path.join(distDir, names[0]));
+    functions += result.functions;
+    signatures += result.signatures;
+    overloadSets += result.overloadSets;
+    for (const d of result.dead) deadOverloads.push(`${names.join(", ")}: ${d}`);
   }
 
   if (deadOverloads.length > 0) {
@@ -300,12 +223,13 @@ export function verifyZeroDeadOverloads() {
   }
 
   console.log(
-    "PASS: Zero dead overloads (specific/parameterless precede all-optional overloads)."
+    `PASS: No overload is shadowed by an earlier one that accepts every call it does, in ${overloadSets} overload sets ` +
+      `(${signatures} signatures, ${functions} of them function declarations) in the ${byText.size} distinct declaration files among the ${files.length} in dist/.`
   );
   return true;
 }
 
-export function verifyZeroCallbackOptionalParameters() {
+function verifyZeroCallbackOptionalParameters() {
   const distDir = path.join(PROJ, "dist");
   const dtsFiles = fs.readdirSync(distDir).filter((f) => f.endsWith(".d.ts"));
   const callbackIssues = [];
@@ -328,11 +252,11 @@ export function verifyZeroCallbackOptionalParameters() {
     return false;
   }
 
-  console.log("PASS: Zero callback optional parameters ((arg: Type) => void emitted cleanly).");
+  console.log("PASS: No callback type in dist/ has a parameter marked optional with ?.");
   return true;
 }
 
-export function verifyPackageExports() {
+function verifyPackageExports() {
   const pkgPath = path.join(PROJ, "package.json");
   if (!fs.existsSync(pkgPath)) {
     console.log(`FAIL: package.json missing at ${pkgPath}`);
@@ -355,22 +279,19 @@ export function verifyPackageExports() {
 
   // Check exports map
   const exportsMap = pkg.exports || {};
-  for (const [subpath, entry] of Object.entries(exportsMap)) {
-    if (typeof entry === "object" && entry !== null) {
-      for (const [cond, relPath] of Object.entries(entry)) {
-        const p = path.join(PROJ, relPath.replace(/^\.\//, ""));
-        if (!fs.existsSync(p)) {
-          errors.push(
-            `package.json exports['${subpath}']['${cond}'] (${relPath}) does not exist on disk`
-          );
-        }
+  const checkTarget = (where, target) => {
+    if (typeof target === "string") {
+      if (!fs.existsSync(path.join(PROJ, target.replace(/^\.\//, "")))) {
+        errors.push(`package.json exports${where} (${target}) does not exist on disk`);
       }
-    } else if (typeof entry === "string") {
-      const p = path.join(PROJ, entry.replace(/^\.\//, ""));
-      if (!fs.existsSync(p)) {
-        errors.push(`package.json exports['${subpath}'] (${entry}) does not exist on disk`);
+    } else if (target && typeof target === "object") {
+      for (const [cond, inner] of Object.entries(target)) {
+        checkTarget(`${where}['${cond}']`, inner);
       }
     }
+  };
+  for (const [subpath, entry] of Object.entries(exportsMap)) {
+    checkTarget(`['${subpath}']`, entry);
   }
 
   // Check typesVersions
@@ -392,11 +313,11 @@ export function verifyPackageExports() {
     return false;
   }
 
-  console.log("PASS: Package exports, main, types, and typesVersions verified on disk.");
+  console.log("PASS: Every file package.json names in main, types, exports and typesVersions exists on disk.");
   return true;
 }
 
-export function runAllAudits() {
+function runAllAudits() {
   console.log("Running verification audits...");
   console.log(`  Project: ${PROJ}`);
   console.log(`  Mozilla: ${MOZ}`);
@@ -420,6 +341,4 @@ export function runAllAudits() {
   console.log("All audits PASSED successfully.");
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  runAllAudits();
-}
+runAllAudits();

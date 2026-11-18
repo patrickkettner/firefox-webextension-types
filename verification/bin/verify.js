@@ -1,7 +1,5 @@
 #!/usr/bin/env node
-/**
- * verify.js - CLI runner for 3-Tier Independent Verification
- */
+// Runs the three-tier verifier on each declaration surface in dist/.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -11,28 +9,30 @@ import { parseArgs } from "node:util";
 import { loadIndependentSchemaUniverse } from "../src/independent-schema-loader.js";
 import { extractSymbolsFromDts } from "../src/ast-symbol-extractor.js";
 import { verifyDeclarations } from "../src/three-tier-verifier.js";
+import { ADDED_MEMBERS, EXCLUDED_NAMESPACES } from "../src/declared-differences.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJ_ROOT = path.resolve(__dirname, "../..");
 
-export function runVerificationForTarget(firefoxRoot, target, dtsPath) {
-  console.log(`\n--- Auditing ${target.toUpperCase()}: ${path.basename(dtsPath)} ---`);
+function runVerificationForTarget(firefoxRoot, target, dtsPath, aliasSourcePath = null) {
+  console.log(`\n${path.basename(dtsPath)} against the ${target} schemas`);
   if (!fs.existsSync(dtsPath)) {
-    console.error(`Error: Artifact not found at ${dtsPath}`);
+    console.error(`Error: no file at ${dtsPath}`);
     return false;
   }
 
-  const schemaUniverse = loadIndependentSchemaUniverse(firefoxRoot, target);
-  console.log(`Schema Universe Denominators (Independent Parser):`);
+  const schemaUniverse = loadIndependentSchemaUniverse(firefoxRoot, target, Object.keys(EXCLUDED_NAMESPACES));
+  console.log("In the schemas, read by the verifier's own loader:");
   console.log(`  Schemas     : ${schemaUniverse.schemaFileCount}`);
-  console.log(`  Namespaces  : ${schemaUniverse.counts.namespaces}`);
+  console.log(`  Namespaces  : ${schemaUniverse.counts.namespaces} (excluded on purpose: ${schemaUniverse.excluded.join(", ") || "none"})`);
   console.log(`  Types       : ${schemaUniverse.counts.types}`);
   console.log(`  Functions   : ${schemaUniverse.counts.functions}`);
   console.log(`  Events      : ${schemaUniverse.counts.events}`);
   console.log(`  Properties  : ${schemaUniverse.counts.properties}`);
 
-  const emittedUniverse = extractSymbolsFromDts(dtsPath);
-  console.log(`Emitted Universe Denominators (AST Extractor):`);
+  const aliasSource = aliasSourcePath ? extractSymbolsFromDts(aliasSourcePath) : null;
+  const emittedUniverse = extractSymbolsFromDts(dtsPath, aliasSource);
+  console.log(`Declared in ${path.basename(dtsPath)}:`);
   console.log(`  Namespaces  : ${emittedUniverse.counts.namespaces}`);
   console.log(`  Types       : ${emittedUniverse.counts.types}`);
   console.log(`  Functions   : ${emittedUniverse.counts.functions}`);
@@ -41,9 +41,14 @@ export function runVerificationForTarget(firefoxRoot, target, dtsPath) {
 
   const result = verifyDeclarations(schemaUniverse, emittedUniverse);
 
-  console.log("Audit Results:");
+  console.log("Results:");
+  if (aliasSource) console.log(`  Tier 1 Aliases     : ${result.summary.aliasErrors} not naming the same member of ${aliasSource.file}`);
   console.log(`  Tier 1 Set Topology: S\\E = ${result.summary.inSchemaNotEmitted}, E\\S = ${result.summary.inEmittedNotSchema}, S∩E = ${result.summary.inBoth}`);
-  console.log(`  Tier 1 Phantoms    : ${result.summary.phantomTypes}`);
+  console.log(`  Tier 1 Phantoms    : ${result.summary.phantomTypes} types, ${result.summary.phantomHelpers} helper types`);
+  console.log(
+    `  Tier 1 Members     : ${result.summary.missingMembers} missing, ${result.summary.phantomMembers} without a schema, ` +
+      `${result.summary.unrepresentedDefinitions} function definitions with no overload, ${result.summary.phantomOverloads} overloads with no definition`
+  );
   console.log(`  Tier 2 Modifiers   : ${result.summary.fabricatedReadonly} fabricated readonly`);
   console.log(`  Tier 3 Collation   : ${result.summary.collationErrors} violations\n`);
 
@@ -55,11 +60,20 @@ export function runVerificationForTarget(firefoxRoot, target, dtsPath) {
     return false;
   }
 
-  console.log(`PASS: 100% ${target} schema completeness and accuracy verified!`);
+  const c = result.summary.checked;
+  console.log(
+    `PASS: ${path.basename(dtsPath)} declares each of the ${target} schemas' ${result.summary.inBoth} namespaces, their types, ` +
+      `${c.functions} functions (an overload for each of ${c.definitions} definitions, and no overload that fits none), ${c.events} events, ` +
+      `${c.properties} namespace properties and the ${c.typeMembers} members of the object types declared as interfaces, and nothing those schemas lack. ` +
+      `No property is readonly unless its schema says so, and namespaces and types are in code point order. ` +
+      `Parameter and return types are not compared.`
+  );
   return true;
 }
 
-export function runAllVerifications(options = {}) {
+function runAllVerifications(options = {}) {
+  // The verifier imports nothing from src/, so it reads the variables
+  // src/firefox-root.js reads itself.
   const firefoxRoot =
     options.firefoxSource ||
     process.env.TOPSRCDIR ||
@@ -71,28 +85,41 @@ export function runAllVerifications(options = {}) {
     );
   }
 
-  console.log("=== 3-Tier Independent Verification Audit ===");
-  console.log(`Firefox Root : ${firefoxRoot}`);
+  console.log(`Verifying dist/ against the schemas in ${firefoxRoot}`);
 
-  const okDesktop = runVerificationForTarget(
-    firefoxRoot,
-    "desktop",
-    path.join(PROJ_ROOT, "dist", "firefox-desktop.d.ts")
-  );
+  const cited = [
+    ...Object.entries(EXCLUDED_NAMESPACES).map(([name, file]) => [`EXCLUDED_NAMESPACES ${name}`, file]),
+    ...Object.entries(ADDED_MEMBERS).map(([name, file]) => [`ADDED_MEMBERS ${name}`, file]),
+  ];
+  const missingEvidence = cited.filter(([, file]) => !fs.existsSync(path.join(firefoxRoot, file)));
+  if (missingEvidence.length) {
+    for (const [entry, file] of missingEvidence) {
+      console.error(`FAIL: verification/src/declared-differences.js ${entry} cites ${file}, which is not in the Firefox checkout.`);
+    }
+    return false;
+  }
 
-  const okIndex = runVerificationForTarget(
-    firefoxRoot,
-    "desktop",
-    path.join(PROJ_ROOT, "dist", "index.d.ts")
-  );
-
-  const okMobile = runVerificationForTarget(
-    firefoxRoot,
-    "mobile",
-    path.join(PROJ_ROOT, "dist", "firefox-mobile.d.ts")
-  );
-
-  return okDesktop && okIndex && okMobile;
+  // A chrome file declares its members as aliases of the browser file it
+  // imports or references, so it is read together with that file.
+  const surfaces = [
+    ["desktop", "firefox-desktop.d.ts"],
+    ["desktop", "index.d.ts"],
+    ["mobile", "firefox-mobile.d.ts"],
+    ["desktop", "global.d.ts"],
+    ["mobile", "global-mobile.d.ts"],
+    ["desktop", "chrome.d.ts", "index.d.ts"],
+    ["desktop", "chrome-mv2.d.ts", "index.d.ts"],
+    ["desktop", "global-chrome.d.ts", "global.d.ts"],
+    ["desktop", "global-chrome-mv2.d.ts", "global.d.ts"],
+    ["mobile", "global-mobile-chrome.d.ts", "global-mobile.d.ts"],
+    ["mobile", "global-mobile-chrome-mv2.d.ts", "global-mobile.d.ts"],
+  ];
+  const dist = path.join(PROJ_ROOT, "dist");
+  let ok = true;
+  for (const [target, file, aliasSource] of surfaces) {
+    ok = runVerificationForTarget(firefoxRoot, target, path.join(dist, file), aliasSource && path.join(dist, aliasSource)) && ok;
+  }
+  return ok;
 }
 
 function main() {
@@ -112,6 +139,4 @@ function main() {
   }
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  main();
-}
+main();

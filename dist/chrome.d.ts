@@ -1,7 +1,7 @@
 // Type definitions for Firefox WebExtensions
 // Project: firefox-webextension-types
 // Target: Desktop
-// Definitions generated strictly from Mozilla Firefox source schemas.
+// Firefox Version: 162.0a1
 //
 // The generator that produced this file is licensed under the Apache License,
 // Version 2.0. The documentation comments and API shapes below are derived from
@@ -15,6 +15,13 @@
 
 import { browser } from "./index.js";
 
+/**
+ * `chrome` in a content script or a page of a Manifest V3 extension, which
+ * is the same object as `browser`. In a page or devtools page of a Manifest
+ * V2 extension an async function of `chrome` returns undefined, and the
+ * chrome-mv2 entrypoints declare that object. The user-script entrypoints
+ * declare the `chrome` of a user script.
+ */
 export namespace chrome {
     export import action = browser.action;
     export import activityLog = browser.activityLog;
@@ -48,7 +55,6 @@ export namespace chrome {
     export import manifest = browser.manifest;
     export import menus = browser.menus;
     export import networkStatus = browser.networkStatus;
-    export import normandyAddonStudy = browser.normandyAddonStudy;
     export import notifications = browser.notifications;
     export import omnibox = browser.omnibox;
     export import pageAction = browser.pageAction;
@@ -66,7 +72,6 @@ export namespace chrome {
     export import tabGroups = browser.tabGroups;
     export import tabs = browser.tabs;
     export import telemetry = browser.telemetry;
-    export import test = browser.test;
     export import theme = browser.theme;
     export import topSites = browser.topSites;
     export import trial = browser.trial;

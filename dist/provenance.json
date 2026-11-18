@@ -1,23 +1,66 @@
 {
-  "firefoxCommit": "c73b1b824216697b16d31c1d6fb57625d90f342c",
-  "lastSchemaModifyingCommit": "2787d18cda7d1623a80d15d192e3f34952d6c5e2",
-  "schemaTreeSha256": "f8395286673c89bc8b17429ecd6ebd53b4b8f33a2f61afc36a26d59becff71c8",
-  "generatorVersion": "0.2.0",
+  "firefoxVersion": "162.0a1",
+  "firefoxCommit": "41db707342feaa6722e4a2076a24ec3d01fe96d2",
+  "lastSchemaModifyingCommit": "9f30100d4cd6cf8085ead5b87ddc449ec6e3a6b7",
+  "schemaTreeSha256": "2cb800d8f1302282bf85e1fa6deb93b7e92e8fe1f8c33b61b7f2b0973e973d9b",
+  "generatorVersion": "0.1.0",
   "artifacts": {
     "index.d.ts": {
-      "sha256": "8647ff7d1c8e0fca0b1c01e32bbac8e2a8f7ff4996b4d18a185603d8e0d1465e"
+      "sha256": "5129dd1f89939ad8bc96076183ebd435b94f46e31dd2ecd5a55ffdf8b4b87db9"
+    },
+    "index.d.cts": {
+      "sha256": "5129dd1f89939ad8bc96076183ebd435b94f46e31dd2ecd5a55ffdf8b4b87db9"
     },
     "firefox-desktop.d.ts": {
-      "sha256": "8647ff7d1c8e0fca0b1c01e32bbac8e2a8f7ff4996b4d18a185603d8e0d1465e"
+      "sha256": "5129dd1f89939ad8bc96076183ebd435b94f46e31dd2ecd5a55ffdf8b4b87db9"
+    },
+    "firefox-desktop.d.cts": {
+      "sha256": "5129dd1f89939ad8bc96076183ebd435b94f46e31dd2ecd5a55ffdf8b4b87db9"
     },
     "firefox-mobile.d.ts": {
-      "sha256": "b7d4450356d9aa0cea81cb0a87b07b879560649c01f16282a08c188b476e8c70"
+      "sha256": "744cc1183f693389b94134020cb5b4ee672aa56a6ff946a581acbb97e6efa487"
     },
-    "global.d.ts": {
-      "sha256": "92044f72382e1115af5bbfe7d4287425b589cbf7482126a35bb01aa62379a5c6"
+    "firefox-mobile.d.cts": {
+      "sha256": "744cc1183f693389b94134020cb5b4ee672aa56a6ff946a581acbb97e6efa487"
     },
     "chrome.d.ts": {
-      "sha256": "54352d11d64e6e9054d705fe76ab24bfba27470a5bf7971ae7f3d15f714cb582"
+      "sha256": "1b7cd570576fd63fc0c82a073e021f7084e3158e3df327683eeaa02e9ce957ac"
+    },
+    "chrome.d.cts": {
+      "sha256": "c7e0e4f867c8a1f220cb25a57872d966f4d6eb130264f98ec56951fae4219c39"
+    },
+    "chrome-mv2.d.ts": {
+      "sha256": "6d91e10b59753bfebb2e28b68c95733bec2f18f151be5715660f4ff674f5bc7c"
+    },
+    "chrome-mv2.d.cts": {
+      "sha256": "3658a02887fbf17ef6ec00438fc4bb292be358df4890eb62d5071b5c7d513f7c"
+    },
+    "global.d.ts": {
+      "sha256": "c090e6023a53b6f6fecd37be868bc67a92cf79aca35b72fe0df98106aec43463"
+    },
+    "global-chrome.d.ts": {
+      "sha256": "210a17f8d849b055163ecea8dccbfedf59cb895f8640dea2dd5f61f7b7c16b38"
+    },
+    "global-chrome-mv2.d.ts": {
+      "sha256": "df5713a36c0fa033420924d5ce76c7d564f0e568d4e183a0a9a8b63c8130dc6f"
+    },
+    "global-mobile.d.ts": {
+      "sha256": "312382e0f4e4bdf17aa4c12854701209e4586daa9376b029621430531c7aae48"
+    },
+    "global-mobile-chrome.d.ts": {
+      "sha256": "e72b7d1d3a88535967b7d9fecbdb41085dc6b5c5337bc98f6478a4c5ade42f2c"
+    },
+    "global-mobile-chrome-mv2.d.ts": {
+      "sha256": "fc29be19b91e4b5f6ddd71d158aa0d6a94bb9f2fd34e29f62b0f09a37d5b6966"
+    },
+    "user-script.d.ts": {
+      "sha256": "16f068a6675ffaf5b9d82541670f6cb97f28d64f80ee435cc540653b2d3aef4a"
+    },
+    "user-script.d.cts": {
+      "sha256": "4dcb4f5b23f11ff905f1fba3ef314388e8a324e42a1ff73b98232606730bc730"
+    },
+    "global-user-script.d.ts": {
+      "sha256": "a9de605b36d46188238539949644850caa2a01d75ea3fce42ddc59cc93d64ddd"
     }
   }
 }

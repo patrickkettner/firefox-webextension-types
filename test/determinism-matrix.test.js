@@ -1,23 +1,21 @@
-/**
- * determinism-matrix.test.js - Regression test verifying bit-for-bit determinism
- * across locales, timezones, and environments.
- */
+// Builds dist/ under several locales and timezones and checks the output is
+// the same byte for byte. Each locale row builds in a child process, since the
+// locale is read at startup.
 
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 
 import { buildDeclarations } from "../src/generate.js";
+import { firefoxRoot, skipFirefox } from "./helpers/firefox-root.js";
 
+// Tooling: generator output must not depend on locale or timezone, no declaration text is asserted
 describe("Determinism Matrix", () => {
-  const firefoxRoot =
-    process.env.TOPSRCDIR ||
-    process.env.MOZ_TOPSRCDIR ||
-    process.env.MOZILLA_CENTRAL;
-
   function hashDir(dir) {
     const hashes = {};
     function walk(curr) {
@@ -25,7 +23,7 @@ describe("Determinism Matrix", () => {
         const full = path.join(curr, entry.name);
         if (entry.isDirectory()) {
           walk(full);
-        } else if (entry.isFile() && entry.name.endsWith(".d.ts")) {
+        } else if (entry.isFile() && /\.(d\.c?ts|c?js|json)$/.test(entry.name)) {
           const rel = path.relative(dir, full);
           hashes[rel] = crypto.createHash("sha256").update(fs.readFileSync(full)).digest("hex");
         }
@@ -35,51 +33,63 @@ describe("Determinism Matrix", () => {
     return hashes;
   }
 
-  it("produces 100% bit-for-bit identical output across locales and timezones", {
-    skip: !firefoxRoot && "no Firefox checkout: set TOPSRCDIR",
-  }, () => {
+  it("emits a .d.cts twin identical to each module .d.ts", { skip: skipFirefox }, () => {
+    const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "ff-types-cts-"));
+    try {
+      buildDeclarations(firefoxRoot, outDir, { emitCommitHeader: false });
+      for (const base of ["index", "firefox-desktop", "firefox-mobile"]) {
+        assert.equal(
+          fs.readFileSync(path.join(outDir, `${base}.d.cts`), "utf8"),
+          fs.readFileSync(path.join(outDir, `${base}.d.ts`), "utf8"),
+          `${base}.d.cts differs from ${base}.d.ts`
+        );
+      }
+      const chromeCts = fs.readFileSync(path.join(outDir, "chrome.d.cts"), "utf8");
+      assert.ok(chromeCts.includes('from "./index.cjs"'));
+      assert.ok(!chromeCts.includes('"./index.js"'));
+    } finally {
+      fs.rmSync(outDir, { recursive: true, force: true });
+    }
+  });
+
+  // ICU reads the locale once at startup, so a row is a child process with
+  // the env set at launch. An env change inside this process would leave
+  // every row on the locale this process started with.
+  it("produces byte-identical output across locales and timezones", { skip: skipFirefox }, () => {
     const matrix = [
       { LANG: "C", LC_ALL: "C", TZ: "UTC" },
       { LANG: "en_US.UTF-8", LC_ALL: "en_US.UTF-8", TZ: "America/New_York" },
       { LANG: "cs_CZ.UTF-8", LC_ALL: "cs_CZ.UTF-8", TZ: "Europe/Prague" },
       { LANG: "tr_TR.UTF-8", LC_ALL: "tr_TR.UTF-8", TZ: "Asia/Istanbul" },
     ];
-
+    const generate = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "src", "generate.js");
     const results = [];
     const tempDirs = [];
 
     try {
-      for (const env of matrix) {
+      for (const row of matrix) {
         const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "ff-types-det-"));
         tempDirs.push(outDir);
-
-        const oldLang = process.env.LANG;
-        const oldLCall = process.env.LC_ALL;
-        const oldTz = process.env.TZ;
-
-        process.env.LANG = env.LANG;
-        process.env.LC_ALL = env.LC_ALL;
-        process.env.TZ = env.TZ;
-
-        try {
-          buildDeclarations(firefoxRoot, outDir, { emitCommitHeader: false });
-          const hashes = hashDir(outDir);
-          results.push({ env, hashes });
-        } finally {
-          if (oldLang !== undefined) process.env.LANG = oldLang; else delete process.env.LANG;
-          if (oldLCall !== undefined) process.env.LC_ALL = oldLCall; else delete process.env.LC_ALL;
-          if (oldTz !== undefined) process.env.TZ = oldTz; else delete process.env.TZ;
+        const env = { ...process.env, ...row };
+        const locale = spawnSync(process.execPath, ["-p", "Intl.DateTimeFormat().resolvedOptions().locale"], { env, encoding: "utf8" }).stdout.trim();
+        const language = row.LANG.split(/[_.]/)[0];
+        if (language !== "C") {
+          assert.ok(
+            locale.startsWith(language),
+            `a child under LANG=${row.LANG} resolved Intl locale ${locale}, so this Node has no ICU data for it and the row proves nothing`
+          );
         }
+        const run = spawnSync(process.execPath, [generate, "--firefox-source", firefoxRoot, "--out-dir", outDir], { env, encoding: "utf8" });
+        assert.equal(run.status, 0, `build under ${JSON.stringify(row)} failed:\n${run.stderr}${run.stdout}`);
+        results.push({ row, locale, hashes: hashDir(outDir) });
       }
 
-      // Assert all results match the first baseline
       const baseline = results[0];
-      for (let i = 1; i < results.length; i++) {
-        const compare = results[i];
+      for (const compare of results.slice(1)) {
         assert.deepStrictEqual(
           compare.hashes,
           baseline.hashes,
-          `Output diverged under locale ${compare.env.LANG} vs baseline ${baseline.env.LANG}`
+          `Output diverged under locale ${compare.row.LANG} (Intl ${compare.locale}) vs baseline ${baseline.row.LANG} (Intl ${baseline.locale})`
         );
       }
     } finally {

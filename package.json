@@ -1,8 +1,11 @@
 {
   "name": "firefox-webextension-types",
   "version": "0.1.0",
-  "description": "Strictly-typed TypeScript definitions for Firefox WebExtensions, generated directly from Mozilla central schemas with zero unvetted any",
+  "description": "TypeScript definitions for Firefox WebExtensions, generated from the Firefox schemas, with each any listed and explained in the repository's any-allowlist.json",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,8 +20,35 @@
       "global": [
         "dist/global.d.ts"
       ],
+      "global-chrome": [
+        "dist/global-chrome.d.ts"
+      ],
+      "global-mobile": [
+        "dist/global-mobile.d.ts"
+      ],
+      "global-mobile-chrome": [
+        "dist/global-mobile-chrome.d.ts"
+      ],
       "chrome": [
         "dist/chrome.d.ts"
+      ],
+      "chrome-mv2": [
+        "dist/chrome-mv2.d.ts"
+      ],
+      "global-chrome-mv2": [
+        "dist/global-chrome-mv2.d.ts"
+      ],
+      "global-mobile-chrome-mv2": [
+        "dist/global-mobile-chrome-mv2.d.ts"
+      ],
+      "user-script": [
+        "dist/user-script.d.ts"
+      ],
+      "global-user-script": [
+        "dist/global-user-script.d.ts"
+      ],
+      "provenance.json": [
+        "dist/provenance.json"
       ]
     }
   },
@@ -30,12 +60,21 @@
   ],
   "scripts": {
     "build": "node src/generate.js",
-    "verify": "node verification/bin/verify.js && node scripts/verify-parity.js",
+    "verify": "node scripts/verify-dist.js && node verification/bin/verify.js && node scripts/verify-parity.js && node scripts/verify-overrides.js && node scripts/verify-any.js && npm run attw",
     "test": "node --test test/*.test.js verification/test/*.test.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "node node_modules/typescript/bin/tsc --noEmit",
+    "ablate": "node scripts/ablate.js",
+    "ledger:update": "node scripts/ledger-update.js",
+    "attw": "node scripts/attw.js",
+    "corpus:update": "node corpus/update-baseline.js"
   },
   "devDependencies": {
-    "typescript": "^7.0.2"
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@types/chrome": "^0.3.7",
+    "acorn": "^8.19.0",
+    "typescript": "^7.0.2",
+    "typescript-api": "npm:typescript@5.9.3",
+    "typescript-oldest": "npm:typescript@4.9.5"
   },
   "repository": {
     "type": "git",
@@ -50,34 +89,100 @@
   "license": "Apache-2.0 AND MPL-2.0 AND BSD-3-Clause",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
       "default": "./dist/index.js"
     },
     "./desktop": {
-      "types": "./dist/firefox-desktop.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
+      "import": {
+        "types": "./dist/firefox-desktop.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/firefox-desktop.d.cts",
+        "default": "./dist/index.cjs"
+      },
       "default": "./dist/index.js"
     },
     "./mobile": {
-      "types": "./dist/firefox-mobile.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
+      "import": {
+        "types": "./dist/firefox-mobile.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/firefox-mobile.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "default": "./dist/index.js"
+    },
+    "./chrome": {
+      "import": {
+        "types": "./dist/chrome.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/chrome.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "default": "./dist/index.js"
+    },
+    "./chrome-mv2": {
+      "import": {
+        "types": "./dist/chrome-mv2.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/chrome-mv2.d.cts",
+        "default": "./dist/index.cjs"
+      },
       "default": "./dist/index.js"
     },
     "./global": {
       "types": "./dist/global.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
       "default": "./dist/index.js"
     },
-    "./chrome": {
-      "types": "./dist/chrome.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
+    "./global-chrome": {
+      "types": "./dist/global-chrome.d.ts",
       "default": "./dist/index.js"
-    }
+    },
+    "./global-mobile": {
+      "types": "./dist/global-mobile.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./global-mobile-chrome": {
+      "types": "./dist/global-mobile-chrome.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./global-chrome-mv2": {
+      "types": "./dist/global-chrome-mv2.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./global-mobile-chrome-mv2": {
+      "types": "./dist/global-mobile-chrome-mv2.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./user-script": {
+      "import": {
+        "types": "./dist/user-script.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/user-script.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "default": "./dist/index.js"
+    },
+    "./global-user-script": {
+      "types": "./dist/global-user-script.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./provenance.json": "./dist/provenance.json",
+    "./package.json": "./package.json"
   }
 }

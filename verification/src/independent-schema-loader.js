@@ -1,11 +1,42 @@
-/**
- * independent-schema-loader.js - Clean-room schema universe reader
- *
- * Completely independent of src/. Reads Mozilla source tree schemas directly.
- */
+// Reads the Firefox schemas with its own parser and imports nothing from src/.
+// The caller names the namespaces to leave out.
 
 import fs from "node:fs";
 import path from "node:path";
+
+// Types that come from Firefox WebIDL rather than a JSON schema, because a
+// schema `isInstanceOf` names them. Read here independently of src/.
+const WEBIDL_BACKED_TYPES = {
+  webRequest: ["dom/webidl/StreamFilter.webidl", "dom/webidl/StreamFilterDataEvent.webidl"],
+};
+
+function readWebidlTypes(firefoxRoot, files) {
+  const types = [];
+  for (const rel of files) {
+    const text = fs
+      .readFileSync(path.join(firefoxRoot, rel), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "");
+    // A definition ends at a "};" that starts a line, so a default value such
+    // as `= {}` inside it does not end the body.
+    for (const m of text.matchAll(/^(enum|interface)\s+([A-Za-z_][A-Za-z0-9_]*)[^{]*\{([\s\S]*?)^\};/gm)) {
+      const [, kind, id, body] = m;
+      const properties = {};
+      const functions = [];
+      if (kind === "interface") {
+        for (const attr of body.matchAll(/\b(readonly\s+)?attribute\s+\S+\s+([A-Za-z_][A-Za-z0-9_]*)\s*;/g)) {
+          properties[attr[2]] = attr[1] ? { readOnly: true } : {};
+        }
+        // Operations, without static ones and the constructor, which an
+        // instance does not have.
+        for (const op of body.matchAll(/^\s*(static\s+)?[A-Za-z_][\w<>?]*\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/gm)) {
+          if (!op[1]) functions.push({ name: op[2] });
+        }
+      }
+      types.push({ id, properties, functions });
+    }
+  }
+  return types;
+}
 
 function stripComments(raw) {
   const noBlock = raw.replace(/\/\*[\s\S]*?\*\//g, "");
@@ -68,7 +99,7 @@ function parseJarFiles(jarPath, isAndroid = false) {
   return files;
 }
 
-export function loadIndependentSchemaUniverse(firefoxRoot, target = "desktop") {
+export function loadIndependentSchemaUniverse(firefoxRoot, target = "desktop", excludedNamespaces = []) {
   const isAndroid = target === "mobile";
   const schemaFiles = [];
 
@@ -134,7 +165,9 @@ export function loadIndependentSchemaUniverse(firefoxRoot, target = "desktop") {
           name: nsName,
           imports: [],
           types: new Map(),
+          extends: [],
           functions: new Map(),
+          functionDefinitions: new Map(),
           events: new Map(),
           properties: new Map(),
         });
@@ -150,6 +183,8 @@ export function loadIndependentSchemaUniverse(firefoxRoot, target = "desktop") {
           if (t.id) {
             ns.types.set(t.id, t);
             typeCount++;
+          } else if (t.$extend) {
+            ns.extends.push(t);
           }
         }
       }
@@ -158,6 +193,8 @@ export function loadIndependentSchemaUniverse(firefoxRoot, target = "desktop") {
         for (const fn of entry.functions) {
           if (fn.name) {
             ns.functions.set(fn.name, fn);
+            if (!ns.functionDefinitions.has(fn.name)) ns.functionDefinitions.set(fn.name, []);
+            ns.functionDefinitions.get(fn.name).push(fn);
             fnCount++;
           }
         }
@@ -198,6 +235,7 @@ export function loadIndependentSchemaUniverse(firefoxRoot, target = "desktop") {
           for (const [fname, fval] of superNs.functions.entries()) {
             if (!ns.functions.has(fname)) {
               ns.functions.set(fname, fval);
+              ns.functionDefinitions.set(fname, superNs.functionDefinitions.get(fname));
               fnCount++;
             }
           }
@@ -220,8 +258,25 @@ export function loadIndependentSchemaUniverse(firefoxRoot, target = "desktop") {
     }
   }
 
+  for (const [nsName, files] of Object.entries(WEBIDL_BACKED_TYPES)) {
+    const ns = namespaces.get(nsName);
+    if (!ns) continue;
+    for (const t of readWebidlTypes(firefoxRoot, files)) {
+      ns.types.set(t.id, t);
+      typeCount++;
+    }
+  }
+
+  const excluded = [];
+  for (const nsName of excludedNamespaces) {
+    if (namespaces.delete(nsName)) {
+      excluded.push(nsName);
+    }
+  }
+
   return {
     namespaces,
+    excluded,
     schemaFileCount: schemaFiles.length,
     counts: {
       namespaces: namespaces.size,
